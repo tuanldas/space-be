@@ -1,0 +1,8 @@
+services:
+  nginx:
+    ports:
+      - '${APP_PORT:-8089}:80'
+
+  db:
+    ports:
+      - '${FORWARD_DB_PORT:-3306}:3306'
