@@ -57,8 +57,3 @@ COPY php.ini /usr/local/etc/php/conf.d/
 VOLUME /var/www/app
 
 COPY ./docker/supervisor.conf.d /etc/supervisor/conf.d
-COPY cron-jobs/schedule-run /etc/cron.d/schedule-run
-
-RUN chmod 0644 /etc/cron.d/schedule-run \
-    && crontab /etc/cron.d/schedule-run \
-    && touch /var/log/cron.log
