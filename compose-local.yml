@@ -4,5 +4,6 @@ services:
       - '${APP_PORT:-8089}:80'
 
   db:
+    platform: linux/amd64
     ports:
-      - '${FORWARD_DB_PORT:-3306}:3306'
+      - '${FORWARD_DB_PORT:-5432}:5432'
