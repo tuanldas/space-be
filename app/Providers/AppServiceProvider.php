@@ -2,22 +2,21 @@
 
 namespace App\Providers;
 
+use App\Domain\Factories\UserFactory;
+use App\Factories\UserModelFactory;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            UserFactory::class,
+            UserModelFactory::class
+        );
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         Passport::tokensExpireIn(now()->addDays(15));

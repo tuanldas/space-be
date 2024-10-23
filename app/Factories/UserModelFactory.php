@@ -10,6 +10,7 @@ class UserModelFactory implements UserFactory
 {
     public function make(array $attributes = []): UserEntity
     {
+
         return new User();
     }
 }
