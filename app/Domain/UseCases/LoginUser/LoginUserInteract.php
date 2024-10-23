@@ -14,7 +14,6 @@ class LoginUserInteract implements LoginUserInputPort
     {
     }
 
-
     public function handle(LoginUserRequestModel $loginUserRequestModel): LoginUserOutput
     {
         $user = $this->userFactory->make([
