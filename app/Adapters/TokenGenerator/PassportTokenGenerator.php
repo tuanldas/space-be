@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Http;
 
 class PassportTokenGenerator implements TokenGeneratorInterface
 {
-    public function generate(string $username, string $password): string
+    public function generate(string $username, string $password): array
     {
         $response = Http::post(config('services.passport.url') . '/oauth/token', [
             'grant_type' => 'password',
