@@ -18,7 +18,7 @@ readonly class LoginUserInteract implements LoginUserInputPort
     {
     }
 
-    public function handle(LoginUserRequestModel $loginUserRequestModel): LoginUserOutput
+    public function handle(LoginUserRequestModel $loginUserRequestModel)
     {
         $user = $this->userFactory->make([
             'email' => $loginUserRequestModel->getEmail(),
@@ -26,13 +26,12 @@ readonly class LoginUserInteract implements LoginUserInputPort
         ]);
         $userModel = $this->userRepository->findByEmail($user->getEmail());
         if (!$userModel) {
-            $this->output->emailNotFound('Email not found');
+            $this->output->emailNotFound(__('auth.email'));
         }
         if (!Auth::attempt(['email' => $loginUserRequestModel->getEmail(), 'password' => $loginUserRequestModel->getPassword()])) {
-//            $this->output->PasswordNotMatch('Password not match');
+            $this->output->passwordNotMatch(__('auth.failed'));
         }
         $tokenGenerator = $this->tokenGenerator->generate($loginUserRequestModel->getEmail(), $loginUserRequestModel->getPassword());
-        dd($tokenGenerator);
-        return $this->output;
+        return $this->output->token($tokenGenerator);
     }
 }
