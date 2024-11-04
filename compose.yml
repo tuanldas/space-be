@@ -22,8 +22,8 @@ services:
       - default
 
   db:
-    platform: linux/amd64
-    image: postgres:16
+    build:
+      context: docker/database
     environment:
       POSTGRES_DB: '${DB_DATABASE}'
       POSTGRES_USER: '${DB_USERNAME}'

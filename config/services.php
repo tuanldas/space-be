@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'passport' => [
+        'client_id' => env('PASSPORT_PASSWORD_GRANT_CLIENT_ID'),
+        'client_secret' => env('PASSPORT_PASSWORD_GRANT_CLIENT_SECRET'),
+        'url' => env('PASSPORT_APP_URL'),
+    ],
 ];
