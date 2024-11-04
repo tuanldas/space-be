@@ -3,6 +3,7 @@ FROM php:8.2-fpm
 WORKDIR /var/www/app
 
 ENV TZ=UTC
+ENV ZSH_VERSION=v1.2.1
 
 RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ" > /etc/timezone \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash \
@@ -49,7 +50,7 @@ RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
 RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
     && docker-php-ext-install gd
 
-RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.2/zsh-in-docker.sh)" -- \
+RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/$ZSH_VERSION/zsh-in-docker.sh)" -- \
     -t frisk
 
 COPY php.ini /usr/local/etc/php/conf.d/

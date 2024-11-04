@@ -22,7 +22,8 @@ services:
       - default
 
   db:
-    image: postgres:17
+    build:
+      context: docker/database
     environment:
       POSTGRES_DB: '${DB_DATABASE}'
       POSTGRES_USER: '${DB_USERNAME}'
