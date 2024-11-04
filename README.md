@@ -11,23 +11,23 @@ docker network create ${PUBLISH_NETWORK}
 ## Build Docker images và containers
 
 ```bash
-docker-compose build
-docker-compose up --no-start
+docker compose build
+docker compose up --no-start
 ```
 
 ## Bật các services
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ## Thiết lập môi trường PHP
 
 ```bash
-docker-compose exec php-fpm composer update
-docker-compose exec php-fpm php artisan cache:clear
-docker-compose exec php-fpm php artisan config:clear
-docker-compose exec php-fpm composer dump-autoload
+docker compose exec php-fpm composer update
+docker compose exec php-fpm php artisan cache:clear
+docker compose exec php-fpm php artisan config:clear
+docker compose exec php-fpm composer dump-autoload
 
 chown -R $USER:www-data storage
 chmod -R 775 storage
@@ -40,7 +40,7 @@ chmod -R 775 bootstrap/cache
 Tạo client password grant
 
 ```bash
-docker-compose exec php-fpm php artisan passport:client --password
+docker compose exec php-fpm php artisan passport:client --password
 ```
 
 Cập nhật env
@@ -54,18 +54,18 @@ PASSPORT_PASSWORD_GRANT_CLIENT_SECRET=${CLIENT_SECRET}
 ## Compile static contents
 
 ```bash
-docker-compose exec php-fpm npm i
-docker-compose exec php-fpm npm rebuild
-docker-compose exec php-fpm npm run dev # local
-docker-compose exec php-fpm npm run prod # production
+docker compose exec php-fpm npm i
+docker compose exec php-fpm npm rebuild
+docker compose exec php-fpm npm run dev # local
+docker compose exec php-fpm npm run prod # production
 ```
 
 ## Chạy migration và seeding
 
 ```bash
-docker-compose exec php-fpm php artisan migrate
-docker-compose exec php-fpm composer dump-autoload
-docker-compose exec php-fpm php artisan db:seed
+docker compose exec php-fpm php artisan migrate
+docker compose exec php-fpm composer dump-autoload
+docker compose exec php-fpm php artisan db:seed
 ```
 
 ## Truy cập và kiểm tra
