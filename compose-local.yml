@@ -7,3 +7,13 @@ services:
     platform: linux/amd64
     ports:
       - '${FORWARD_DB_PORT:-5432}:5432'
+
+  vite:
+    build:
+      context: .
+      dockerfile: dockerfileVite
+    working_dir: /var/www/app
+    volumes:
+      - ./:/var/www/app
+    ports:
+      - "5173:5173"
