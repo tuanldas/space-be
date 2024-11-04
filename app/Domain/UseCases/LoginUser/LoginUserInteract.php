@@ -26,10 +26,10 @@ readonly class LoginUserInteract implements LoginUserInputPort
         ]);
         $userModel = $this->userRepository->findByEmail($user->getEmail());
         if (!$userModel) {
-            $this->output->emailNotFound(__('auth.email'));
+            return $this->output->emailNotFound(__('auth.email'));
         }
         if (!Auth::attempt(['email' => $loginUserRequestModel->getEmail(), 'password' => $loginUserRequestModel->getPassword()])) {
-            $this->output->passwordNotMatch(__('auth.failed'));
+            return $this->output->passwordNotMatch(__('auth.password'));
         }
         $tokenGenerator = $this->tokenGenerator->generate($loginUserRequestModel->getEmail(), $loginUserRequestModel->getPassword());
         return $this->output->token($tokenGenerator);

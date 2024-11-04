@@ -15,6 +15,7 @@ return [
 
     'failed' => 'Những thông tin này không khớp với hồ sơ của chúng tôi.',
     'password' => 'Mật khẩu đã cung cấp không đúng.',
+    'email' => 'Tên người dùng không tồn tại.',
     'throttle' => 'Quá nhiều lần đăng nhập. Vui lòng thử lại sau :second giây.',
 
 ];

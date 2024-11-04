@@ -14,12 +14,12 @@ class LoginUserJsonPresenter implements LoginUserOutput
 
     public function emailNotFound(string $message): JsonResourceViewModel
     {
-        return $this->notFound($message);
+        return $this->unauthorized($message);
     }
 
     public function passwordNotMatch(string $message): JsonResourceViewModel
     {
-        return $this->notFound($message);
+        return $this->unauthorized($message);
     }
 
     public function token(array $tokenGenerator): JsonResourceViewModel

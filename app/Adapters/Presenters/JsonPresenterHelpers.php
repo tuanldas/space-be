@@ -18,4 +18,15 @@ trait JsonPresenterHelpers
             Response::HTTP_NOT_FOUND
         );
     }
+
+    public function unauthorized($message): JsonResourceViewModel
+    {
+        return new JsonResourceViewModel(
+            (new JsonResource([]))
+                ->additional([
+                    'message' => $message,
+                ]),
+            Response::HTTP_UNAUTHORIZED
+        );
+    }
 }
