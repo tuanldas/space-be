@@ -9,3 +9,4 @@
 ### Thêm mới
 
 * [API] Thêm API lấy đăng nhập
+* Thêm page coming soon
