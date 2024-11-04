@@ -4,4 +4,8 @@
 
 ### Cập nhật và cải tiến
 
-* Tích hợp theme metronic 
+* Tích hợp theme metronic
+
+### Thêm mới
+
+* [API] Thêm API lấy đăng nhập
