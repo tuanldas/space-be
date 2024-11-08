@@ -35,6 +35,7 @@ docker compose exec php-fpm chmod -R 775 bootstrap/cache
 Tạo client password grant
 
 ```bash
+docker compose exec php-fpm php artisan passport:keys
 docker compose exec php-fpm php artisan passport:client --password
 ```
 
