@@ -3,14 +3,16 @@
 namespace App\Models;
 
 use App\Domain\Entities\UserEntity;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Ramsey\Uuid\Uuid;
 
 class User extends Authenticatable implements UserEntity
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, HasUlids;
 
     protected $fillable = [
         'name',
@@ -22,6 +24,11 @@ class User extends Authenticatable implements UserEntity
         'password',
         'remember_token',
     ];
+
+    public function newUniqueId(): ?string
+    {
+        return Uuid::uuid7()->toString();
+    }
 
     protected function casts(): array
     {

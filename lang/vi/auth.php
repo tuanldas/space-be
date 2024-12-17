@@ -17,5 +17,6 @@ return [
     'password' => 'Mật khẩu đã cung cấp không đúng.',
     'email' => 'Tên người dùng không tồn tại.',
     'throttle' => 'Quá nhiều lần đăng nhập. Vui lòng thử lại sau :second giây.',
-
+    'success' => 'Đăng nhập thành công',
+    'logout' => 'Bạn đã đăng xuất',
 ];
