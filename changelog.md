@@ -8,5 +8,6 @@
 
 ### Thêm mới
 
-* [API] Thêm API lấy đăng nhập
 * Thêm page coming soon
+* [API] Thêm API lấy đăng nhập
+* [API] Thêm API lấy đăng xuất
