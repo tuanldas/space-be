@@ -13,6 +13,11 @@ class Wallet extends Model
 
     protected $table = 'wallets';
 
+    protected $hidden = [
+        'trashed_at',
+        'deleted_at',
+    ];
+
     public function newUniqueId(): ?string
     {
         return Uuid::uuid7()->toString();

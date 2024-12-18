@@ -2,7 +2,16 @@
 
 namespace App\Domain\UseCases\Wallets;
 
-class GetWalletRequestModel
+readonly class GetWalletRequestModel
 {
+    public function __construct(
+        private array $attributes
+    )
+    {
+    }
 
+    public function getUserId()
+    {
+        return $this->attributes['userId'];
+    }
 }

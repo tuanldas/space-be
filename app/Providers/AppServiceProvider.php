@@ -8,6 +8,7 @@ use App\Adapters\TokenGenerator\PassportTokenGenerator;
 use App\Adapters\TokenGenerator\TokenGeneratorInterface;
 use App\Domain\Factories\UserFactory;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Domain\Repositories\WalletRepositoryInterface;
 use App\Domain\UseCases\LoginUser\LoginUserInputPort;
 use App\Domain\UseCases\LoginUser\LoginUserInteract;
 use App\Domain\UseCases\Wallets\GetWalletInputPort;
@@ -16,6 +17,8 @@ use App\Factories\UserModelFactory;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\WalletController;
 use App\Repositories\UserRepository;
+use App\Repositories\WalletRepository;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
 
@@ -30,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             UserRepositoryInterface::class,
             UserRepository::class
+        );
+        $this->app->bind(
+            WalletRepositoryInterface::class,
+            WalletRepository::class
         );
         $this->app->bind(
             TokenGeneratorInterface::class,
@@ -58,5 +65,6 @@ class AppServiceProvider extends ServiceProvider
         Passport::refreshTokensExpireIn(now()->addDays(30));
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
         Passport::ignoreRoutes();
+        ResourceCollection::withoutWrapping();
     }
 }

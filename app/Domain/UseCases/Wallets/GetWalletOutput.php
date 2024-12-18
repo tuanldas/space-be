@@ -5,5 +5,5 @@ namespace App\Domain\UseCases\Wallets;
 interface GetWalletOutput
 {
 
-    public function success(GetWalletRequestModel $request);
+    public function success($request);
 }

@@ -4,16 +4,15 @@ namespace App\Adapters\Presenters\Wallet;
 
 use App\Adapters\ViewModels\JsonResourceViewModel;
 use App\Domain\UseCases\Wallets\GetWalletOutput;
-use App\Domain\UseCases\Wallets\GetWalletRequestModel;
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\WalletCollection;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class GetWalletsJsonPresenter implements GetWalletOutput
 {
-    public function success(GetWalletRequestModel $request)
+    public function success($request)
     {
         return new JsonResourceViewModel(
-            new JsonResource([]),
+            new WalletCollection($request),
             ResponseAlias::HTTP_OK
         );
     }
