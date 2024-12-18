@@ -3,14 +3,18 @@
 namespace App\Providers;
 
 use App\Adapters\Presenters\LoginUser\LoginUserJsonPresenter;
+use App\Adapters\Presenters\Wallet\GetWalletsJsonPresenter;
 use App\Adapters\TokenGenerator\PassportTokenGenerator;
 use App\Adapters\TokenGenerator\TokenGeneratorInterface;
 use App\Domain\Factories\UserFactory;
 use App\Domain\Repositories\UserRepositoryInterface;
 use App\Domain\UseCases\LoginUser\LoginUserInputPort;
 use App\Domain\UseCases\LoginUser\LoginUserInteract;
+use App\Domain\UseCases\Wallets\GetWalletInputPort;
+use App\Domain\UseCases\Wallets\GetWalletInteract;
 use App\Factories\UserModelFactory;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\WalletController;
 use App\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
@@ -36,6 +40,13 @@ class AppServiceProvider extends ServiceProvider
             ->give(function ($app) {
                 return $app->make(LoginUserInteract::class, [
                     'output' => $app->make(LoginUserJsonPresenter::class),
+                ]);
+            });
+        $this->app->when(WalletController::class)
+            ->needs(GetWalletInputPort::class)
+            ->give(function ($app) {
+                return $app->make(GetWalletInteract::class, [
+                    'output' => $app->make(GetWalletsJsonPresenter::class),
                 ]);
             });
     }

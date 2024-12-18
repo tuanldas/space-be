@@ -3,6 +3,7 @@
 namespace App\Domain\UseCases\LoginUser;
 
 use App\Adapters\TokenGenerator\TokenGeneratorInterface;
+use App\Adapters\ViewModels\JsonResourceViewModel;
 use App\Domain\Factories\UserFactory;
 use App\Domain\Repositories\UserRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,7 @@ readonly class LoginUserInteract implements LoginUserInputPort
     {
     }
 
-    public function handle(LoginUserRequestModel $loginUserRequestModel)
+    public function handle(LoginUserRequestModel $loginUserRequestModel): JsonResourceViewModel
     {
         $user = $this->userFactory->make([
             'email' => $loginUserRequestModel->getEmail(),
