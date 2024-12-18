@@ -1,0 +1,50 @@
+@startuml
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class transaction_categories {
+   name: varchar(255)
+   created_by: uuid
+   trashed_at: timestamp
+   deleted_at: timestamp
+   type: transaction_category_type
+   id: uuid
+}
+class transactions {
+   created_by: uuid
+   amount: numeric
+   transaction_date: timestamp
+   description: text
+   wallet_id: uuid
+   trashed_at: integer
+   deleted_at: integer
+   category_id: uuid
+   id: uuid
+}
+class users {
+   name: varchar(255)
+   email: varchar(255)
+   email_verified_at: timestamp(0)
+   password: varchar(255)
+   remember_token: varchar(100)
+   created_at: timestamp(0)
+   updated_at: timestamp(0)
+   id: uuid
+}
+class wallets {
+   name: varchar(255)
+   balance: numeric
+   currency: varchar(10)
+   type: integer
+   created_by: uuid
+   trashed_at: timestamp
+   deleted_at: timestamp
+   id: uuid
+}
+
+transaction_categories  -[#595959,plain]-^  users                  : "created_by:id"
+transactions            -[#595959,plain]-^  transaction_categories : "category_id:id"
+transactions            -[#595959,plain]-^  wallets                : "wallet_id:id"
+wallets                 -[#595959,plain]-^  users                  : "created_by:id"
+@enduml
