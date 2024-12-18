@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Domain\Entities\UserEntity;
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,7 +12,7 @@ use Ramsey\Uuid\Uuid;
 
 class User extends Authenticatable implements UserEntity
 {
-    use HasFactory, Notifiable, HasApiTokens, HasUlids;
+    use HasFactory, Notifiable, HasApiTokens, HasUuids;
 
     protected $fillable = [
         'name',

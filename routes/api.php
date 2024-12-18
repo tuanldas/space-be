@@ -8,4 +8,10 @@ Route::middleware([\App\Http\Middleware\ChangeLanguage::class])->group(function 
         Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout'])
             ->middleware(['auth:api']);
     });
+
+    Route::middleware(['auth:api'])->group(function () {
+        Route::prefix('wallets')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Api\WalletController::class, 'index']);
+        });
+    });
 });
