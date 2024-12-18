@@ -9,13 +9,13 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        if (!User::where('email', 'admin@tuanldas.me')->exists()) {
+        if (!User::where('email', SeederConstants::USER_EMAIL)->exists()) {
             User::factory()
                 ->state([
-                    'password' => '123123'
+                    'password' => SeederConstants::USER_PASSWORD
                 ])
                 ->create([
-                    'email' => 'admin@tuanldas.me'
+                    'email' => SeederConstants::USER_EMAIL
                 ]);
         }
     }
