@@ -25,8 +25,30 @@ class AuthController extends Controller
         $resource = $response->getResource();
 
         if (isset($resource['access_token']) && isset($resource['refresh_token'])) {
-            $accessTokenCookie = cookie('access_token', $resource['access_token'], $resource['expires_in'] / 60, null, null, true, true, false, 'Strict');
-            $refreshTokenCookie = cookie('refresh_token', $resource['refresh_token'], 60 * 24 * 30, null, null, true, true, false, 'Strict'); // 30 ngày
+            $secure = app()->environment('production'); // Chỉ bật secure nếu là production
+            $accessTokenCookie = cookie(
+                'access_token',
+                $resource['access_token'],
+                $resource['expires_in'] / 60, // Thời gian sống
+                '/',
+                null, // Domain mặc định là domain hiện tại
+                false, // Secure (true nếu production)
+                true, // HttpOnly
+                false, // Raw
+                'None' // SameSite
+            );
+
+            $refreshTokenCookie = cookie(
+                'refresh_token',
+                $resource['refresh_token'],
+                60 * 24 * 30, // 30 ngày
+                '/',
+                null,
+                false,
+                true,
+                false,
+                'None'
+            );
             return response()->json(['message' => __('auth.success')])
                 ->cookie($accessTokenCookie)
                 ->cookie($refreshTokenCookie);
