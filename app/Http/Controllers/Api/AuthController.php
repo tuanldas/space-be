@@ -26,7 +26,7 @@ class AuthController extends Controller
 
         if (isset($resource['access_token']) && isset($resource['refresh_token'])) {
             $accessTokenCookie = cookie('access_token', $resource['access_token'], $resource['expires_in'] / 60, null, null, true, true, false, 'Strict');
-            $refreshTokenCookie = cookie('refresh_token', $resource['refresh_token'], 60 * 24 * 30, null, null, true, true, false, 'Strict'); // 30 ngày
+            $refreshTokenCookie = cookie('refresh_token', $resource['refresh_token'], 60 * 24 * 30, null, null, true, true, false, 'Strict');
             return response()->json(['message' => __('auth.success')])
                 ->cookie($accessTokenCookie)
                 ->cookie($refreshTokenCookie);
