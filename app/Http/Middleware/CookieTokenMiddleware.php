@@ -18,7 +18,9 @@ class CookieTokenMiddleware
         $token = $request->cookie('access_token');
 
         if ($token) {
-            $request->headers->set('Authorization', 'Bearer ' . $token);
+            $request->headers->set('Authorization', 'Bearer ' . $request->input('access_token'));
+            $request->query->remove('access_token');
+            $request->query->remove('refresh_token');
         }
 
         return $next($request);

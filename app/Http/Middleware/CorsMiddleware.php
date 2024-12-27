@@ -18,7 +18,7 @@ class CorsMiddleware
         $response = $next($request);
 
         // Thêm các header cần thiết để xử lý CORS
-        $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:3003'); // Thay bằng FE URL
+        $response->headers->set('Access-Control-Allow-Origin', '*'); // Thay bằng FE URL
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
         $response->headers->set('Access-Control-Allow-Credentials', 'true');

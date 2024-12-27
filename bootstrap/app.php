@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->group('api', [
+            \App\Http\Middleware\CompressTokenMiddleware::class,
             \App\Http\Middleware\CookieTokenMiddleware::class,
             \App\Http\Middleware\CorsMiddleware::class
         ]);
