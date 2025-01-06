@@ -7,6 +7,7 @@ use App\Domain\UseCases\LoginUser\LoginUserRequestModel;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
@@ -25,8 +26,8 @@ class AuthController extends Controller
         $resource = $response->getResource();
 
         if (isset($resource['access_token']) && isset($resource['refresh_token'])) {
-            $accessTokenCookie = cookie('access_token', $resource['access_token'], $resource['expires_in'] / 60, '/', null, false, true, false, 'Strict');
-            $refreshTokenCookie = cookie('refresh_token', $resource['refresh_token'], 60 * 24 * 30, '/', null, true, true, false, 'Strict');
+            $accessTokenCookie = cookie('access_token', $resource['access_token'], $resource['expires_in'] / 60, '/', null, Config::get('session.secure'), Config::get('session.http_only'), false, Config::get('session.same_site'));
+            $refreshTokenCookie = cookie('refresh_token', $resource['refresh_token'], 60 * 24 * 30, '/', null, Config::get('session.secure'), Config::get('session.http_only'), false, Config::get('session.same_site'));
             return response()->json([
                 'message' => __('auth.success')
             ])
