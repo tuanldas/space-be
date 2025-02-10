@@ -11,3 +11,4 @@
 * Thêm page coming soon
 * [API] Thêm API lấy đăng nhập
 * [API] Thêm API lấy đăng xuất
+* [API] Thêm API lấy ảnh
