@@ -13,5 +13,6 @@ Route::middleware([\App\Http\Middleware\ChangeLanguage::class])->group(function 
         Route::prefix('wallets')->group(function () {
             Route::get('/', [\App\Http\Controllers\Api\WalletController::class, 'index']);
         });
+        Route::get('images/{uuid}', [\App\Http\Controllers\ImageController::class, 'show']);
     });
 });

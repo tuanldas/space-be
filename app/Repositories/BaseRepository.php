@@ -3,9 +3,10 @@
 namespace App\Repositories;
 
 
+use App\Domain\Repositories\RepositoryInterface;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
-abstract class BaseRepository
+abstract class BaseRepository implements RepositoryInterface
 {
     protected $model;
 

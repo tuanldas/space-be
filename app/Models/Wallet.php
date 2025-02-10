@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Traits\HasImages;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Ramsey\Uuid\Uuid;
 
 class Wallet extends Model
@@ -21,5 +23,10 @@ class Wallet extends Model
     public function newUniqueId(): ?string
     {
         return Uuid::uuid7()->toString();
+    }
+
+    public function icon(): MorphOne
+    {
+        return $this->morphOne(Image::class, 'imageable');
     }
 }
