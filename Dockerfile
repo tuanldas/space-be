@@ -67,10 +67,20 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         supervisor \
         libpq-dev \
-        nodejs \
+        git \
+        zip \
+        unzip \
+        libzip-dev \
+        libpng-dev \
+        libjpeg62-turbo-dev \
+        libfreetype6-dev \
         libonig-dev \
+        nodejs \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    # Reinstall extensions to ensure they work properly
+    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+    && docker-php-ext-install gd zip
 
 # Copy php.ini and supervisor configs
 COPY php.ini /usr/local/etc/php/conf.d/
