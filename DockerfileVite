@@ -1,25 +1,44 @@
-FROM php:8.2-fpm
+FROM node:20-alpine as builder
 
-RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    unzip \
-    git \
-    npm
+WORKDIR /app
 
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip
+# Copy package files
+COPY package*.json ./
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install dependencies
+RUN npm ci
+
+# Copy application code
+COPY . .
+
+# Build if needed (uncomment if you need to build)
+# RUN npm run build
+
+# Final stage
+FROM node:20-alpine
 
 WORKDIR /var/www/app
 
-COPY . .
+# Create non-root user
+RUN addgroup -g 1000 nodeuser && \
+    adduser -u 1000 -G nodeuser -s /bin/sh -D nodeuser
 
-RUN npm install
+# Copy node modules and built assets from builder
+COPY --from=builder --chown=nodeuser:nodeuser /app/node_modules /var/www/app/node_modules
+COPY --chown=nodeuser:nodeuser . .
 
+# Set proper permissions
+RUN chown -R nodeuser:nodeuser /var/www/app
+
+# Use non-root user for better security
+USER nodeuser
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD wget -q -O - http://localhost:5173 || exit 1
+
+# Expose Vite dev server port
 EXPOSE 5173
 
-CMD ["npm", "run", "dev"]
+# Start Vite server with host set to allow external connections
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

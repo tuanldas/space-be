@@ -5,11 +5,19 @@ services:
       dockerfile: docker/nginx/Dockerfile
     volumes:
       - ./docker/nginx/nginx_proxy.conf:/etc/nginx/conf.d/nginx_proxy.conf:ro
-      - ./:/var/www/app
+      - ./:/var/www/app:ro
     depends_on:
-      - php-fpm
+      php-fpm:
+        condition: service_healthy
     networks:
-      - default
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
 
   php-fpm:
     build:
@@ -17,9 +25,22 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./:/var/www/app
-    command: [ "/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf" ]
+      - php_socket:/var/run/php-fpm
+      - composer_cache:/root/.composer/cache
+    command: ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
     networks:
-      - default
+      - app-network
+    healthcheck:
+      test: ["CMD", "php-fpm", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    environment:
+      PHP_IDE_CONFIG: serverName=docker
+      COMPOSER_ALLOW_SUPERUSER: 1
+      APP_ENV: ${APP_ENV:-local}
 
   db:
     build:
@@ -29,17 +50,44 @@ services:
       POSTGRES_USER: '${DB_USERNAME}'
       POSTGRES_PASSWORD: '${DB_PASSWORD}'
       LANG: C.UTF-8
+      POSTGRES_INITDB_ARGS: "--data-checksums"
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - default
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
 
   redis:
     image: redis:alpine
     networks:
-      - default
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
 
 volumes:
   db_data:
     name: ${VOLUME_DB_LIB}
     external: true
+  redis_data:
+    driver: local
+  php_socket:
+    driver: local
+  composer_cache:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

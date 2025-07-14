@@ -1,15 +1,15 @@
-FROM php:8.2-fpm
+FROM php:8.2-fpm AS builder
 
 WORKDIR /var/www/app
 
 ENV TZ=UTC
 ENV ZSH_VERSION=v1.2.1
 
+# Install dependencies in a single layer
 RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ" > /etc/timezone \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash \
     && apt-get update \
-    && apt-get install -y apt-utils \
-    && apt-get install -y \
+    && apt-get install -y --no-install-recommends \
         git \
         wget \
         zip \
@@ -29,32 +29,70 @@ RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ" > /etc/timezo
         vim \
         libpq-dev \
         nodejs \
-    && apt-get install cron -y \
+        cron \
     && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    # PHP extensions
+    && docker-php-ext-install mbstring exif bcmath \
+    && docker-php-ext-configure pcntl --enable-pcntl \
+    && docker-php-ext-install pcntl zip \
+    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
+    && docker-php-ext-install pdo pdo_pgsql pgsql \
+    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+    && docker-php-ext-install gd
 
-RUN docker-php-ext-install mbstring exif bcmath
-
-RUN docker-php-ext-configure pcntl --enable-pcntl \
-  && docker-php-ext-install \
-    pcntl zip
-
-# Composer
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer \
     && chmod +x /usr/local/bin/composer \
     && composer self-update
 
-RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
-    && docker-php-ext-install pdo pdo_pgsql pgsql
-
-RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
-    && docker-php-ext-install gd
-
+# Install Oh My Zsh for better developer experience
 RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/$ZSH_VERSION/zsh-in-docker.sh)" -- \
     -t frisk
 
-COPY php.ini /usr/local/etc/php/conf.d/
+# Final stage
+FROM php:8.2-fpm
 
+WORKDIR /var/www/app
+
+# Copy installed extensions and configurations from builder
+COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
+COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
+COPY --from=builder /usr/local/bin/composer /usr/local/bin/composer
+
+# Install only the necessary runtime packages
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        supervisor \
+        libpq-dev \
+        nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy php.ini and supervisor configs
+COPY php.ini /usr/local/etc/php/conf.d/
+COPY ./docker/supervisor.conf.d /etc/supervisor/conf.d/
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD php-fpm -t || exit 1
+
+# Create proper user
+RUN groupadd -g 1000 appuser && \
+    useradd -u 1000 -g appuser -m appuser
+
+# Set proper permissions
+RUN mkdir -p /var/www/app && \
+    chown -R appuser:appuser /var/www/app
+
+# Set proper volume ownership
 VOLUME /var/www/app
 
-COPY ./docker/supervisor.conf.d /etc/supervisor/conf.d
+# Use non-root user for better security
+USER appuser
+
+# Switch back to root for supervisor
+USER root
+
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
