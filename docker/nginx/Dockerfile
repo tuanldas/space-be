@@ -8,8 +8,8 @@ COPY ./docker/nginx/vhost.conf /etc/nginx/conf.d/default.conf
 
 # Configure for non-root user
 RUN set -eux; \
-    addgroup -g 1000 -S nginx-user; \
-    adduser -u 1000 -D -S -G nginx-user nginx-user; \
+    addgroup nginx-user; \
+    adduser -D -S -G nginx-user nginx-user; \
     mkdir -p /var/cache/nginx; \
     chown -R nginx-user:nginx-user /var/cache/nginx; \
     touch /var/run/nginx.pid; \

@@ -30,6 +30,7 @@ RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ" > /etc/timezo
         libpq-dev \
         nodejs \
         cron \
+        libonig-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     # PHP extensions
@@ -67,6 +68,7 @@ RUN apt-get update \
         supervisor \
         libpq-dev \
         nodejs \
+        libonig-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -78,9 +80,9 @@ COPY ./docker/supervisor.conf.d /etc/supervisor/conf.d/
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD php-fpm -t || exit 1
 
-# Create proper user
-RUN groupadd -g 1000 appuser && \
-    useradd -u 1000 -g appuser -m appuser
+# Create proper user without specific UID/GID
+RUN groupadd appuser && \
+    useradd -g appuser -m appuser
 
 # Set proper permissions
 RUN mkdir -p /var/www/app && \

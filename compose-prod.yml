@@ -2,16 +2,72 @@ services:
   nginx:
     restart: always
     networks:
+      - default
       - publish
+    environment:
+      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/conf.d
+    volumes:
+      - ./:/var/www/app:ro
+      - nginx_cache:/var/cache/nginx
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
 
   php-fpm:
     restart: always
+    environment:
+      APP_ENV: production
+      COMPOSER_ALLOW_SUPERUSER: 1
+    volumes:
+      - ./:/var/www/app:ro
+      - app_cache:/var/www/app/storage/framework/cache
+      - app_sessions:/var/www/app/storage/framework/sessions
+      - app_views:/var/www/app/storage/framework/views
+      - app_logs:/var/www/app/storage/logs
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
 
   db:
     restart: always
+    environment:
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
 
   redis:
     restart: always
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+
+volumes:
+  nginx_cache:
+    driver: local
+  app_cache:
+    driver: local
+  app_sessions:
+    driver: local
+  app_views:
+    driver: local
+  app_logs:
+    driver: local
 
 networks:
   publish:
