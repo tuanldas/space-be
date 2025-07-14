@@ -1,0 +1,73 @@
+services:
+  php-fpm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        user: "${APP_USER:-sail}"
+        uid: "${APP_UID:-1000}"
+    image: laravel-app-test
+    container_name: laravel_app_test
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: "${DB_DATABASE_TEST:-laravel_testing}"
+      DB_USERNAME: "${DB_USERNAME_TEST:-sail}"
+      DB_PASSWORD: "${DB_PASSWORD_TEST:-password}"
+    working_dir: /var/www/app
+    volumes:
+      - ./:/var/www/app
+      - ./php.ini:/usr/local/etc/php/conf.d/99-custom.ini
+    networks:
+      - app-network
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:alpine
+    container_name: laravel_nginx_test
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "${APP_PORT:-80}:80"
+    volumes:
+      - ./:/var/www/app
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - app-network
+    depends_on:
+      - php-fpm
+
+  db:
+    image: postgres:latest
+    container_name: laravel_db_test
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "${DB_TEST_PORT_FORWARD:-5432}:5432"
+    environment:
+      POSTGRES_DB: "${DB_DATABASE_TEST:-laravel_testing}"
+      POSTGRES_USER: "${DB_USERNAME_TEST:-sail}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD_TEST:-password}"
+      LANG: C.UTF-8
+    volumes:
+      - pg-db-data-test:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME_TEST:-sail} -d ${DB_DATABASE_TEST:-laravel_testing}"]
+      retries: 3
+      timeout: 5s
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pg-db-data-test:
+    driver: local
