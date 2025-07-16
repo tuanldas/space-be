@@ -13,6 +13,14 @@ use App\Services\Interfaces\UserServiceInterface;
 use App\Services\UserService;
 use App\Adapters\Interfaces\OAuthAdapterInterface;
 use App\Adapters\OAuthAdapter;
+use App\Repositories\Interfaces\RoleRepositoryInterface;
+use App\Repositories\RoleRepository;
+use App\Repositories\Interfaces\AbilityRepositoryInterface;
+use App\Repositories\AbilityRepository;
+use App\Services\Interfaces\RoleServiceInterface;
+use App\Services\RoleService;
+use App\Services\Interfaces\AbilityServiceInterface;
+use App\Services\AbilityService;
 
 class AppBindingServiceProvider extends ServiceProvider
 {
@@ -24,10 +32,14 @@ class AppBindingServiceProvider extends ServiceProvider
         // Repositories
         $this->app->bind(EloquentRepositoryInterface::class, BaseRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
+        $this->app->bind(AbilityRepositoryInterface::class, AbilityRepository::class);
         
         // Services
         $this->app->bind(AuthServiceInterface::class, AuthService::class);
         $this->app->bind(UserServiceInterface::class, UserService::class);
+        $this->app->bind(RoleServiceInterface::class, RoleService::class);
+        $this->app->bind(AbilityServiceInterface::class, AbilityService::class);
         
         // Adapters
         $this->app->bind(OAuthAdapterInterface::class, OAuthAdapter::class);

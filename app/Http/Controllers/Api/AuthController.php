@@ -75,4 +75,23 @@ class AuthController extends Controller
 
         return response()->json($result);
     }
+    
+    /**
+     * Get current user's information with roles and abilities.
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function me(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'roles' => $user->getRoles(),
+            'abilities' => $user->getAbilities()->pluck('name'),
+        ]);
+    }
 } 

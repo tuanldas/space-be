@@ -8,6 +8,8 @@ use App\Services\Interfaces\AuthServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Bouncer;
+use Silber\Bouncer\Database\Role;
 
 class AuthService implements AuthServiceInterface
 {
@@ -39,6 +41,12 @@ class AuthService implements AuthServiceInterface
             'password' => Hash::make($data['password']),
         ]);
 
+        $defaultRole = Role::where('name', 'user')->first();
+        
+        if ($defaultRole) {
+            Bouncer::assign($defaultRole->name)->to($user);
+        }
+
         return [
             'message' => __('auth.register_success'),
             'user' => $user
@@ -63,7 +71,14 @@ class AuthService implements AuthServiceInterface
             $credentials['password']
         );
         
-        // Thêm thông báo thành công
+        $tokenData['user'] = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'roles' => $user->getRoles(),
+            'abilities' => $user->getAbilities()->pluck('name'),
+        ];
+        
         $tokenData['message'] = __('auth.login_success');
         
         return $tokenData;
@@ -76,7 +91,6 @@ class AuthService implements AuthServiceInterface
     {
         $tokenData = $this->oauthAdapter->getTokenByRefreshToken($refreshToken);
         
-        // Thêm thông báo thành công
         $tokenData['message'] = __('auth.refresh_token_success');
         
         return $tokenData;

@@ -13,7 +13,6 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
         
-        // Initialize Passport for API tests
         Passport::useClientModel(\Laravel\Passport\Client::class);
     }
 }

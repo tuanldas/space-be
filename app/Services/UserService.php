@@ -55,7 +55,6 @@ class UserService implements UserServiceInterface
      */
     public function createUser(array $data): ?User
     {
-        // Ensure password is hashed
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         }
@@ -68,7 +67,6 @@ class UserService implements UserServiceInterface
      */
     public function updateUser(int $userId, array $data): ?User
     {
-        // Hash password if provided
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         }

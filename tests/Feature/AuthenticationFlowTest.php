@@ -16,13 +16,11 @@ class AuthenticationFlowTest extends TestCase
     {
         parent::setUp();
         
-        // Thực hiện migrations để tạo cấu trúc bảng
         $this->artisan('migrate:fresh');
     }
 
     public function test_complete_authentication_flow(): void
     {
-        // Test đơn giản là có thể đăng ký user
         $userData = [
             'name' => 'Test User',
             'email' => 'flow-test@example.com',
@@ -33,7 +31,6 @@ class AuthenticationFlowTest extends TestCase
         $response = $this->postJson('/api/register', $userData);
         $response->assertStatus(201);
         
-        // Kiểm tra user đã được tạo trong database
         $this->assertDatabaseHas('users', [
             'name' => 'Test User',
             'email' => 'flow-test@example.com',

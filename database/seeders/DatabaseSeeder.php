@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         // Call the UserSeeder
         $this->call([
             UserSeeder::class,
+            RoleSeeder::class, // Thêm RoleSeeder
         ]);
 
         // Create additional 10 random users

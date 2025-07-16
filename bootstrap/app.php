@@ -22,5 +22,6 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Providers\AuthServiceProvider::class,
         App\Providers\HorizonServiceProvider::class,
         App\Providers\AppBindingServiceProvider::class,
+        App\Providers\BouncerServiceProvider::class,
     ])
     ->create();
