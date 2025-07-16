@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\User;
+use App\Repositories\Interfaces\UserRepositoryInterface;
+use App\Services\Interfaces\UserServiceInterface;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Hash;
+
+class UserService implements UserServiceInterface
+{
+    /**
+     * @var UserRepositoryInterface
+     */
+    protected $userRepository;
+
+    /**
+     * UserService constructor.
+     *
+     * @param UserRepositoryInterface $userRepository
+     */
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAllUsers(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    {
+        return User::query()
+            ->when(isset($filters['search']), function ($query) use ($filters) {
+                return $query->where(function ($query) use ($filters) {
+                    $searchTerm = '%' . $filters['search'] . '%';
+                    $query->where('name', 'like', $searchTerm)
+                        ->orWhere('email', 'like', $searchTerm);
+                });
+            })
+            ->paginate($perPage);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUserById(int $userId): ?User
+    {
+        return $this->userRepository->findById($userId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function createUser(array $data): ?User
+    {
+        // Ensure password is hashed
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        return $this->userRepository->create($data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function updateUser(int $userId, array $data): ?User
+    {
+        // Hash password if provided
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        $user = $this->userRepository->findById($userId);
+        
+        if (!$user) {
+            return null;
+        }
+        
+        $user->update($data);
+        
+        return $user->fresh();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteUser(int $userId): bool
+    {
+        return $this->userRepository->deleteById($userId);
+    }
+} 
