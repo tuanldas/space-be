@@ -87,7 +87,3 @@ volumes:
     driver: local
   composer_cache:
     driver: local
-
-networks:
-  app-network:
-    driver: bridge
