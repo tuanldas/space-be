@@ -1,0 +1,410 @@
+{
+  "info": {
+    "_postman_id": "57e11b1c-5511-4a08-be30-756f942a0e60",
+    "name": "Space Backend API",
+    "description": "API documentation for the Space Backend application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Authentication related endpoints",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\",\n    \"password_confirmation\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "register"]
+            },
+            "description": "Register a new user account"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "if (response.access_token) {",
+                  "    pm.collectionVariables.set('access_token', response.access_token);",
+                  "    console.log('Access token saved to collection variables');",
+                  "}",
+                  "",
+                  "if (response.refresh_token) {",
+                  "    pm.collectionVariables.set('refresh_token', response.refresh_token);",
+                  "    console.log('Refresh token saved to collection variables');",
+                  "}",
+                  "",
+                  "if (response.expires_in) {",
+                  "    const expiryTime = new Date();",
+                  "    expiryTime.setSeconds(expiryTime.getSeconds() + response.expires_in);",
+                  "    pm.collectionVariables.set('token_expiry', expiryTime.getTime().toString());",
+                  "    console.log('Token expiry time saved: ' + expiryTime);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"tuanldas@gmail.com\",\n    \"password\": \"123123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            },
+            "description": "Login with admin credentials (tuanldas@gmail.com/123123) to get access token"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "if (response.access_token) {",
+                  "    pm.collectionVariables.set('access_token', response.access_token);",
+                  "    console.log('Access token refreshed and saved to collection variables');",
+                  "}",
+                  "",
+                  "if (response.refresh_token) {",
+                  "    pm.collectionVariables.set('refresh_token', response.refresh_token);",
+                  "    console.log('New refresh token saved to collection variables');",
+                  "}",
+                  "",
+                  "if (response.expires_in) {",
+                  "    const expiryTime = new Date();",
+                  "    expiryTime.setSeconds(expiryTime.getSeconds() + response.expires_in);",
+                  "    pm.collectionVariables.set('token_expiry', expiryTime.getTime().toString());",
+                  "    console.log('Token expiry time updated: ' + expiryTime);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const refreshToken = pm.collectionVariables.get('refresh_token');",
+                  "if (refreshToken) {",
+                  "    const requestBody = JSON.parse(pm.request.body.raw);",
+                  "    requestBody.refresh_token = refreshToken;",
+                  "    pm.request.body.raw = JSON.stringify(requestBody);",
+                  "    console.log('Using refresh token from collection variables');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refresh_token\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/refresh-token",
+              "host": ["{{base_url}}"],
+              "path": ["api", "refresh-token"]
+            },
+            "description": "Refresh access token using refresh token"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "logout"]
+            },
+            "description": "Logout current user (revoke tokens)"
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Check if token is expired and needs refresh",
+              "const tokenExpiry = pm.collectionVariables.get('token_expiry');",
+              "const refreshToken = pm.collectionVariables.get('refresh_token');",
+              "",
+              "if (tokenExpiry && refreshToken) {",
+              "    const currentTime = new Date().getTime();",
+              "    const expiryTime = parseInt(tokenExpiry);",
+              "    ",
+              "    // If token expires in less than 30 seconds, refresh it",
+              "    if (currentTime + 30000 > expiryTime) {",
+              "        console.log('Token is about to expire, refreshing...');",
+              "        ",
+              "        pm.sendRequest({",
+              "            url: pm.collectionVariables.get('base_url') + '/api/refresh-token',",
+              "            method: 'POST',",
+              "            header: {",
+              "                'Content-Type': 'application/json',",
+              "                'Accept': 'application/json'",
+              "            },",
+              "            body: {",
+              "                mode: 'raw',",
+              "                raw: JSON.stringify({ refresh_token: refreshToken })",
+              "            }",
+              "        }, function (err, res) {",
+              "            if (!err && res.code === 200) {",
+              "                const response = res.json();",
+              "                if (response.access_token) {",
+              "                    pm.collectionVariables.set('access_token', response.access_token);",
+              "                    console.log('Token refreshed automatically');",
+              "                    ",
+              "                    if (response.refresh_token) {",
+              "                        pm.collectionVariables.set('refresh_token', response.refresh_token);",
+              "                    }",
+              "                    ",
+              "                    if (response.expires_in) {",
+              "                        const newExpiryTime = new Date();",
+              "                        newExpiryTime.setSeconds(newExpiryTime.getSeconds() + response.expires_in);",
+              "                        pm.collectionVariables.set('token_expiry', newExpiryTime.getTime().toString());",
+              "                    }",
+              "                }",
+              "            } else {",
+              "                console.error('Failed to refresh token automatically');",
+              "            }",
+              "        });",
+              "    }",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "description": "User related endpoints",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user"]
+            },
+            "description": "Get current authenticated user's profile"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Utilities",
+      "description": "Utility endpoints",
+      "item": [
+        {
+          "name": "API Test",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/test",
+              "host": ["{{base_url}}"],
+              "path": ["api", "test"]
+            },
+            "description": "Test if API is working properly"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Global pre-request script to check token expiry",
+          "const tokenExpiry = pm.collectionVariables.get('token_expiry');",
+          "const refreshToken = pm.collectionVariables.get('refresh_token');",
+          "",
+          "if (tokenExpiry && refreshToken) {",
+          "    const currentTime = new Date().getTime();",
+          "    const expiryTime = parseInt(tokenExpiry);",
+          "    ",
+          "    // If token expires in less than 30 seconds, refresh it",
+          "    if (currentTime + 30000 > expiryTime) {",
+          "        console.log('Token is about to expire, refreshing...');",
+          "        ",
+          "        pm.sendRequest({",
+          "            url: pm.collectionVariables.get('base_url') + '/api/refresh-token',",
+          "            method: 'POST',",
+          "            header: {",
+          "                'Content-Type': 'application/json',",
+          "                'Accept': 'application/json'",
+          "            },",
+          "            body: {",
+          "                mode: 'raw',",
+          "                raw: JSON.stringify({ refresh_token: refreshToken })",
+          "            }",
+          "        }, function (err, res) {",
+          "            if (!err && res.code === 200) {",
+          "                const response = res.json();",
+          "                if (response.access_token) {",
+          "                    pm.collectionVariables.set('access_token', response.access_token);",
+          "                    console.log('Token refreshed automatically');",
+          "                    ",
+          "                    if (response.refresh_token) {",
+          "                        pm.collectionVariables.set('refresh_token', response.refresh_token);",
+          "                    }",
+          "                    ",
+          "                    if (response.expires_in) {",
+          "                        const newExpiryTime = new Date();",
+          "                        newExpiryTime.setSeconds(newExpiryTime.getSeconds() + response.expires_in);",
+          "                        pm.collectionVariables.set('token_expiry', newExpiryTime.getTime().toString());",
+          "                    }",
+          "                }",
+          "            } else {",
+          "                console.error('Failed to refresh token automatically');",
+          "            }",
+          "        });",
+          "    }",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8089",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_expiry",
+      "value": "",
+      "type": "string"
+    }
+  ]
+} 
