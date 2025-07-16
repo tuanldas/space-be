@@ -50,6 +50,9 @@ return [
     | the Artisan command line tool. You should set this to the root of
     | the application so that it's available within Artisan commands.
     |
+    | Note: For OAuth in Docker environments, use OAUTH_SERVER_URL in .env
+    | to set the correct internal service name (e.g., http://nginx).
+    |
     */
 
     'url' => env('APP_URL', 'http://localhost'),
@@ -78,7 +81,7 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'vi'),
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 

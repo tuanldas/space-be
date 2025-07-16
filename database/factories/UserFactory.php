@@ -41,4 +41,26 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    /**
+     * Create an admin user.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'Admin',
+            'email' => 'tuanldas@gmail.com',
+        ]);
+    }
+
+    /**
+     * Create a regular user with predefined credentials.
+     */
+    public function regularUser(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => 'Regular User',
+            'email' => 'user@example.com',
+        ]);
+    }
 }
