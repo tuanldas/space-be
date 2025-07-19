@@ -12,18 +12,11 @@ use Bouncer;
 class AbilityService implements AbilityServiceInterface
 {
     /**
-     * @var AbilityRepositoryInterface
-     */
-    protected $abilityRepository;
-
-    /**
      * AbilityService constructor.
-     *
-     * @param AbilityRepositoryInterface $abilityRepository
      */
-    public function __construct(AbilityRepositoryInterface $abilityRepository)
-    {
-        $this->abilityRepository = $abilityRepository;
+    public function __construct(
+        private AbilityRepositoryInterface $abilityRepository
+    ) {
     }
 
     /**

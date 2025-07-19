@@ -13,13 +13,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Call the UserSeeder
         $this->call([
+            RoleSeeder::class,
             UserSeeder::class,
-            RoleSeeder::class, // Thêm RoleSeeder
+            TransactionCategorySeeder::class,
         ]);
-
-        // Create additional 10 random users
-        User::factory(10)->create();
     }
 }

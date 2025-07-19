@@ -12,18 +12,11 @@ use Illuminate\Support\Facades\Hash;
 class UserService implements UserServiceInterface
 {
     /**
-     * @var UserRepositoryInterface
-     */
-    protected $userRepository;
-
-    /**
      * UserService constructor.
-     *
-     * @param UserRepositoryInterface $userRepository
      */
-    public function __construct(UserRepositoryInterface $userRepository)
-    {
-        $this->userRepository = $userRepository;
+    public function __construct(
+        private UserRepositoryInterface $userRepository
+    ) {
     }
 
     /**

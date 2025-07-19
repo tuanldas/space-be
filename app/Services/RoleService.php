@@ -12,18 +12,11 @@ use Bouncer;
 class RoleService implements RoleServiceInterface
 {
     /**
-     * @var RoleRepositoryInterface
-     */
-    protected $roleRepository;
-
-    /**
      * RoleService constructor.
-     *
-     * @param RoleRepositoryInterface $roleRepository
      */
-    public function __construct(RoleRepositoryInterface $roleRepository)
-    {
-        $this->roleRepository = $roleRepository;
+    public function __construct(
+        private RoleRepositoryInterface $roleRepository
+    ) {
     }
 
     /**
