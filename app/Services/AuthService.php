@@ -13,21 +13,13 @@ use Silber\Bouncer\Database\Role;
 
 class AuthService implements AuthServiceInterface
 {
-    protected $userRepository;
-    protected $oauthAdapter;
-
     /**
      * AuthService constructor.
-     * 
-     * @param UserRepositoryInterface $userRepository
-     * @param OAuthAdapterInterface $oauthAdapter
      */
     public function __construct(
-        UserRepositoryInterface $userRepository,
-        OAuthAdapterInterface $oauthAdapter
+        private UserRepositoryInterface $userRepository,
+        private OAuthAdapterInterface $oauthAdapter
     ) {
-        $this->userRepository = $userRepository;
-        $this->oauthAdapter = $oauthAdapter;
     }
 
     /**
