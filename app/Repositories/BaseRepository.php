@@ -120,4 +120,16 @@ abstract class BaseRepository implements EloquentRepositoryInterface
     {
         return $this->findByUuid($uuid)->delete();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findTrashedByUuid(
+        string $uuid,
+        array $columns = ['*'],
+        array $relations = [],
+        array $appends = []
+    ): ?Model {
+        return $this->model->withTrashed()->select($columns)->with($relations)->findOrFail($uuid)->append($appends);
+    }
 } 

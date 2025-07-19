@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Interfaces;
 
+use App\Models\Image;
 use App\Models\TransactionCategory;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -81,4 +82,10 @@ interface TransactionCategoryRepositoryInterface extends EloquentRepositoryInter
      * @return bool
      */
     public function forceDelete(string $id): bool;
+    
+    public function attachImage(TransactionCategory $category, array $imageData): Image;
+    
+    public function updateImage(TransactionCategory $category, array $imageData): ?Image;
+    
+    public function removeImage(TransactionCategory $category): bool;
 } 

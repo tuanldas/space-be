@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use App\Adapters\Interfaces\FileAdapterInterface;
 use App\Models\TransactionCategory;
 use App\Models\User;
 use App\Repositories\Interfaces\TransactionCategoryRepositoryInterface;
@@ -17,6 +18,7 @@ class TransactionCategoryServiceTest extends TestCase
     use WithFaker, RefreshDatabase;
 
     private $mockRepository;
+    private $mockFileAdapter;
     private $service;
 
     protected function setUp(): void
@@ -24,7 +26,8 @@ class TransactionCategoryServiceTest extends TestCase
         parent::setUp();
         
         $this->mockRepository = Mockery::mock(TransactionCategoryRepositoryInterface::class);
-        $this->service = new TransactionCategoryService($this->mockRepository);
+        $this->mockFileAdapter = Mockery::mock(FileAdapterInterface::class);
+        $this->service = new TransactionCategoryService($this->mockRepository, $this->mockFileAdapter);
     }
 
     protected function tearDown(): void

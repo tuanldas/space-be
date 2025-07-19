@@ -92,4 +92,20 @@ interface EloquentRepositoryInterface
      * @return bool
      */
     public function deleteByUuid(string $uuid): bool;
+
+    /**
+     * Get model by UUID from trash.
+     *
+     * @param string $uuid
+     * @param array $columns
+     * @param array $relations
+     * @param array $appends
+     * @return Model|null
+     */
+    public function findTrashedByUuid(
+        string $uuid,
+        array $columns = ['*'],
+        array $relations = [],
+        array $appends = []
+    ): ?Model;
 } 

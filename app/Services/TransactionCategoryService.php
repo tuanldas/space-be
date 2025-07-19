@@ -2,15 +2,20 @@
 
 namespace App\Services;
 
+use App\Adapters\Interfaces\FileAdapterInterface;
+use App\Enums\ImageCategoryType;
+use App\Models\Image;
 use App\Models\TransactionCategory;
 use App\Repositories\Interfaces\TransactionCategoryRepositoryInterface;
 use App\Services\Interfaces\TransactionCategoryServiceInterface;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class TransactionCategoryService implements TransactionCategoryServiceInterface
 {
     public function __construct(
-        private TransactionCategoryRepositoryInterface $repository
+        private TransactionCategoryRepositoryInterface $repository,
+        private FileAdapterInterface $fileAdapter
     ) {
     }
 
@@ -77,5 +82,56 @@ class TransactionCategoryService implements TransactionCategoryServiceInterface
     public function forceDelete(string $id): bool
     {
         return $this->repository->forceDelete($id);
+    }
+    
+    public function attachImage(string $categoryId, UploadedFile $imageFile, int $userId): Image
+    {
+        $category = $this->getById($categoryId);
+        $fileInfo = $this->fileAdapter->store($imageFile, 'transaction-categories');
+        
+        $imageData = [
+            'user_id' => $userId,
+            'disk' => $fileInfo['disk'],
+            'path' => $fileInfo['path'],
+            'type' => ImageCategoryType::CATEGORY_IMAGE->value
+        ];
+        
+        return $this->repository->attachImage($category, $imageData);
+    }
+    
+    public function updateImage(string $categoryId, UploadedFile $imageFile, int $userId): ?Image
+    {
+        $category = $this->getById($categoryId);
+        
+        if ($category->image && $category->image->path) {
+            $this->fileAdapter->delete($category->image->path, $category->image->disk);
+        }
+        
+        $fileInfo = $this->fileAdapter->store($imageFile, 'transaction-categories');
+        
+        $imageData = [
+            'user_id' => $userId,
+            'disk' => $fileInfo['disk'],
+            'path' => $fileInfo['path'],
+            'type' => ImageCategoryType::CATEGORY_IMAGE->value
+        ];
+        
+        return $this->repository->updateImage($category, $imageData);
+    }
+    
+    public function removeImage(string $categoryId): bool
+    {
+        try {
+            // Tìm kiếm bản ghi trong cả bảng chính và thùng rác
+            $category = $this->repository->findTrashedByUuid($categoryId);
+            
+            if ($category->image && $category->image->path) {
+                $this->fileAdapter->delete($category->image->path, $category->image->disk);
+            }
+            
+            return $this->repository->removeImage($category);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 } 

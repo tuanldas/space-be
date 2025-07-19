@@ -2,7 +2,9 @@
 
 namespace App\Services\Interfaces;
 
+use App\Models\Image;
 use App\Models\TransactionCategory;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface TransactionCategoryServiceInterface
@@ -32,4 +34,10 @@ interface TransactionCategoryServiceInterface
     public function restore(string $id): bool;
 
     public function forceDelete(string $id): bool;
+    
+    public function attachImage(string $categoryId, UploadedFile $imageFile, int $userId): Image;
+    
+    public function updateImage(string $categoryId, UploadedFile $imageFile, int $userId): ?Image;
+    
+    public function removeImage(string $categoryId): bool;
 } 

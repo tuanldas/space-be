@@ -35,8 +35,8 @@ Route::middleware('auth:api')->group(function () {
     
     // Transaction Categories Routes
     Route::get('transaction-categories/trashed', [TransactionCategoryController::class, 'trashed']);
-    Route::post('transaction-categories/{id}/restore', [TransactionCategoryController::class, 'restore']);
-    Route::delete('transaction-categories/{id}/force', [TransactionCategoryController::class, 'forceDelete']);
+    Route::post('transaction-categories/{transaction_category}/restore', [TransactionCategoryController::class, 'restore']);
+    Route::delete('transaction-categories/{transaction_category}/force', [TransactionCategoryController::class, 'forceDelete']);
     Route::apiResource('transaction-categories', TransactionCategoryController::class);
 });
 

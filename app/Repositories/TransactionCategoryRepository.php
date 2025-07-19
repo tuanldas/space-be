@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Image;
 use App\Models\TransactionCategory;
 use App\Repositories\Interfaces\TransactionCategoryRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -65,5 +66,33 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
     public function forceDelete(string $id): bool
     {
         return $this->model->withTrashed()->findOrFail($id)->forceDelete();
+    }
+    
+    public function attachImage(TransactionCategory $category, array $imageData): Image
+    {
+        return $category->image()->create($imageData);
+    }
+    
+    public function updateImage(TransactionCategory $category, array $imageData): ?Image
+    {
+        $image = $category->image;
+        
+        if (!$image) {
+            return $this->attachImage($category, $imageData);
+        }
+        
+        $image->update($imageData);
+        return $image->fresh();
+    }
+    
+    public function removeImage(TransactionCategory $category): bool
+    {
+        $image = $category->image;
+        
+        if (!$image) {
+            return false;
+        }
+        
+        return $image->delete();
     }
 } 
