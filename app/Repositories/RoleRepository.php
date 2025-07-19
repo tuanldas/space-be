@@ -12,11 +12,13 @@ use Silber\Bouncer\Database\Role;
 class RoleRepository extends BaseRepository implements RoleRepositoryInterface
 {
     /**
-     * RoleRepository constructor.
+     * Get model
+     * 
+     * @return string
      */
-    public function __construct()
+    public function getModel()
     {
-        parent::__construct(app(Role::class));
+        return Role::class;
     }
 
     /**

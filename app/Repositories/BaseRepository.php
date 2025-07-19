@@ -6,7 +6,7 @@ use App\Repositories\Interfaces\EloquentRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 
-class BaseRepository implements EloquentRepositoryInterface
+abstract class BaseRepository implements EloquentRepositoryInterface
 {
     /**
      * @var Model
@@ -15,12 +15,27 @@ class BaseRepository implements EloquentRepositoryInterface
 
     /**
      * BaseRepository constructor.
-     * 
-     * @param Model $model
      */
-    public function __construct(Model $model)
+    public function __construct()
     {
-        $this->model = $model;
+        $this->setModel();
+    }
+
+    /**
+     * Get model
+     * 
+     * @return string
+     */
+    abstract public function getModel();
+
+    /**
+     * Set model
+     */
+    public function setModel()
+    {
+        $this->model = app()->make(
+            $this->getModel()
+        );
     }
 
     /**

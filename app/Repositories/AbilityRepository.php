@@ -11,11 +11,13 @@ use Bouncer;
 class AbilityRepository extends BaseRepository implements AbilityRepositoryInterface
 {
     /**
-     * AbilityRepository constructor.
+     * Get model
+     * 
+     * @return string
      */
-    public function __construct()
+    public function getModel()
     {
-        parent::__construct(app(Ability::class));
+        return Ability::class;
     }
 
     /**

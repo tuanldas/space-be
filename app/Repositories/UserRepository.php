@@ -9,13 +9,13 @@ use App\Repositories\Interfaces\UserRepositoryInterface;
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
     /**
-     * UserRepository constructor.
+     * Get model
      * 
-     * @param User $model
+     * @return string
      */
-    public function __construct(User $model)
+    public function getModel()
     {
-        parent::__construct($model);
+        return User::class;
     }
 
     /**
