@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\TransactionCategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/users/assign-role', [RoleController::class, 'assignRoleToUser']);
     Route::post('/users/remove-role', [RoleController::class, 'removeRoleFromUser']);
     Route::get('/roles/{roleName}/users', [RoleController::class, 'getUsersByRole']);
+    
+    // Transaction Categories Routes
+    Route::get('transaction-categories/trashed', [TransactionCategoryController::class, 'trashed']);
+    Route::post('transaction-categories/{id}/restore', [TransactionCategoryController::class, 'restore']);
+    Route::delete('transaction-categories/{id}/force', [TransactionCategoryController::class, 'forceDelete']);
+    Route::apiResource('transaction-categories', TransactionCategoryController::class);
 });
 
 Route::get('/test', function () {

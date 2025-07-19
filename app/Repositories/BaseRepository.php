@@ -3,13 +3,17 @@
 namespace App\Repositories;
 
 use App\Repositories\Interfaces\EloquentRepositoryInterface;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @template T of Model
+ * @implements EloquentRepositoryInterface<T>
+ */
 abstract class BaseRepository implements EloquentRepositoryInterface
 {
     /**
-     * @var Model
+     * @var T
      */
     protected $model;
 
@@ -24,7 +28,7 @@ abstract class BaseRepository implements EloquentRepositoryInterface
     /**
      * Get model
      * 
-     * @return string
+     * @return class-string<T>
      */
     abstract public function getModel();
 
@@ -40,6 +44,7 @@ abstract class BaseRepository implements EloquentRepositoryInterface
 
     /**
      * @inheritDoc
+     * @return Collection<T>
      */
     public function all(array $columns = ['*'], array $relations = []): Collection
     {
@@ -48,6 +53,7 @@ abstract class BaseRepository implements EloquentRepositoryInterface
 
     /**
      * @inheritDoc
+     * @return T
      */
     public function findById(
         int $modelId,
@@ -60,6 +66,20 @@ abstract class BaseRepository implements EloquentRepositoryInterface
 
     /**
      * @inheritDoc
+     * @return T
+     */
+    public function findByUuid(
+        string $uuid,
+        array $columns = ['*'],
+        array $relations = [],
+        array $appends = []
+    ): ?Model {
+        return $this->model->select($columns)->with($relations)->findOrFail($uuid)->append($appends);
+    }
+
+    /**
+     * @inheritDoc
+     * @return T
      */
     public function create(array $payload): ?Model
     {
@@ -79,8 +99,25 @@ abstract class BaseRepository implements EloquentRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function updateByUuid(string $uuid, array $payload): bool
+    {
+        $model = $this->findByUuid($uuid);
+        return $model->update($payload);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function deleteById(int $modelId): bool
     {
         return $this->findById($modelId)->delete();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteByUuid(string $uuid): bool
+    {
+        return $this->findByUuid($uuid)->delete();
     }
 } 

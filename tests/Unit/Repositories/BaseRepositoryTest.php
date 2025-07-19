@@ -4,16 +4,17 @@ namespace Tests\Unit\Repositories;
 
 use App\Models\User;
 use App\Repositories\BaseRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BaseRepositoryTest extends RepositoryTestCase
 {
-    private BaseRepository $repository;
+    private UserRepository $repository;
     
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new BaseRepository(new User());
+        $this->repository = new UserRepository();
     }
     
     public function test_all_returns_all_records(): void

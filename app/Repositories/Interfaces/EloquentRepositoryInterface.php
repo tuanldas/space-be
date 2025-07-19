@@ -2,9 +2,12 @@
 
 namespace App\Repositories\Interfaces;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @template T of Model
+ */
 interface EloquentRepositoryInterface
 {
     /**
@@ -12,7 +15,7 @@ interface EloquentRepositoryInterface
      * 
      * @param array $columns
      * @param array $relations
-     * @return Collection
+     * @return Collection<T>
      */
     public function all(array $columns = ['*'], array $relations = []): Collection;
 
@@ -23,7 +26,7 @@ interface EloquentRepositoryInterface
      * @param array $columns
      * @param array $relations
      * @param array $appends
-     * @return Model|null
+     * @return T|null
      */
     public function findById(
         int $modelId,
@@ -33,10 +36,26 @@ interface EloquentRepositoryInterface
     ): ?Model;
 
     /**
+     * Find model by uuid.
+     * 
+     * @param string $uuid
+     * @param array $columns
+     * @param array $relations
+     * @param array $appends
+     * @return T|null
+     */
+    public function findByUuid(
+        string $uuid,
+        array $columns = ['*'],
+        array $relations = [],
+        array $appends = []
+    ): ?Model;
+
+    /**
      * Create a model.
      * 
      * @param array $payload
-     * @return Model
+     * @return T|null
      */
     public function create(array $payload): ?Model;
 
@@ -50,10 +69,27 @@ interface EloquentRepositoryInterface
     public function update(int $modelId, array $payload): bool;
 
     /**
+     * Update existing model by UUID.
+     * 
+     * @param string $uuid
+     * @param array $payload
+     * @return bool
+     */
+    public function updateByUuid(string $uuid, array $payload): bool;
+
+    /**
      * Delete model by id.
      * 
      * @param int $modelId
      * @return bool
      */
     public function deleteById(int $modelId): bool;
+
+    /**
+     * Delete model by uuid.
+     * 
+     * @param string $uuid
+     * @return bool
+     */
+    public function deleteByUuid(string $uuid): bool;
 } 

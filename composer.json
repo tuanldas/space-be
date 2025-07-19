@@ -15,7 +15,9 @@
         "laravel/passport": "^13.0",
         "laravel/tinker": "^2.10.1",
         "predis/predis": "^3.0",
-        "silber/bouncer": "^1.0"
+        "ramsey/uuid": "^4.7",
+        "silber/bouncer": "^1.0",
+        "symfony/uid": "^7.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
