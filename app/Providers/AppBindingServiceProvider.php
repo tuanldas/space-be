@@ -25,11 +25,13 @@ use App\Repositories\Interfaces\TransactionCategoryRepositoryInterface;
 use App\Repositories\TransactionCategoryRepository;
 use App\Services\Interfaces\TransactionCategoryServiceInterface;
 use App\Services\TransactionCategoryService;
+use App\Adapters\FileAdapter;
+use App\Adapters\Interfaces\FileAdapterInterface;
 
 class AppBindingServiceProvider extends ServiceProvider
 {
     /**
-     * Register services.
+     * Register any application services.
      */
     public function register(): void
     {
@@ -49,6 +51,7 @@ class AppBindingServiceProvider extends ServiceProvider
         
         // Adapters
         $this->app->bind(OAuthAdapterInterface::class, OAuthAdapter::class);
+        $this->app->bind(FileAdapterInterface::class, FileAdapter::class);
     }
 
     /**
