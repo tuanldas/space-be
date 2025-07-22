@@ -29,6 +29,7 @@ services:
       - '${FORWARD_REDIS_PORT:-6379}:6379'
 
   vite:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: DockerfileVite
@@ -39,7 +40,7 @@ services:
     ports:
       - "5173:5173"
     networks:
-      - app-network
+      - default
     environment:
       - VITE_APP_ENV=local
       - CHOKIDAR_USEPOLLING=true
@@ -54,7 +55,3 @@ services:
 volumes:
   node_modules:
     driver: local
-
-networks:
-  app-network:
-    external: true

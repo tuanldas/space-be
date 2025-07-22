@@ -9,11 +9,24 @@ return [
     |
     | Here you may specify the default filesystem disk that should be used
     | by the framework. The "local" disk, as well as a variety of cloud
-    | based disks are available to your application for file storage.
+    | based disks are available to your application. Just store away!
     |
     */
 
     'default' => env('FILESYSTEM_DISK', 'local'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Upload Disk
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the default disk that will be used for file uploads.
+    | This is separate from the 'default' option to allow different disks for
+    | system operations versus user uploads.
+    |
+    */
+
+    'default_upload_disk' => env('FILESYSTEM_UPLOAD_DISK', 'public'),
 
     /*
     |--------------------------------------------------------------------------

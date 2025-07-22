@@ -188,6 +188,52 @@
             "description": "Logout current user (revoke tokens)"
           },
           "response": []
+        },
+        {
+          "name": "Get Current User Profile",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "me"]
+            },
+            "description": "Get current authenticated user's profile with roles and permissions"
+          },
+          "response": []
         }
       ],
       "event": [
@@ -252,7 +298,7 @@
       "description": "User related endpoints",
       "item": [
         {
-          "name": "Get User Profile",
+          "name": "List Users",
           "event": [
             {
               "listen": "prerequest",
@@ -289,11 +335,984 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/user",
+              "raw": "{{base_url}}/api/users?per_page=10&search=",
               "host": ["{{base_url}}"],
-              "path": ["api", "user"]
+              "path": ["api", "users"],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "10",
+                  "description": "Number of items per page"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search term to filter users"
+                }
+              ]
             },
-            "description": "Get current authenticated user's profile"
+            "description": "Get paginated list of users with optional search filter"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "1"]
+            },
+            "description": "Get a specific user by ID"
+          },
+          "response": []
+        },
+                {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"New User\",\n    \"email\": \"newuser@example.com\",\n    \"password\": \"Password123!\",\n    \"password_confirmation\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            },
+            "description": "Create a new user"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated User Name\",\n    \"email\": \"updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "2"]
+            },
+            "description": "Update an existing user"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+                }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "2"]
+            },
+            "description": "Delete a user"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Role & Permission Management",
+      "description": "Endpoints for managing roles and permissions",
+      "item": [
+        {
+          "name": "List All Roles",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/roles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "roles"]
+            },
+            "description": "Get list of all roles with their abilities"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Role Details",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/roles/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "roles", "1"]
+            },
+            "description": "Get details of a specific role by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Role",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"manager\",\n    \"title\": \"Quản lý\",\n    \"abilities\": [\"view-users\", \"create-users\", \"update-users\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/roles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "roles"]
+            },
+            "description": "Create a new role with specified permissions"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Role",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"manager-updated\",\n    \"title\": \"Quản lý Cấp cao\",\n    \"abilities\": [\"view-users\", \"create-users\", \"update-users\", \"delete-users\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/roles/3",
+              "host": ["{{base_url}}"],
+              "path": ["api", "roles", "3"]
+            },
+            "description": "Update an existing role (change name, title or permissions)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Role",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/roles/3",
+              "host": ["{{base_url}}"],
+              "path": ["api", "roles", "3"]
+            },
+            "description": "Delete a role (not possible if it's the only role for any user)"
+          },
+          "response": []
+        },
+        {
+          "name": "List All Abilities",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/abilities",
+              "host": ["{{base_url}}"],
+              "path": ["api", "abilities"]
+            },
+            "description": "Get list of all available abilities (permissions) in the system"
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Role to User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user_id\": 2,\n    \"role\": \"editor\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/assign-role",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "assign-role"]
+            },
+            "description": "Assign a role to a user"
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Role from User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user_id\": 2,\n    \"role\": \"editor\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/remove-role",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "remove-role"]
+            },
+            "description": "Remove a role from a user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Users by Role",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This script will run before the request is sent",
+                  "// It ensures the Authorization header is set with the current access token",
+                  "const accessToken = pm.collectionVariables.get('access_token');",
+                  "if (accessToken) {",
+                  "    pm.request.headers.upsert({",
+                  "        key: 'Authorization',",
+                  "        value: 'Bearer ' + accessToken",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/roles/admin/users?per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "roles", "admin", "users"],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "10",
+                  "description": "Number of items per page"
+                }
+              ]
+            },
+            "description": "Get list of users with a specific role"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transaction Categories",
+      "description": "Transaction Categories management endpoints",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/transaction-categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transaction-categories"],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15",
+                  "description": "Number of items per page",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "expense",
+                  "description": "Filter by type (expense, income)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all transaction categories for the current user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/transaction-categories/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transaction-categories", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "category_id_here",
+                  "description": "UUID of the transaction category"
+                }
+              ]
+            },
+            "description": "Get a specific transaction category by its UUID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Groceries",
+                  "type": "text",
+                  "description": "Category name"
+                },
+                {
+                  "key": "description",
+                  "value": "Daily groceries and supermarket shopping",
+                  "type": "text",
+                  "description": "Optional description"
+                },
+                {
+                  "key": "type",
+                  "value": "expense",
+                  "type": "text",
+                  "description": "Category type (income, expense, transfer)"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "description": "Category image (required)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/transaction-categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transaction-categories"]
+            },
+            "description": "Create a new transaction category with image (image field is required)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Category Name",
+                  "type": "text",
+                  "description": "Category name"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated description",
+                  "type": "text",
+                  "description": "Optional description"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "description": "Category image (optional for updates)"
+                },
+                {
+                  "key": "_method",
+                  "value": "PUT",
+                  "type": "text",
+                  "description": "HTTP method override"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/transaction-categories/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transaction-categories", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "category_id_here",
+                  "description": "UUID of the transaction category"
+                }
+              ]
+            },
+            "description": "Update an existing transaction category (image field is optional)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/transaction-categories/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transaction-categories", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "category_id_here",
+                  "description": "UUID of the transaction category"
+                }
+              ]
+            },
+            "description": "Soft delete a transaction category (move to trash)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Trashed Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/transaction-categories/trashed",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transaction-categories", "trashed"],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all soft-deleted transaction categories for the current user"
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/transaction-categories/:id/restore",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transaction-categories", ":id", "restore"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "category_id_here",
+                  "description": "UUID of the transaction category"
+                }
+              ]
+            },
+            "description": "Restore a soft-deleted transaction category"
+          },
+          "response": []
+        },
+        {
+          "name": "Force Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/transaction-categories/:id/force",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transaction-categories", ":id", "force"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "category_id_here",
+                  "description": "UUID of the transaction category"
+                }
+              ]
+            },
+            "description": "Permanently delete a transaction category"
           },
           "response": []
         }
@@ -388,7 +1407,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:8089",
+      "value": "http://127.0.0.1:8000",
       "type": "string"
     },
     {

@@ -75,12 +75,18 @@ RUN apt-get update \
         libjpeg62-turbo-dev \
         libfreetype6-dev \
         libonig-dev \
-        nodejs \
+        curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     # Reinstall extensions to ensure they work properly
     && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
-    && docker-php-ext-install gd zip
+    && docker-php-ext-install gd zip \
+    # Install Node.js and npm properly
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash \
+    && apt-get update \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy php.ini and supervisor configs
 COPY php.ini /usr/local/etc/php/conf.d/
