@@ -4,8 +4,8 @@ services:
       context: ./
       dockerfile: docker/nginx/Dockerfile
     volumes:
-      - ./docker/nginx/nginx_proxy.conf:/etc/nginx/conf.d/nginx_proxy.conf:ro
-      - ./:/var/www/app:ro
+      - ./docker/nginx/nginx_proxy.conf:/etc/nginx/conf.d/nginx_proxy.conf
+      - ./:/var/www/app
     depends_on:
       php-fpm:
         condition: service_healthy
