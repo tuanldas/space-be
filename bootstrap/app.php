@@ -15,9 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->api(AddCookieToRequest::class);
-        $middleware->api(SetApiLanguage::class);
+        // Global middlewares
         $middleware->prepend(HandleCors::class);
+        $middleware->prepend(AddCookieToRequest::class);
+        
+        // API specific middlewares (runs after globals)
+        $middleware->api(SetApiLanguage::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
