@@ -89,6 +89,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Supported Locales
+    |--------------------------------------------------------------------------
+    |
+    | This array contains the list of languages that are supported by the
+    | application. The middleware will verify that the requested language is
+    | in this list before changing the current locale.
+    |
+    */
+
+    'supported_locales' => ['vi', 'en'],
+
+    /*
+    |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |

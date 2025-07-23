@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "57e11b1c-5511-4a08-be30-756f942a0e60",
     "name": "Space Backend API",
-    "description": "API documentation for the Space Backend application",
+    "description": "API documentation for the Space Backend application.\n\n## Authentication\n\nThe API uses cookie-based authentication. When you log in, the server will return tokens as HTTP-only cookies instead of in the JSON response. Make sure your client is configured to send cookies with requests by setting `withCredentials: true`.\n\n## Multi-language Support\n\nAll API endpoints support language localization. You can set the language in two ways:\n\n1. Via query parameter: Add `?lang=en` or `?lang=vi` to your requests\n2. Via Accept-Language header: Set the `Accept-Language` header to `en` or `vi`\n\nSupported languages: Vietnamese (vi) and English (en).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -22,6 +22,10 @@
               {
                 "key": "Accept",
                 "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}"
               }
             ],
             "body": {
@@ -29,9 +33,9 @@
               "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\",\n    \"password_confirmation\": \"Password123!\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/register",
+              "raw": "{{base_url}}/api/auth/register",
               "host": ["{{base_url}}"],
-              "path": ["api", "register"]
+              "path": ["api", "auth", "register"]
             },
             "description": "Register a new user account"
           },
@@ -44,6 +48,9 @@
               "listen": "test",
               "script": {
                 "exec": [
+                  "// Note: With cookie authentication, tokens might not be in the JSON response",
+                  "// This script is kept for backwards compatibility or if tokens are included in response",
+                  "",
                   "const response = pm.response.json();",
                   "",
                   "if (response.access_token) {",
@@ -61,7 +68,13 @@
                   "    expiryTime.setSeconds(expiryTime.getSeconds() + response.expires_in);",
                   "    pm.collectionVariables.set('token_expiry', expiryTime.getTime().toString());",
                   "    console.log('Token expiry time saved: ' + expiryTime);",
-                  "}"
+                  "}",
+                  "",
+                  "// Always check if login was successful",
+                  "pm.test(\"Login successful\", function() {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    pm.expect(response).to.have.property('message');",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
@@ -77,6 +90,10 @@
               {
                 "key": "Accept",
                 "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}"
               }
             ],
             "body": {
@@ -84,11 +101,11 @@
               "raw": "{\n    \"email\": \"tuanldas@gmail.com\",\n    \"password\": \"123123\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/login",
+              "raw": "{{base_url}}/api/auth/login",
               "host": ["{{base_url}}"],
-              "path": ["api", "login"]
+              "path": ["api", "auth", "login"]
             },
-            "description": "Login with admin credentials (tuanldas@gmail.com/123123) to get access token"
+            "description": "Login with admin credentials (tuanldas@gmail.com/123123). Authentication tokens will be set as HTTP-only cookies. Make sure to enable 'Send cookies' in Postman settings for this request."
           },
           "response": []
         },
@@ -99,6 +116,9 @@
               "listen": "test",
               "script": {
                 "exec": [
+                  "// Note: With cookie authentication, tokens might not be in the JSON response",
+                  "// This script is kept for backwards compatibility or if tokens are included in response",
+                  "",
                   "const response = pm.response.json();",
                   "",
                   "if (response.access_token) {",
@@ -116,7 +136,13 @@
                   "    expiryTime.setSeconds(expiryTime.getSeconds() + response.expires_in);",
                   "    pm.collectionVariables.set('token_expiry', expiryTime.getTime().toString());",
                   "    console.log('Token expiry time updated: ' + expiryTime);",
-                  "}"
+                  "}",
+                  "",
+                  "// Always check if refresh was successful",
+                  "pm.test(\"Token refresh successful\", function() {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    pm.expect(response).to.have.property('message');",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
@@ -147,6 +173,10 @@
               {
                 "key": "Accept",
                 "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}"
               }
             ],
             "body": {
@@ -154,11 +184,11 @@
               "raw": "{\n    \"refresh_token\": \"{{refresh_token}}\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/refresh-token",
+              "raw": "{{base_url}}/api/auth/refresh-token",
               "host": ["{{base_url}}"],
-              "path": ["api", "refresh-token"]
+              "path": ["api", "auth", "refresh-token"]
             },
-            "description": "Refresh access token using refresh token"
+            "description": "Refresh access token using refresh token. The refresh token will be automatically read from cookie if not provided in the request body. New tokens will be set as HTTP-only cookies."
           },
           "response": []
         },
@@ -181,11 +211,11 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/logout",
+              "raw": "{{base_url}}/api/auth/logout",
               "host": ["{{base_url}}"],
-              "path": ["api", "logout"]
+              "path": ["api", "auth", "logout"]
             },
-            "description": "Logout current user (revoke tokens)"
+            "description": "Logout current user. This will revoke the current token and clear authentication cookies."
           },
           "response": []
         },
@@ -227,9 +257,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/me",
+              "raw": "{{base_url}}/api/auth/me",
               "host": ["{{base_url}}"],
-              "path": ["api", "me"]
+              "path": ["api", "auth", "me"]
             },
             "description": "Get current authenticated user's profile with roles and permissions"
           },
@@ -254,7 +284,7 @@
               "        console.log('Token is about to expire, refreshing...');",
               "        ",
               "        pm.sendRequest({",
-              "            url: pm.collectionVariables.get('base_url') + '/api/refresh-token',",
+              "            url: pm.collectionVariables.get('base_url') + '/api/auth/refresh-token',",
               "            method: 'POST',",
               "            header: {",
               "                'Content-Type': 'application/json',",
@@ -1366,7 +1396,7 @@
           "        console.log('Token is about to expire, refreshing...');",
           "        ",
           "        pm.sendRequest({",
-          "            url: pm.collectionVariables.get('base_url') + '/api/refresh-token',",
+          "            url: pm.collectionVariables.get('base_url') + '/api/auth/refresh-token',",
           "            method: 'POST',",
           "            header: {",
           "                'Content-Type': 'application/json',",
@@ -1409,6 +1439,12 @@
       "key": "base_url",
       "value": "http://127.0.0.1:8000",
       "type": "string"
+    },
+    {
+      "key": "language",
+      "value": "vi",
+      "type": "string",
+      "description": "API language (vi/en). Used for Accept-Language header and query parameter."
     },
     {
       "key": "access_token",
