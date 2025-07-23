@@ -38,7 +38,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Login user and get tokens.
+     * Login user and set tokens as cookies.
      * 
      * @param LoginRequest $request
      * @return JsonResponse
@@ -46,8 +46,36 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $result = $this->authService->login($request->validated());
-
-        return response()->json($result);
+        
+        $accessTokenExpiration = isset($result['expires_in']) ? ceil($result['expires_in'] / 60) : 60 * 24 * 15;
+        $refreshTokenExpiration = $accessTokenExpiration * 2;
+        
+        $response = response()->json([
+            'message' => $result['message'],
+            'user' => $result['user']
+        ]);
+        
+        $response->cookie(
+            'access_token', 
+            $result['access_token'], 
+            $accessTokenExpiration,
+            null, 
+            null, 
+            config('app.env') !== 'local',
+            true
+        );
+        
+        $response->cookie(
+            'refresh_token', 
+            $result['refresh_token'], 
+            $refreshTokenExpiration,
+            null, 
+            null, 
+            config('app.env') !== 'local',
+            true
+        );
+        
+        return $response;
     }
 
     /**
@@ -58,9 +86,37 @@ class AuthController extends Controller
      */
     public function refreshToken(RefreshTokenRequest $request): JsonResponse
     {
-        $result = $this->authService->refreshToken($request->refresh_token);
-
-        return response()->json($result);
+        $refreshToken = $request->refresh_token ?? $request->cookie('refresh_token');
+        $result = $this->authService->refreshToken($refreshToken);
+        
+        $accessTokenExpiration = isset($result['expires_in']) ? ceil($result['expires_in'] / 60) : 60 * 24 * 15;
+        $refreshTokenExpiration = $accessTokenExpiration * 2;
+        
+        $response = response()->json([
+            'message' => $result['message']
+        ]);
+        
+        $response->cookie(
+            'access_token', 
+            $result['access_token'], 
+            $accessTokenExpiration,
+            null, 
+            null, 
+            config('app.env') !== 'local',
+            true
+        );
+        
+        $response->cookie(
+            'refresh_token', 
+            $result['refresh_token'], 
+            $refreshTokenExpiration,
+            null, 
+            null, 
+            config('app.env') !== 'local',
+            true
+        );
+        
+        return $response;
     }
 
     /**
@@ -72,8 +128,13 @@ class AuthController extends Controller
     public function logout(Request $request): JsonResponse
     {
         $result = $this->authService->logout($request);
-
-        return response()->json($result);
+        
+        $response = response()->json($result);
+        
+        $response->cookie('access_token', '', -1);
+        $response->cookie('refresh_token', '', -1);
+        
+        return $response;
     }
     
     /**

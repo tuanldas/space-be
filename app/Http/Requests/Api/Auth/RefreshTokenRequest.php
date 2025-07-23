@@ -22,7 +22,22 @@ class RefreshTokenRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'refresh_token' => 'required',
+            'refresh_token' => 'sometimes|string',
         ];
+    }
+    
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        // Nếu refresh_token không được cung cấp trong request nhưng có trong cookie
+        if (!$this->has('refresh_token') && $this->cookie('refresh_token')) {
+            $this->merge([
+                'refresh_token' => $this->cookie('refresh_token')
+            ]);
+        }
     }
 } 
