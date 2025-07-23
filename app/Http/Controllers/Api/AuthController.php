@@ -7,8 +7,8 @@ use App\Http\Requests\Api\Auth\LoginRequest;
 use App\Http\Requests\Api\Auth\RefreshTokenRequest;
 use App\Http\Requests\Api\Auth\RegisterRequest;
 use App\Services\Interfaces\AuthServiceInterface;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -16,7 +16,7 @@ class AuthController extends Controller
 
     /**
      * AuthController constructor.
-     * 
+     *
      * @param AuthServiceInterface $authService
      */
     public function __construct(AuthServiceInterface $authService)
@@ -26,7 +26,7 @@ class AuthController extends Controller
 
     /**
      * Register a new user.
-     * 
+     *
      * @param RegisterRequest $request
      * @return JsonResponse
      */
@@ -39,48 +39,48 @@ class AuthController extends Controller
 
     /**
      * Login user and set tokens as cookies.
-     * 
+     *
      * @param LoginRequest $request
      * @return JsonResponse
      */
     public function login(LoginRequest $request): JsonResponse
     {
         $result = $this->authService->login($request->validated());
-        
+
         $accessTokenExpiration = isset($result['expires_in']) ? ceil($result['expires_in'] / 60) : 60 * 24 * 15;
         $refreshTokenExpiration = $accessTokenExpiration * 2;
-        
+
         $response = response()->json([
             'message' => $result['message'],
             'user' => $result['user']
         ]);
-        
+
         $response->cookie(
-            'access_token', 
-            $result['access_token'], 
+            'access_token',
+            $result['access_token'],
             $accessTokenExpiration,
-            null, 
-            null, 
+            null,
+            null,
             config('app.env') !== 'local',
             true
         );
-        
+
         $response->cookie(
-            'refresh_token', 
-            $result['refresh_token'], 
+            'refresh_token',
+            $result['refresh_token'],
             $refreshTokenExpiration,
-            null, 
-            null, 
+            null,
+            null,
             config('app.env') !== 'local',
             true
         );
-        
+
         return $response;
     }
 
     /**
      * Refresh access token.
-     * 
+     *
      * @param RefreshTokenRequest $request
      * @return JsonResponse
      */
@@ -88,65 +88,65 @@ class AuthController extends Controller
     {
         $refreshToken = $request->refresh_token ?? $request->cookie('refresh_token');
         $result = $this->authService->refreshToken($refreshToken);
-        
+
         $accessTokenExpiration = isset($result['expires_in']) ? ceil($result['expires_in'] / 60) : 60 * 24 * 15;
         $refreshTokenExpiration = $accessTokenExpiration * 2;
-        
+
         $response = response()->json([
             'message' => $result['message']
         ]);
-        
+
         $response->cookie(
-            'access_token', 
-            $result['access_token'], 
+            'access_token',
+            $result['access_token'],
             $accessTokenExpiration,
-            null, 
-            null, 
+            null,
+            null,
             config('app.env') !== 'local',
             true
         );
-        
+
         $response->cookie(
-            'refresh_token', 
-            $result['refresh_token'], 
+            'refresh_token',
+            $result['refresh_token'],
             $refreshTokenExpiration,
-            null, 
-            null, 
+            null,
+            null,
             config('app.env') !== 'local',
             true
         );
-        
+
         return $response;
     }
 
     /**
      * Logout user.
-     * 
+     *
      * @param Request $request
      * @return JsonResponse
      */
     public function logout(Request $request): JsonResponse
     {
         $result = $this->authService->logout($request);
-        
+
         $response = response()->json($result);
-        
+
         $response->cookie('access_token', '', -1);
         $response->cookie('refresh_token', '', -1);
-        
+
         return $response;
     }
-    
+
     /**
      * Get current user's information with roles and abilities.
-     * 
+     *
      * @param Request $request
      * @return JsonResponse
      */
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
@@ -155,4 +155,4 @@ class AuthController extends Controller
             'abilities' => $user->getAbilities()->pluck('name'),
         ]);
     }
-} 
+}

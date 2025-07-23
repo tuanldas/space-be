@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\AddCookieToRequest;
+use Illuminate\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,14 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(AddCookieToRequest::class);
-        
-        // Kích hoạt middleware CORS toàn cục (tất cả các request)
-        $middleware->group('web')
-            ->prependMiddleware(\Illuminate\Http\Middleware\HandleCors::class);
-        
-        // Kích hoạt middleware CORS cho API routes
-        $middleware->group('api')
-            ->prependMiddleware(\Illuminate\Http\Middleware\HandleCors::class);
+        $middleware->prepend(HandleCors::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
