@@ -55,6 +55,9 @@ class AuthController extends Controller
             'user' => $result['user']
         ]);
 
+        // Trong môi trường local, không thiết lập HttpOnly để JS có thể truy cập
+        $isHttpOnly = config('app.env') !== 'local';
+
         $response->cookie(
             'access_token',
             $result['access_token'],
@@ -62,7 +65,7 @@ class AuthController extends Controller
             null,
             null,
             config('app.env') !== 'local',
-            true
+            $isHttpOnly
         );
 
         $response->cookie(
@@ -72,7 +75,7 @@ class AuthController extends Controller
             null,
             null,
             config('app.env') !== 'local',
-            true
+            $isHttpOnly
         );
 
         return $response;
@@ -96,6 +99,9 @@ class AuthController extends Controller
             'message' => $result['message']
         ]);
 
+        // Trong môi trường local, không thiết lập HttpOnly để JS có thể truy cập
+        $isHttpOnly = config('app.env') !== 'local';
+
         $response->cookie(
             'access_token',
             $result['access_token'],
@@ -103,7 +109,7 @@ class AuthController extends Controller
             null,
             null,
             config('app.env') !== 'local',
-            true
+            $isHttpOnly
         );
 
         $response->cookie(
@@ -113,7 +119,7 @@ class AuthController extends Controller
             null,
             null,
             config('app.env') !== 'local',
-            true
+            $isHttpOnly
         );
 
         return $response;
