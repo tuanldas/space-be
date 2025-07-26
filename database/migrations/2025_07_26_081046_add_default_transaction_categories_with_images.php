@@ -53,7 +53,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Lấy user system đầu tiên hoặc tạo mới nếu chưa có
         $adminUser = User::firstOrCreate(
             ['email' => 'admin@system.com'],
             [
@@ -63,10 +62,8 @@ return new class extends Migration
             ]
         );
 
-        // Xóa tất cả các danh mục mặc định hiện có (nếu có)
         TransactionCategory::where('is_default', true)->delete();
 
-        // Tạo các danh mục mặc định mới với hình ảnh
         foreach ($this->categoryImageMap as $type => $categories) {
             foreach ($categories as $name => $imagePath) {
                 $this->createCategoryWithImage($name, $type, $imagePath, $adminUser->id);
@@ -79,7 +76,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Xóa các danh mục mặc định đã thêm
         TransactionCategory::where('is_default', true)->delete();
     }
 
@@ -88,7 +84,6 @@ return new class extends Migration
      */
     private function createCategoryWithImage(string $name, string $type, string $imagePath, int $userId): void
     {
-        // Tạo danh mục giao dịch
         $category = TransactionCategory::create([
             'name' => $name,
             'description' => "Danh mục $name",
@@ -97,10 +92,8 @@ return new class extends Migration
             'is_default' => true,
         ]);
 
-        // Đường dẫn đầy đủ đến file hình ảnh
         $path = "transaction-categories/$imagePath";
 
-        // Tạo bản ghi hình ảnh cho danh mục
         Image::create([
             'user_id' => $userId,
             'disk' => 'public',

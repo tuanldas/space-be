@@ -66,12 +66,10 @@ class TransactionCategory extends Model
     {
         $array = parent::toArray();
         
-        // Thay thế thông tin hình ảnh chi tiết bằng URL
         if (isset($array['image'])) {
             $array['image'] = $array['image_url'];
         }
         
-        // Xóa trường image_url thừa
         unset($array['image_url']);
         
         return $array;
