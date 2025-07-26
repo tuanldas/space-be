@@ -31,7 +31,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
      */
     public function getUsersWithRoles(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        return $this->model->newQuery()
+        $users = $this->model->newQuery()
             ->when(isset($filters['search']), function ($query) use ($filters) {
                 return $query->where(function ($query) use ($filters) {
                     $searchTerm = '%' . $filters['search'] . '%';
@@ -43,8 +43,15 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                 return $query->whereIs($filters['role']);
             })
             ->with(['roles' => function($query) {
-                $query->select(['id', 'name', 'title']);
+                $query->select(['roles.id', 'roles.name', 'roles.title']);
             }])
             ->paginate($perPage);
+        
+        $users->getCollection()->transform(function ($user) {
+            $user->roles->makeHidden(['pivot']);
+            return $user;
+        });
+        
+        return $users;
     }
 } 

@@ -31,7 +31,15 @@ class UserService implements UserServiceInterface
      */
     public function getUserById(int $userId): ?User
     {
-        return $this->userRepository->findById($userId, ['*'], ['roles:id,name,title']);
+        $user = $this->userRepository->findById($userId, ['*'], ['roles' => function($query) {
+            $query->select(['roles.id', 'roles.name', 'roles.title']);
+        }]);
+        
+        if ($user) {
+            $user->roles->makeHidden(['pivot']);
+        }
+        
+        return $user;
     }
 
     /**
