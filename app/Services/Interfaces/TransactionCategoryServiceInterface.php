@@ -13,6 +13,13 @@ interface TransactionCategoryServiceInterface
 
     public function getById(string $id): TransactionCategory;
 
+    public function findTrashedByUuid(
+        string $id,
+        array $columns = ['*'],
+        array $relations = [],
+        array $appends = []
+    ): ?TransactionCategory;
+
     public function create(array $data): TransactionCategory;
 
     public function update(string $id, array $data): bool;

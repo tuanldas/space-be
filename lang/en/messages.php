@@ -25,5 +25,7 @@ return [
         'force_deleted' => 'Category permanently deleted.',
         'not_found' => 'Category not found.',
         'not_found_in_trash' => 'Category not found in trash.',
+        'cannot_modify_default' => 'Default categories cannot be modified.',
+        'cannot_delete_default' => 'Default categories cannot be deleted.',
     ],
 ]; 

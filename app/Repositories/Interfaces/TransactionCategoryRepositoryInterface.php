@@ -25,6 +25,20 @@ interface TransactionCategoryRepositoryInterface extends EloquentRepositoryInter
     public function deleteByUuid(string $uuid): bool;
 
     /**
+     * @param string $uuid
+     * @param array $columns
+     * @param array $relations
+     * @param array $appends
+     * @return TransactionCategory|null
+     */
+    public function findTrashedByUuid(
+        string $uuid,
+        array $columns = ['*'],
+        array $relations = [],
+        array $appends = []
+    ): ?TransactionCategory;
+    
+    /**
      * @param int $perPage
      * @return LengthAwarePaginator
      */

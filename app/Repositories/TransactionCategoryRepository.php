@@ -22,6 +22,25 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
     {
         return $this->model->paginate($perPage);
     }
+    
+    public function findTrashedByUuid(
+        string $id,
+        array $columns = ['*'],
+        array $relations = [],
+        array $appends = []
+    ): ?TransactionCategory {
+        $model = $this->model->withTrashed()
+            ->where('id', $id)
+            ->select($columns)
+            ->with($relations)
+            ->first();
+            
+        if ($model && !empty($appends)) {
+            $model->append($appends);
+        }
+        
+        return $model;
+    }
 
     public function getAllByType(string $type, int $perPage = 15): LengthAwarePaginator
     {
@@ -35,14 +54,20 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
 
     public function getAllByUser(int $userId, int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->where('user_id', $userId)->paginate($perPage);
+        return $this->model->where(function($query) use ($userId) {
+            $query->where('user_id', $userId)
+                ->orWhere('is_default', true);
+        })->paginate($perPage);
     }
 
     public function getAllByUserAndType(int $userId, string $type, int $perPage = 15): LengthAwarePaginator
     {
         return $this->model
-            ->where('user_id', $userId)
             ->where('type', $type)
+            ->where(function($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhere('is_default', true);
+            })
             ->paginate($perPage);
     }
 

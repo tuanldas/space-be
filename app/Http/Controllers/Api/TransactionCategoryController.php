@@ -63,6 +63,14 @@ class TransactionCategoryController extends Controller
 
     public function update(UpdateTransactionCategoryRequest $request, string $id): JsonResponse
     {
+        $category = $this->transactionCategoryService->getById($id);
+        
+        if ($category->is_default) {
+            return response()->json([
+                'message' => __('messages.category.cannot_modify_default')
+            ], Response::HTTP_FORBIDDEN);
+        }
+        
         $data = $request->validated();
         
         $image = $request->file('image');
@@ -86,6 +94,14 @@ class TransactionCategoryController extends Controller
 
     public function destroy(string $id): JsonResponse
     {
+        $category = $this->transactionCategoryService->getById($id);
+        
+        if ($category->is_default) {
+            return response()->json([
+                'message' => __('messages.category.cannot_delete_default')
+            ], Response::HTTP_FORBIDDEN);
+        }
+        
         $this->transactionCategoryService->delete($id);
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
@@ -102,6 +118,14 @@ class TransactionCategoryController extends Controller
 
     public function restore(string $transaction_category): JsonResponse
     {
+        $category = $this->transactionCategoryService->findTrashedByUuid($transaction_category);
+        
+        if ($category && $category->is_default) {
+            return response()->json([
+                'message' => __('messages.category.cannot_modify_default')
+            ], Response::HTTP_FORBIDDEN);
+        }
+        
         $this->transactionCategoryService->restore($transaction_category);
         $category = $this->transactionCategoryService->getById($transaction_category);
 
@@ -111,9 +135,15 @@ class TransactionCategoryController extends Controller
     public function forceDelete(string $transaction_category): JsonResponse
     {
         // Kiểm tra xem danh mục có tồn tại trong thùng rác không
-        $exists = TransactionCategory::onlyTrashed()->where('id', $transaction_category)->exists();
-        if (!$exists) {
+        $category = TransactionCategory::onlyTrashed()->where('id', $transaction_category)->first();
+        if (!$category) {
             return response()->json(['message' => __('messages.category.not_found_in_trash')], Response::HTTP_NOT_FOUND);
+        }
+        
+        if ($category->is_default) {
+            return response()->json([
+                'message' => __('messages.category.cannot_delete_default')
+            ], Response::HTTP_FORBIDDEN);
         }
         
         // Xóa hình ảnh trước

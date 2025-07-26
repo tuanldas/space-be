@@ -28,6 +28,15 @@ class TransactionCategoryService implements TransactionCategoryServiceInterface
     {
         return $this->repository->findByUuid($id);
     }
+    
+    public function findTrashedByUuid(
+        string $id,
+        array $columns = ['*'],
+        array $relations = [],
+        array $appends = []
+    ): ?TransactionCategory {
+        return $this->repository->findTrashedByUuid($id, $columns, $relations, $appends);
+    }
 
     public function create(array $data): TransactionCategory
     {

@@ -25,5 +25,7 @@ return [
         'force_deleted' => 'Danh mục đã bị xóa vĩnh viễn.',
         'not_found' => 'Không tìm thấy danh mục.',
         'not_found_in_trash' => 'Không tìm thấy danh mục trong thùng rác.',
+        'cannot_modify_default' => 'Danh mục mặc định không thể được chỉnh sửa.',
+        'cannot_delete_default' => 'Danh mục mặc định không thể bị xóa.',
     ],
 ]; 

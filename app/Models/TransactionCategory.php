@@ -30,6 +30,8 @@ class TransactionCategory extends Model
     ];
     
     protected $with = ['image'];
+    
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
     public function user(): BelongsTo
     {
