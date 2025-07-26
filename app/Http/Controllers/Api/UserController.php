@@ -44,7 +44,7 @@ class UserController extends Controller
         }
 
         $perPage = $request->query('per_page', 15);
-        $filters = $request->only(['search']);
+        $filters = $request->only(['search', 'role']);
         
         $users = $this->userService->getAllUsers($perPage, $filters);
         
