@@ -28,4 +28,36 @@ return [
         'cannot_modify_default' => 'Default categories cannot be modified.',
         'cannot_delete_default' => 'Default categories cannot be deleted.',
     ],
+    'permission' => [
+        // User Management
+        'view_users_denied' => 'You do not have permission to view the user list.',
+        'view_user_denied' => 'You do not have permission to view user details.',
+        'create_users_denied' => 'You do not have permission to create new users.',
+        'update_users_denied' => 'You do not have permission to update users.',
+        'delete_users_denied' => 'You do not have permission to delete users.',
+        
+        // Role Management
+        'manage_roles_denied' => 'You do not have permission to manage roles.',
+        'manage_user_roles_denied' => 'You do not have permission to manage user roles.',
+        
+        // Transaction Categories
+        'view_categories_denied' => 'You do not have permission to view transaction categories.',
+        'view_category_details_denied' => 'You do not have permission to view transaction category details.',
+        'view_trashed_categories_denied' => 'You do not have permission to view deleted transaction categories.',
+        'create_categories_denied' => 'You do not have permission to create new transaction categories.',
+        'update_categories_denied' => 'You do not have permission to update transaction categories.',
+        'delete_categories_denied' => 'You do not have permission to delete transaction categories.',
+        'restore_categories_denied' => 'You do not have permission to restore deleted transaction categories.',
+        'force_delete_categories_denied' => 'You do not have permission to permanently delete transaction categories.',
+    ],
+    'user' => [
+        'not_found' => 'User not found.',
+        'deleted' => 'User deleted successfully.',
+    ],
+    'role' => [
+        'not_found' => 'Role not found.',
+        'deleted' => 'Role deleted successfully.',
+        'assigned' => 'Role assigned successfully.',
+        'removed' => 'Role removed successfully.',
+    ],
 ]; 
