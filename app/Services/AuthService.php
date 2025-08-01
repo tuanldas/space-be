@@ -8,7 +8,7 @@ use App\Services\Interfaces\AuthServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Bouncer;
+use Silber\Bouncer\BouncerFacade as Bouncer;
 use Silber\Bouncer\Database\Role;
 
 class AuthService implements AuthServiceInterface

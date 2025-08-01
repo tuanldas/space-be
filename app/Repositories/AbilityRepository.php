@@ -6,7 +6,7 @@ use App\Repositories\Interfaces\AbilityRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Silber\Bouncer\Database\Ability;
-use Bouncer;
+use Silber\Bouncer\BouncerFacade as Bouncer;
 
 class AbilityRepository extends BaseRepository implements AbilityRepositoryInterface
 {
