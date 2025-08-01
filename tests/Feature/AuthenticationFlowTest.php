@@ -16,7 +16,7 @@ class AuthenticationFlowTest extends TestCase
     {
         parent::setUp();
         
-        $this->artisan('migrate:fresh');
+        $this->seed();
     }
 
     public function test_complete_authentication_flow(): void
@@ -28,7 +28,7 @@ class AuthenticationFlowTest extends TestCase
             'password_confirmation' => 'Password123!',
         ];
 
-        $response = $this->postJson('/api/register', $userData);
+        $response = $this->postJson('/api/auth/register', $userData);
         $response->assertStatus(201);
         
         $this->assertDatabaseHas('users', [
