@@ -3,104 +3,82 @@
 namespace Tests\Unit\Repositories;
 
 use App\Models\User;
-use App\Repositories\BaseRepository;
-use App\Repositories\UserRepository;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class BaseRepositoryTest extends RepositoryTestCase
 {
-    private UserRepository $repository;
-    
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->repository = new UserRepository();
-    }
-    
+    use RefreshDatabase;
+
     public function test_all_returns_all_records(): void
     {
-        // Arrange
         User::factory()->count(3)->create();
         
-        // Act
         $result = $this->repository->all();
-        
-        // Assert
+
         $this->assertEquals(3, $result->count());
     }
     
     public function test_find_by_id_returns_model_with_correct_id(): void
     {
-        // Arrange
         $user = User::factory()->create();
         
-        // Act
         $result = $this->repository->findById($user->id);
         
-        // Assert
         $this->assertEquals($user->id, $result->id);
     }
     
-    public function test_find_by_id_throws_exception_for_nonexistent_id(): void
+    public function test_find_by_id_returns_null_for_nonexistent_id(): void
     {
-        // Arrange
-        $this->expectException(ModelNotFoundException::class);
+        $nonExistentId = 999;
         
-        // Act
-        $this->repository->findById(999);
+        $result = $this->repository->findById($nonExistentId);
+        
+        $this->assertNull($result);
     }
     
-    public function test_create_returns_created_model(): void
+    public function test_create_adds_new_model_to_database(): void
     {
-        // Arrange
-        $userData = [
+        $data = [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => bcrypt('password'),
         ];
         
-        // Act
-        $result = $this->repository->create($userData);
+        $result = $this->repository->create($data);
         
-        // Assert
         $this->assertInstanceOf(User::class, $result);
-        $this->assertEquals($userData['name'], $result->name);
-        $this->assertEquals($userData['email'], $result->email);
+        $this->assertEquals('Test User', $result->name);
+        $this->assertEquals('test@example.com', $result->email);
+        
         $this->assertDatabaseHas('users', [
             'id' => $result->id,
-            'name' => $userData['name'],
-            'email' => $userData['email'],
+            'name' => 'Test User',
+            'email' => 'test@example.com',
         ]);
     }
     
-    public function test_update_returns_true_on_success(): void
+    public function test_update_modifies_existing_model(): void
     {
-        // Arrange
         $user = User::factory()->create();
-        $newData = ['name' => 'Updated Name'];
+        $data = ['name' => 'Updated User'];
         
-        // Act
-        $result = $this->repository->update($user->id, $newData);
+        $result = $this->repository->update($user->id, $data);
         
-        // Assert
         $this->assertTrue($result);
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
-            'name' => 'Updated Name',
+            'name' => 'Updated User',
         ]);
     }
     
     public function test_delete_by_id_returns_true_on_success(): void
     {
-        // Arrange
         $user = User::factory()->create();
         
-        // Act
         $result = $this->repository->deleteById($user->id);
         
-        // Assert
         $this->assertTrue($result);
-        $this->assertDatabaseMissing('users', [
+        $this->assertSoftDeleted('users', [
             'id' => $user->id,
         ]);
     }
