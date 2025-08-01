@@ -41,11 +41,11 @@ Route::middleware('auth:api')->group(function () {
     
     // Role Management Routes
     Route::middleware('can:' . AbilityType::MANAGE_ROLES->value)->group(function () {
-        Route::apiResource('roles', RoleController::class);
-        Route::get('/abilities', [RoleController::class, 'abilities']);
-        Route::post('/users/assign-role', [RoleController::class, 'assignRoleToUser']);
-        Route::post('/users/remove-role', [RoleController::class, 'removeRoleFromUser']);
-        Route::get('/roles/{roleName}/users', [RoleController::class, 'getUsersByRole']);
+    Route::apiResource('roles', RoleController::class);
+    Route::get('/abilities', [RoleController::class, 'abilities']);
+    Route::post('/users/assign-role', [RoleController::class, 'assignRoleToUser']);
+    Route::post('/users/remove-role', [RoleController::class, 'removeRoleFromUser']);
+    Route::get('/roles/{roleName}/users', [RoleController::class, 'getUsersByRole']);
     });
     
     // Transaction Categories Routes

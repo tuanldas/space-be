@@ -93,7 +93,10 @@ class AuthService implements AuthServiceInterface
      */
     public function logout(Request $request): array
     {
-        $request->user()->token()->revoke();
+        // Kiểm tra token có tồn tại không trước khi gọi revoke()
+        if ($request->user() && $request->user()->token()) {
+            $request->user()->token()->revoke();
+        }
 
         return [
             'message' => __('auth.logout_success')

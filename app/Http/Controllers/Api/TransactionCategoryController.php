@@ -68,18 +68,18 @@ class TransactionCategoryController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = Auth::id();
-
+        
         $image = $request->file('image');
         unset($data['image']);
-
+        
         $category = $this->transactionCategoryService->create($data);
-
+        
         $this->transactionCategoryService->attachImage(
             $category->id,
             $image,
             Auth::id()
         );
-
+        
         $category = $this->transactionCategoryService->getById($category->id);
 
         return response()->json($category, Response::HTTP_CREATED);
@@ -95,22 +95,22 @@ class TransactionCategoryController extends Controller
     public function update(UpdateTransactionCategoryRequest $request, string $id): JsonResponse
     {
         $category = $this->transactionCategoryService->getById($id);
-
+        
         if ($category->is_default && !Bouncer::can(AbilityType::MANAGE_DEFAULT_TRANSACTION_CATEGORIES->value)) {
             return response()->json([
                 'message' => __('messages.category.cannot_modify_default')
             ], Response::HTTP_FORBIDDEN);
         }
-
+        
         $data = $request->validated();
-
+        
         $image = $request->file('image');
         if (isset($data['image'])) {
             unset($data['image']);
         }
-
+        
         $this->transactionCategoryService->update($id, $data);
-
+        
         if ($image) {
             $this->transactionCategoryService->updateImage(
                 $id,
@@ -132,13 +132,13 @@ class TransactionCategoryController extends Controller
     public function destroy(string $id): JsonResponse
     {
         $category = $this->transactionCategoryService->getById($id);
-
+        
         if ($category->is_default && !Bouncer::can(AbilityType::MANAGE_DEFAULT_TRANSACTION_CATEGORIES->value)) {
             return response()->json([
                 'message' => __('messages.category.cannot_delete_default')
             ], Response::HTTP_FORBIDDEN);
         }
-
+        
         $this->transactionCategoryService->delete($id);
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
@@ -168,13 +168,13 @@ class TransactionCategoryController extends Controller
     public function restore(string $transaction_category): JsonResponse
     {
         $category = $this->transactionCategoryService->findTrashedByUuid($transaction_category);
-
+        
         if ($category && $category->is_default && !Bouncer::can(AbilityType::MANAGE_DEFAULT_TRANSACTION_CATEGORIES->value)) {
             return response()->json([
                 'message' => __('messages.category.cannot_modify_default')
             ], Response::HTTP_FORBIDDEN);
         }
-
+        
         $this->transactionCategoryService->restore($transaction_category);
         $category = $this->transactionCategoryService->getById($transaction_category);
 
@@ -206,3 +206,4 @@ class TransactionCategoryController extends Controller
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }
+ 

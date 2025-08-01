@@ -35,10 +35,10 @@ class BouncerServiceProvider extends ServiceProvider
     protected function defineAbilities(): void
     {
         foreach (AbilityType::getAllAbilities() as $ability) {
-            BouncerFacade::ability()->firstOrCreate(
+        BouncerFacade::ability()->firstOrCreate(
                 ['name' => $ability['name']],
                 ['title' => $ability['title']]
-            );
+        );
         }
     }
 }
