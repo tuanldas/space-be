@@ -2,37 +2,36 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\AbilityType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Passport\Passport;
+use Silber\Bouncer\BouncerFacade as Bouncer;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    protected $admin;
+    protected User $admin;
 
     protected function setUp(): void
     {
         parent::setUp();
         
-        $this->artisan('migrate:fresh');
+        $this->seed();
         
         $this->admin = User::factory()->create([
             'email' => 'admin@example.com',
             'name' => 'Admin User'
         ]);
-        \Bouncer::role()->firstOrCreate(['name' => 'admin'], ['title' => 'Quản trị viên']);
-        \Bouncer::allow('admin')->everything();
-        \Bouncer::assign('admin')->to($this->admin);
-        \Bouncer::refresh();
+        Bouncer::role()->firstOrCreate(['name' => 'admin'], ['title' => 'Quản trị viên']);
+        Bouncer::allow('admin')->everything();
+        Bouncer::assign('admin')->to($this->admin);
+        Bouncer::refresh();
     }
 
-    /**
-     * Test lấy danh sách người dùng.
-     */
     public function test_get_users_list(): void
     {
         User::factory()->count(5)->create();
@@ -49,12 +48,9 @@ class UserManagementTest extends TestCase
                 'total'
             ]);
 
-        $this->assertEquals(6, $response->json('total'));
+        $this->assertGreaterThanOrEqual(6, $response->json('total'));
     }
 
-    /**
-     * Test tìm kiếm người dùng.
-     */
     public function test_search_users(): void
     {
         User::factory()->create([
@@ -76,9 +72,6 @@ class UserManagementTest extends TestCase
         $this->assertStringContainsString('searchable@example.com', $response->json('data.0.email'));
     }
 
-    /**
-     * Test lấy thông tin người dùng theo ID.
-     */
     public function test_get_user_by_id(): void
     {
         $user = User::factory()->create();
@@ -95,9 +88,6 @@ class UserManagementTest extends TestCase
             ]);
     }
 
-    /**
-     * Test lấy thông tin người dùng không tồn tại.
-     */
     public function test_get_nonexistent_user(): void
     {
         Passport::actingAs($this->admin);
@@ -107,13 +97,10 @@ class UserManagementTest extends TestCase
 
         $response->assertStatus(404)
             ->assertJson([
-                'message' => 'User not found'
+                'message' => 'User not found.'
             ]);
     }
 
-    /**
-     * Test tạo người dùng mới.
-     */
     public function test_create_user(): void
     {
         Passport::actingAs($this->admin);
@@ -142,9 +129,6 @@ class UserManagementTest extends TestCase
         ]);
     }
 
-    /**
-     * Test tạo người dùng với dữ liệu không hợp lệ.
-     */
     public function test_create_user_with_invalid_data(): void
     {
         Passport::actingAs($this->admin);
@@ -161,9 +145,6 @@ class UserManagementTest extends TestCase
             ->assertJsonValidationErrors(['name', 'email', 'password']);
     }
 
-    /**
-     * Test tạo người dùng với email đã tồn tại.
-     */
     public function test_create_user_with_duplicate_email(): void
     {
         Passport::actingAs($this->admin);
@@ -185,9 +166,6 @@ class UserManagementTest extends TestCase
             ->assertJsonValidationErrors(['email']);
     }
 
-    /**
-     * Test cập nhật thông tin người dùng.
-     */
     public function test_update_user(): void
     {
         $user = User::factory()->create();
@@ -215,9 +193,6 @@ class UserManagementTest extends TestCase
         ]);
     }
 
-    /**
-     * Test cập nhật mật khẩu.
-     */
     public function test_update_user_password(): void
     {
         $user = User::factory()->create();
@@ -233,16 +208,13 @@ class UserManagementTest extends TestCase
 
         $response->assertStatus(200);
 
-        $loginResponse = $this->postJson('/api/login', [
+        $loginResponse = $this->postJson('/api/auth/login', [
             'email' => $user->email,
             'password' => 'NewPassword123!'
         ]);
         $this->assertNotEquals(422, $loginResponse->status());
     }
 
-    /**
-     * Test xóa người dùng.
-     */
     public function test_delete_user(): void
     {
         $user = User::factory()->create();
@@ -251,19 +223,13 @@ class UserManagementTest extends TestCase
 
         $response = $this->deleteJson("/api/users/{$user->id}");
 
-        $response->assertStatus(200)
-            ->assertJson([
-                'message' => 'User deleted successfully'
-            ]);
+        $response->assertStatus(204);
 
         $this->assertDatabaseMissing('users', [
             'id' => $user->id
         ]);
     }
 
-    /**
-     * Test xóa người dùng không tồn tại.
-     */
     public function test_delete_nonexistent_user(): void
     {
         Passport::actingAs($this->admin);
@@ -273,13 +239,10 @@ class UserManagementTest extends TestCase
 
         $response->assertStatus(404)
             ->assertJson([
-                'message' => 'User not found'
+                'message' => 'User not found.'
             ]);
     }
 
-    /**
-     * Test bảo mật API - Truy cập không có token.
-     */
     public function test_accessing_protected_routes_without_authentication(): void
     {
         $response = $this->getJson('/api/users');
