@@ -3,19 +3,30 @@
 namespace Tests\Unit\Repositories;
 
 use App\Models\User;
+use App\Repositories\UserRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class BaseRepositoryTest extends RepositoryTestCase
 {
     use RefreshDatabase;
+    
+    protected $repository;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->repository = new UserRepository();
+    }
 
     public function test_all_returns_all_records(): void
     {
+        $initialCount = User::count();
         User::factory()->count(3)->create();
         
         $result = $this->repository->all();
 
-        $this->assertEquals(3, $result->count());
+        $this->assertEquals($initialCount + 3, $result->count());
     }
     
     public function test_find_by_id_returns_model_with_correct_id(): void
@@ -27,13 +38,12 @@ class BaseRepositoryTest extends RepositoryTestCase
         $this->assertEquals($user->id, $result->id);
     }
     
-    public function test_find_by_id_returns_null_for_nonexistent_id(): void
+    public function test_find_by_id_throws_exception_for_nonexistent_id(): void
     {
         $nonExistentId = 999;
         
-        $result = $this->repository->findById($nonExistentId);
-        
-        $this->assertNull($result);
+        $this->expectException(ModelNotFoundException::class);
+        $this->repository->findById($nonExistentId);
     }
     
     public function test_create_adds_new_model_to_database(): void
@@ -78,7 +88,7 @@ class BaseRepositoryTest extends RepositoryTestCase
         $result = $this->repository->deleteById($user->id);
         
         $this->assertTrue($result);
-        $this->assertSoftDeleted('users', [
+        $this->assertDatabaseMissing('users', [
             'id' => $user->id,
         ]);
     }
