@@ -2,12 +2,14 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\AbilityType;
 use App\Models\TransactionCategory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Passport\Passport;
+use Silber\Bouncer\BouncerFacade as Bouncer;
 use Tests\TestCase;
 
 class TransactionCategoryImageTest extends TestCase
@@ -21,20 +23,24 @@ class TransactionCategoryImageTest extends TestCase
     {
         parent::setUp();
         
-        // Create a user
+        $this->seed();
+        
         $this->user = User::factory()->create();
         
-        // Create a category
+        Bouncer::allow($this->user)->to(AbilityType::CREATE_TRANSACTION_CATEGORIES->value);
+        Bouncer::allow($this->user)->to(AbilityType::UPDATE_TRANSACTION_CATEGORIES->value);
+        Bouncer::allow($this->user)->to(AbilityType::VIEW_TRANSACTION_CATEGORIES->value);
+        
         $this->category = TransactionCategory::factory()->create([
             'user_id' => $this->user->id,
             'type' => 'expense'
         ]);
         
-        // Setup fake storage
         Storage::fake('public');
         
-        // Authenticate user
         Passport::actingAs($this->user);
+        
+        Bouncer::refresh();
     }
 
     public function test_can_attach_image_when_creating_category(): void
@@ -50,26 +56,21 @@ class TransactionCategoryImageTest extends TestCase
         
         $response->assertCreated();
         
-        // Get the category ID from the response
         $categoryId = $response->json('id');
         
-        // Check if the category exists in the database
         $this->assertDatabaseHas('transaction_categories', [
             'id' => $categoryId,
             'name' => 'Category with Image'
         ]);
         
-        // Check if the image exists in the database
         $this->assertDatabaseHas('images', [
             'imageable_id' => $categoryId,
             'imageable_type' => TransactionCategory::class
         ]);
             
-        // Check the relationship
         $category = TransactionCategory::with('image')->find($categoryId);
         $this->assertNotNull($category->image);
         
-        // Check if the file exists in storage
         Storage::disk('public')->assertExists($category->image->path);
     }
 
@@ -96,19 +97,16 @@ class TransactionCategoryImageTest extends TestCase
         
         $response->assertOk();
         
-        // Check if the category was updated in the database
         $this->assertDatabaseHas('transaction_categories', [
             'id' => $this->category->id,
             'name' => 'Updated Category'
         ]);
         
-        // Check if the image exists in the database
         $this->assertDatabaseHas('images', [
             'imageable_id' => $this->category->id,
             'imageable_type' => TransactionCategory::class
         ]);
             
-        // Check if the file exists in storage
         $category = TransactionCategory::with('image')->find($this->category->id);
         $this->assertNotNull($category->image);
         Storage::disk('public')->assertExists($category->image->path);
