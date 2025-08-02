@@ -1,17 +1,6 @@
 <?php
 
 return [
-    /*
-    |--------------------------------------------------------------------------
-    | Ability Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used for ability titles that we need to
-    | display to the user. You are free to modify these language lines according
-    | to your application's requirements.
-    |
-    */
-
     // User Management
     'view-users' => 'View users',
     'create-users' => 'Create new users',
@@ -32,4 +21,14 @@ return [
     'restore-transaction-categories' => 'Restore deleted transaction categories',
     'force-delete-transaction-categories' => 'Permanently delete transaction categories',
     'manage-default-transaction-categories' => 'Manage default transaction categories',
+    
+    // Wallets
+    'view-wallets' => 'View wallets',
+    'create-wallets' => 'Create wallets',
+    'update-wallets' => 'Update wallets',
+    'delete-wallets' => 'Delete wallets',
+    
+    // Wallet Transactions
+    'view-wallet-transactions' => 'View wallet transactions',
+    'create-wallet-transactions' => 'Create wallet transactions',
 ]; 

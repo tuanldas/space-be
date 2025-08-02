@@ -1,17 +1,6 @@
 <?php
 
 return [
-    /*
-    |--------------------------------------------------------------------------
-    | Message Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used for various messages that we need to
-    | display to the user. You are free to modify these language lines according
-    | to your application's requirements.
-    |
-    */
-
     'success' => 'Thao tác hoàn thành thành công.',
     'error' => 'Đã xảy ra lỗi khi xử lý yêu cầu của bạn.',
     'not_found' => 'Không tìm thấy tài nguyên được yêu cầu.',
@@ -59,5 +48,51 @@ return [
         'deleted' => 'Đã xóa vai trò thành công.',
         'assigned' => 'Đã gán vai trò thành công.',
         'removed' => 'Đã thu hồi vai trò thành công.',
+    ],
+    'wallet' => [
+        'created' => 'Ví đã được tạo thành công.',
+        'updated' => 'Ví đã được cập nhật thành công.',
+        'deleted' => 'Ví đã được xóa thành công.',
+        'not_found' => 'Không tìm thấy ví.',
+        'access_denied' => 'Bạn không có quyền truy cập ví này.',
+    ],
+    'wallet_transaction' => [
+        'created' => 'Giao dịch đã được tạo thành công.',
+        'deleted' => 'Giao dịch đã được xóa thành công.',
+        'not_found' => 'Không tìm thấy giao dịch.',
+        'invalid_type' => 'Loại giao dịch không hợp lệ.',
+        'invalid_amount' => 'Số tiền không hợp lệ.',
+        'invalid_date' => 'Ngày giao dịch không hợp lệ.',
+        'wallet_not_found' => 'Không tìm thấy ví.',
+        'category_not_found' => 'Không tìm thấy danh mục giao dịch.',
+    ],
+    'validation' => [
+        'wallet' => [
+            'name_required' => 'Tên ví là bắt buộc.',
+            'name_string' => 'Tên ví phải là chuỗi.',
+            'name_max' => 'Tên ví không được vượt quá 255 ký tự.',
+            'balance_numeric' => 'Số dư phải là số.',
+            'balance_min' => 'Số dư không được nhỏ hơn 0.',
+            'currency_required' => 'Loại tiền tệ là bắt buộc.',
+            'currency_string' => 'Loại tiền tệ phải là chuỗi.',
+            'currency_size' => 'Loại tiền tệ phải có 3 ký tự (ví dụ: VND, USD).',
+        ],
+        'wallet_transaction' => [
+            'wallet_id_required' => 'ID ví là bắt buộc.',
+            'wallet_id_uuid' => 'ID ví phải là UUID.',
+            'wallet_id_exists' => 'Ví không tồn tại.',
+            'category_id_required' => 'ID danh mục là bắt buộc.',
+            'category_id_uuid' => 'ID danh mục phải là UUID.',
+            'category_id_exists' => 'Danh mục không tồn tại.',
+            'amount_required' => 'Số tiền là bắt buộc.',
+            'amount_numeric' => 'Số tiền phải là số.',
+            'amount_min' => 'Số tiền phải lớn hơn 0.',
+            'transaction_date_required' => 'Ngày giao dịch là bắt buộc.',
+            'transaction_date_date' => 'Ngày giao dịch không hợp lệ.',
+            'transaction_type_required' => 'Loại giao dịch là bắt buộc.',
+            'transaction_type_string' => 'Loại giao dịch phải là chuỗi.',
+            'transaction_type_in' => 'Loại giao dịch phải là thu nhập (income), chi tiêu (expense) hoặc chuyển khoản (transfer).',
+            'description_string' => 'Mô tả phải là chuỗi.',
+        ],
     ],
 ]; 
