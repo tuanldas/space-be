@@ -16,7 +16,7 @@ class AuthenticationFlowTest extends TestCase
     {
         parent::setUp();
         
-        $this->seed();
+        $this->setupBase();
     }
 
     public function test_complete_authentication_flow(): void

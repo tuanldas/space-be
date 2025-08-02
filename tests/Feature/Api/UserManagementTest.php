@@ -2,41 +2,28 @@
 
 namespace Tests\Feature\Api;
 
-use App\Enums\AbilityType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Laravel\Passport\Passport;
-use Silber\Bouncer\BouncerFacade as Bouncer;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    protected User $admin;
-
     protected function setUp(): void
     {
         parent::setUp();
         
-        $this->seed();
-        
-        $this->admin = User::factory()->create([
-            'email' => 'admin@example.com',
-            'name' => 'Admin User'
-        ]);
-        Bouncer::role()->firstOrCreate(['name' => 'admin'], ['title' => 'Quản trị viên']);
-        Bouncer::allow('admin')->everything();
-        Bouncer::assign('admin')->to($this->admin);
-        Bouncer::refresh();
+        $this->setupBase();
+        $this->setupAdmin();
     }
 
     public function test_get_users_list(): void
     {
         User::factory()->count(5)->create();
 
-        Passport::actingAs($this->admin);
+        $this->actAsAdmin();
 
         $response = $this->getJson('/api/users');
 
@@ -58,7 +45,7 @@ class UserManagementTest extends TestCase
             'email' => 'searchable@example.com'
         ]);
 
-        Passport::actingAs($this->admin);
+        $this->actAsAdmin();
         $response = $this->getJson('/api/users?search=Test Search');
 
         $response->assertStatus(200);
@@ -76,7 +63,7 @@ class UserManagementTest extends TestCase
     {
         $user = User::factory()->create();
 
-        Passport::actingAs($this->admin);
+        $this->actAsAdmin();
 
         $response = $this->getJson("/api/users/{$user->id}");
 
@@ -90,7 +77,7 @@ class UserManagementTest extends TestCase
 
     public function test_get_nonexistent_user(): void
     {
-        Passport::actingAs($this->admin);
+        $this->actAsAdmin();
 
         $nonExistentId = 9999;
         $response = $this->getJson("/api/users/{$nonExistentId}");
@@ -103,7 +90,7 @@ class UserManagementTest extends TestCase
 
     public function test_create_user(): void
     {
-        Passport::actingAs($this->admin);
+        $this->actAsAdmin();
 
         $userData = [
             'name' => 'New Test User',
@@ -131,7 +118,7 @@ class UserManagementTest extends TestCase
 
     public function test_create_user_with_invalid_data(): void
     {
-        Passport::actingAs($this->admin);
+        $this->actAsAdmin();
 
         $invalidUserData = [
             'name' => '',
@@ -147,7 +134,7 @@ class UserManagementTest extends TestCase
 
     public function test_create_user_with_duplicate_email(): void
     {
-        Passport::actingAs($this->admin);
+        $this->actAsAdmin();
 
         $existingUser = User::factory()->create([
             'email' => 'duplicate@example.com'
@@ -170,7 +157,7 @@ class UserManagementTest extends TestCase
     {
         $user = User::factory()->create();
 
-        Passport::actingAs($this->admin);
+        $this->actAsAdmin();
 
         $updatedData = [
             'name' => 'Updated Name',
@@ -197,7 +184,7 @@ class UserManagementTest extends TestCase
     {
         $user = User::factory()->create();
 
-        Passport::actingAs($this->admin);
+        $this->actAsAdmin();
 
         $updatedData = [
             'password' => 'NewPassword123!',
@@ -219,7 +206,7 @@ class UserManagementTest extends TestCase
     {
         $user = User::factory()->create();
 
-        Passport::actingAs($this->admin);
+        $this->actAsAdmin();
 
         $response = $this->deleteJson("/api/users/{$user->id}");
 
@@ -232,7 +219,7 @@ class UserManagementTest extends TestCase
 
     public function test_delete_nonexistent_user(): void
     {
-        Passport::actingAs($this->admin);
+        $this->actAsAdmin();
 
         $nonExistentId = 9999;
         $response = $this->deleteJson("/api/users/{$nonExistentId}");
