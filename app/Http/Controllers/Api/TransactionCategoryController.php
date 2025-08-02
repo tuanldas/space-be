@@ -26,6 +26,24 @@ class TransactionCategoryController extends Controller
     }
 
     /**
+     * Kiểm tra quyền quản lý danh mục mặc định
+     * 
+     * @param TransactionCategory $category Danh mục cần kiểm tra
+     * @param string $errorMessage Thông báo lỗi (key của file messages)
+     * @return JsonResponse|null Trả về response lỗi hoặc null nếu có quyền
+     */
+    protected function checkDefaultCategoryPermission(TransactionCategory $category, string $errorMessage = 'messages.category.cannot_modify_default'): ?JsonResponse
+    {
+        if ($category->is_default && !Bouncer::can(AbilityType::MANAGE_DEFAULT_TRANSACTION_CATEGORIES->value)) {
+            return response()->json([
+                'message' => __($errorMessage)
+            ], Response::HTTP_FORBIDDEN);
+        }
+        
+        return null;
+    }
+
+    /**
      * Hiển thị danh sách danh mục giao dịch.
      *
      * @param Request $request
@@ -96,10 +114,9 @@ class TransactionCategoryController extends Controller
     {
         $category = $this->transactionCategoryService->getById($id);
         
-        if ($category->is_default && !Bouncer::can(AbilityType::MANAGE_DEFAULT_TRANSACTION_CATEGORIES->value)) {
-            return response()->json([
-                'message' => __('messages.category.cannot_modify_default')
-            ], Response::HTTP_FORBIDDEN);
+        $permissionCheck = $this->checkDefaultCategoryPermission($category);
+        if ($permissionCheck) {
+            return $permissionCheck;
         }
         
         $data = $request->validated();
@@ -133,10 +150,9 @@ class TransactionCategoryController extends Controller
     {
         $category = $this->transactionCategoryService->getById($id);
         
-        if ($category->is_default && !Bouncer::can(AbilityType::MANAGE_DEFAULT_TRANSACTION_CATEGORIES->value)) {
-            return response()->json([
-                'message' => __('messages.category.cannot_delete_default')
-            ], Response::HTTP_FORBIDDEN);
+        $permissionCheck = $this->checkDefaultCategoryPermission($category, 'messages.category.cannot_delete_default');
+        if ($permissionCheck) {
+            return $permissionCheck;
         }
         
         $this->transactionCategoryService->delete($id);
@@ -169,10 +185,11 @@ class TransactionCategoryController extends Controller
     {
         $category = $this->transactionCategoryService->findTrashedByUuid($transaction_category);
         
-        if ($category && $category->is_default && !Bouncer::can(AbilityType::MANAGE_DEFAULT_TRANSACTION_CATEGORIES->value)) {
-            return response()->json([
-                'message' => __('messages.category.cannot_modify_default')
-            ], Response::HTTP_FORBIDDEN);
+        if ($category) {
+            $permissionCheck = $this->checkDefaultCategoryPermission($category);
+            if ($permissionCheck) {
+                return $permissionCheck;
+            }
         }
         
         $this->transactionCategoryService->restore($transaction_category);
@@ -194,10 +211,9 @@ class TransactionCategoryController extends Controller
             return response()->json(['message' => __('messages.category.not_found_in_trash')], Response::HTTP_NOT_FOUND);
         }
         
-        if ($category->is_default && !Bouncer::can(AbilityType::MANAGE_DEFAULT_TRANSACTION_CATEGORIES->value)) {
-            return response()->json([
-                'message' => __('messages.category.cannot_delete_default')
-            ], Response::HTTP_FORBIDDEN);
+        $permissionCheck = $this->checkDefaultCategoryPermission($category, 'messages.category.cannot_delete_default');
+        if ($permissionCheck) {
+            return $permissionCheck;
         }
         
         $this->transactionCategoryService->removeImage($transaction_category);

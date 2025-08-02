@@ -14,8 +14,8 @@ return [
 
     // User Management
     'view-users' => 'View users',
-    'create-users' => 'Create users',
-    'update-users' => 'Update users',
+    'create-users' => 'Create new users',
+    'update-users' => 'Update user information',
     'delete-users' => 'Delete users',
 
     // Role Management

@@ -3,8 +3,9 @@
 namespace App\Providers;
 
 use App\Enums\AbilityType;
+use App\Models\TransactionCategory;
 use Illuminate\Support\ServiceProvider;
-use Silber\Bouncer\BouncerFacade;
+use Silber\Bouncer\BouncerFacade as Bouncer;
 use Illuminate\Support\Facades\Schema;
 
 class BouncerServiceProvider extends ServiceProvider
@@ -22,7 +23,7 @@ class BouncerServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        BouncerFacade::cache();
+        Bouncer::cache();
 
         if (Schema::hasTable('abilities')) {
             $this->defineAbilities();
@@ -35,10 +36,10 @@ class BouncerServiceProvider extends ServiceProvider
     protected function defineAbilities(): void
     {
         foreach (AbilityType::getAllAbilities() as $ability) {
-        BouncerFacade::ability()->firstOrCreate(
+            Bouncer::ability()->firstOrCreate(
                 ['name' => $ability['name']],
                 ['title' => $ability['title']]
-        );
+            );
         }
     }
 }
