@@ -736,7 +736,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n    \"id\": 1,\n    \"name\": \"Admin User\",\n    \"email\": \"tuanldas@gmail.com\",\n    \"email_verified_at\": \"2024-07-15T09:00:00.000000Z\",\n    \"created_at\": \"2024-07-15T09:00:00.000000Z\",\n    \"updated_at\": \"2024-07-15T09:00:00.000000Z\",\n    \"roles\": [\n        {\n            \"id\": 1,\n            \"name\": \"admin\",\n            \"title\": \"Quản trị viên\"\n        }\n    ]\n}"
+              "body": "{\n    \"id\": 1,\n    \"name\": \"Admin User\",\n    \"email\": \"tuanldas@gmail.com\",\n    \"email_verified_at\": \"2024-07-15T09:00:00.000000Z\", \"created_at\": \"2024-07-15T09:00:00.000000Z\",\n    \"updated_at\": \"2024-07-15T09:00:00.000000Z\",\n    \"roles\": [\n        {\n            \"id\": 1,\n            \"name\": \"admin\",\n            \"title\": \"Quản trị viên\"\n        }\n    ]\n}"
             }
           ]
         },
@@ -1489,7 +1489,7 @@
     },
     {
       "name": "Transaction Categories",
-      "description": "Transaction Categories management endpoints",
+      "description": "Transaction Categories management endpoints. Some operations on default categories require the 'manage-default-transaction-categories' permission.",
       "item": [
         {
           "name": "Get All Categories",
@@ -1671,7 +1671,7 @@
                 }
               ]
             },
-            "description": "Update an existing transaction category (image field is optional)"
+            "description": "Update an existing transaction category (image field is optional). Note: To update a default category, user must have 'manage-default-transaction-categories' permission."
           },
           "response": []
         },
@@ -1705,7 +1705,7 @@
                 }
               ]
             },
-            "description": "Soft delete a transaction category (move to trash)"
+            "description": "Soft delete a transaction category (move to trash). Note: To delete a default category, user must have 'manage-default-transaction-categories' permission."
           },
           "response": []
         },
@@ -1773,7 +1773,7 @@
                 }
               ]
             },
-            "description": "Restore a soft-deleted transaction category"
+            "description": "Restore a soft-deleted transaction category. Note: To restore a default category, user must have 'manage-default-transaction-categories' permission."
           },
           "response": []
         },
@@ -1807,7 +1807,7 @@
                 }
               ]
             },
-            "description": "Permanently delete a transaction category"
+            "description": "Permanently delete a transaction category. Note: To force delete a default category, user must have 'manage-default-transaction-categories' permission."
           },
           "response": []
         }
