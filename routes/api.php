@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\TransactionCategoryController;
+use App\Http\Controllers\Api\WalletController;
+use App\Http\Controllers\Api\WalletTransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +71,17 @@ Route::middleware('auth:api')->group(function () {
     
     Route::delete('/transaction-categories/{transaction_category}/force', [TransactionCategoryController::class, 'forceDelete'])
         ->middleware('can:' . AbilityType::FORCE_DELETE_TRANSACTION_CATEGORIES->value);
+    
+    // Wallets Routes
+    Route::apiResource('wallets', WalletController::class);
+    
+    // Wallet Transactions Routes
+    Route::get('/wallets/{walletId}/transactions', [WalletTransactionController::class, 'index']);
+    Route::post('/transactions', [WalletTransactionController::class, 'store']);
+    Route::get('/transactions/{id}', [WalletTransactionController::class, 'show']);
+    Route::delete('/transactions/{id}', [WalletTransactionController::class, 'destroy']);
+    Route::get('/wallets/{walletId}/transactions/type/{type}', [WalletTransactionController::class, 'getByType']);
+    Route::get('/wallets/{walletId}/transactions/date-range', [WalletTransactionController::class, 'getByDateRange']);
 });
 
 Route::get('/test', function () {
