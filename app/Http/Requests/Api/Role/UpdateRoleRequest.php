@@ -3,8 +3,6 @@
 namespace App\Http\Requests\Api\Role;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Auth\Access\AuthorizationException;
-use Bouncer;
 
 class UpdateRoleRequest extends FormRequest
 {
@@ -13,7 +11,7 @@ class UpdateRoleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Bouncer::can('manage-roles');
+        return true;
     }
 
     /**
@@ -32,18 +30,6 @@ class UpdateRoleRequest extends FormRequest
     }
 
     /**
-     * Handle a failed authorization attempt.
-     *
-     * @return void
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    protected function failedAuthorization()
-    {
-        throw new AuthorizationException('Bạn không có quyền quản lý vai trò.');
-    }
-
-    /**
      * Get custom messages for validator errors.
      *
      * @return array
@@ -51,13 +37,13 @@ class UpdateRoleRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.string' => 'Tên vai trò phải là chuỗi.',
-            'name.max' => 'Tên vai trò không được vượt quá 255 ký tự.',
-            'name.unique' => 'Tên vai trò đã tồn tại.',
-            'title.string' => 'Tiêu đề vai trò phải là chuỗi.',
-            'title.max' => 'Tiêu đề vai trò không được vượt quá 255 ký tự.',
-            'abilities.array' => 'Danh sách quyền phải là một mảng.',
-            'abilities.*.exists' => 'Một số quyền được chọn không tồn tại.',
+            'name.string' => __('validation.string', ['attribute' => 'tên vai trò']),
+            'name.max' => __('validation.max.string', ['attribute' => 'tên vai trò', 'max' => 255]),
+            'name.unique' => __('validation.unique', ['attribute' => 'tên vai trò']),
+            'title.string' => __('validation.string', ['attribute' => 'tiêu đề vai trò']),
+            'title.max' => __('validation.max.string', ['attribute' => 'tiêu đề vai trò', 'max' => 255]),
+            'abilities.array' => __('validation.array', ['attribute' => 'danh sách quyền']),
+            'abilities.*.exists' => __('validation.exists', ['attribute' => 'quyền đã chọn']),
         ];
     }
 } 

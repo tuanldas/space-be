@@ -7,7 +7,7 @@ use App\Repositories\Interfaces\AbilityRepositoryInterface;
 use App\Services\Interfaces\AbilityServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Silber\Bouncer\Database\Ability;
-use Bouncer;
+use Silber\Bouncer\BouncerFacade as Bouncer;
 
 class AbilityService implements AbilityServiceInterface
 {

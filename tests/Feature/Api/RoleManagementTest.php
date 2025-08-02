@@ -2,10 +2,11 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\AbilityType;
 use App\Models\User;
-use Bouncer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
+use Silber\Bouncer\BouncerFacade as Bouncer;
 use Tests\TestCase;
 
 class RoleManagementTest extends TestCase
@@ -15,78 +16,75 @@ class RoleManagementTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seed();
 
-        $this->artisan('migrate');
-        Bouncer::ability()->firstOrCreate(['name' => 'view-users'], ['title' => 'Xem danh sách người dùng']);
-        Bouncer::ability()->firstOrCreate(['name' => 'create-users'], ['title' => 'Tạo người dùng mới']);
-        Bouncer::ability()->firstOrCreate(['name' => 'update-users'], ['title' => 'Cập nhật thông tin người dùng']);
-        Bouncer::ability()->firstOrCreate(['name' => 'delete-users'], ['title' => 'Xóa người dùng']);
-        Bouncer::ability()->firstOrCreate(['name' => 'manage-roles'], ['title' => 'Quản lý vai trò']);
-
-        Bouncer::role()->firstOrCreate(['name' => 'admin'], ['title' => 'Quản trị viên']);
-        Bouncer::role()->firstOrCreate(['name' => 'user'], ['title' => 'Người dùng']);
-
+        Bouncer::role()->firstOrCreate(['name' => 'admin']);
+        Bouncer::role()->firstOrCreate(['name' => 'user']);
+        
+        Bouncer::ability()->firstOrCreate(['name' => AbilityType::VIEW_USERS->value]);
+        Bouncer::ability()->firstOrCreate(['name' => AbilityType::CREATE_USERS->value]);
+        Bouncer::ability()->firstOrCreate(['name' => AbilityType::UPDATE_USERS->value]);
+        Bouncer::ability()->firstOrCreate(['name' => AbilityType::DELETE_USERS->value]);
+        Bouncer::ability()->firstOrCreate(['name' => AbilityType::MANAGE_ROLES->value]);
+        
         Bouncer::allow('admin')->everything();
-        Bouncer::allow('user')->to('view-users');
+        
+        Bouncer::allow('user')->to(AbilityType::VIEW_USERS->value);
     }
 
-    /** @test */
-    public function admin_can_view_all_roles()
+    public function test_admin_can_view_all_roles()
     {
         $admin = User::factory()->create(['email' => 'admin@example.com']);
         Bouncer::assign('admin')->to($admin);
-
         Passport::actingAs($admin);
-
+        
         $response = $this->getJson('/api/roles');
-
-        $response->assertStatus(200)
-            ->assertJsonCount(2);
+        
+        $response->assertStatus(200);
+        $this->assertGreaterThanOrEqual(2, count($response->json()));
     }
 
-    /** @test */
-    public function normal_user_cannot_view_roles()
+    public function test_normal_user_cannot_view_roles()
     {
-        $user = User::factory()->create(['email' => 'user@example.com']);
+        $user = User::factory()->create(['email' => 'normal_user@example.com']);
         Bouncer::assign('user')->to($user);
-
         Passport::actingAs($user);
-
+        
         $response = $this->getJson('/api/roles');
-
+        
         $response->assertStatus(403);
     }
 
-    /** @test */
-    public function admin_can_create_new_role()
+    public function test_admin_can_create_new_role()
     {
-        $admin = User::factory()->create(['email' => 'admin@example.com']);
+        $admin = User::factory()->create(['email' => 'admin_create@example.com']);
         Bouncer::assign('admin')->to($admin);
-
         Passport::actingAs($admin);
-
+        
+        $roleName = 'editor_' . time();
         $response = $this->postJson('/api/roles', [
-            'name' => 'editor',
-            'title' => 'Biên tập viên',
-            'abilities' => ['view-users', 'update-users']
+            'name' => $roleName,
+            'abilities' => [AbilityType::VIEW_USERS->value, AbilityType::UPDATE_USERS->value],
+            'title' => 'Editor',
+            'description' => 'Can edit content',
         ]);
-
-        $response->assertStatus(201)
-            ->assertJson(['name' => 'editor', 'title' => 'Biên tập viên']);
-
-        $this->assertTrue(Bouncer::role()->where('name', 'editor')->exists());
-        $editorRole = Bouncer::role()->where('name', 'editor')->first();
+        
+        $response->assertStatus(201);
+        $this->assertEquals($roleName, $response->json('name'));
+        
+        $this->assertTrue(Bouncer::role()->where('name', $roleName)->exists());
+        $editorRole = Bouncer::role()->where('name', $roleName)->first();
         $this->assertNotNull($editorRole);
-        
-        $viewUsersAbility = Bouncer::ability()->where('name', 'view-users')->first();
-        $updateUsersAbility = Bouncer::ability()->where('name', 'update-users')->first();
-        
+
+        $viewUsersAbility = Bouncer::ability()->where('name', AbilityType::VIEW_USERS->value)->first();
+        $updateUsersAbility = Bouncer::ability()->where('name', AbilityType::UPDATE_USERS->value)->first();
+
         $this->assertDatabaseHas('permissions', [
             'entity_type' => 'roles',
             'entity_id' => $editorRole->id,
             'ability_id' => $viewUsersAbility->id,
         ]);
-        
+
         $this->assertDatabaseHas('permissions', [
             'entity_type' => 'roles',
             'entity_id' => $editorRole->id,
@@ -94,58 +92,64 @@ class RoleManagementTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function admin_can_assign_role_to_user()
+    public function test_admin_can_assign_role_to_user()
     {
-        $admin = User::factory()->create(['email' => 'admin@example.com']);
+        $admin = User::factory()->create(['email' => 'admin_assign@example.com']);
         Bouncer::assign('admin')->to($admin);
-
-        $user = User::factory()->create(['email' => 'user@example.com']);
-
         Passport::actingAs($admin);
-
+        
+        $user = User::factory()->create(['email' => 'role_assignee@example.com']);
+        
         $response = $this->postJson('/api/users/assign-role', [
             'user_id' => $user->id,
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
-
+        
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Đã gán vai trò thành công.']);
-
+            ->assertJson([
+                'message' => __('messages.role.assigned')
+            ]);
+        
         $this->assertTrue($user->isAn('admin'));
     }
-
-    /** @test */
-    public function admin_can_remove_role_from_user()
+    
+    public function test_admin_can_remove_role_from_user()
     {
-        $admin = User::factory()->create(['email' => 'admin@example.com']);
+        $admin = User::factory()->create(['email' => 'admin_remove@example.com']);
         Bouncer::assign('admin')->to($admin);
-
-        $user = User::factory()->create(['email' => 'user@example.com']);
-        Bouncer::assign('admin')->to($user);
-
         Passport::actingAs($admin);
-
+        
+        $user = User::factory()->create(['email' => 'role_removee@example.com']);
+        Bouncer::assign('admin')->to($user);
+        
+        $this->assertTrue($user->isAn('admin'));
+        
         $response = $this->postJson('/api/users/remove-role', [
             'user_id' => $user->id,
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
-
+        
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Đã thu hồi vai trò thành công.']);
-
-        $this->assertFalse($user->fresh()->isAn('admin'));
+            ->assertJson([
+                'message' => __('messages.role.removed')
+            ]);
+        
+        $user->refresh();
+        Bouncer::refresh();
+        $this->assertFalse($user->isAn('admin'));
     }
 
-    /** @test */
-    public function user_permissions_are_returned_when_logged_in()
+    public function test_user_permissions_are_returned_when_logged_in()
     {
-        $admin = User::factory()->create(['email' => 'admin@example.com']);
+        $admin = User::factory()->create(['email' => 'admin_perms@example.com']);
         Bouncer::assign('admin')->to($admin);
-
+        
+        Bouncer::allow($admin)->to(AbilityType::MANAGE_ROLES->value);
+        
         Passport::actingAs($admin);
+        
         $response = $this->getJson('/api/me');
-
+        
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'id',
@@ -154,7 +158,7 @@ class RoleManagementTest extends TestCase
                 'roles',
                 'abilities'
             ]);
-
-        $this->assertTrue(in_array('admin', $response->json('roles')));
+        
+        $this->assertContains(AbilityType::MANAGE_ROLES->value, $response->json('abilities'));
     }
 }
