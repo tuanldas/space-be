@@ -24,7 +24,9 @@ class RoleSeeder extends Seeder
             ['title' => 'Người dùng']
         );
 
-        Bouncer::allow($adminRole)->everything();
+        foreach (AbilityType::cases() as $ability) {
+            Bouncer::allow($adminRole)->to($ability->value);
+        }
 
         Bouncer::allow($userRole)->to(AbilityType::VIEW_USERS->value);
         Bouncer::allow($userRole)->to(AbilityType::VIEW_TRANSACTION_CATEGORIES->value);
