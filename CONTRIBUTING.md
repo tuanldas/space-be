@@ -175,8 +175,21 @@ Dự án sử dụng framework Laravel với cấu trúc dự án được mở 
    - Giữ lại PHPDoc comments, xóa các comment giải thích code khi không cần thiết
 
 5. **Testing**:
-   - Viết tests cho repositories, services và API endpoints
+   - Tổ chức file test:
+     - Unit test: `tests/Unit/Repositories/` và `tests/Unit/Services/`
+     - Feature test: `tests/Feature/Api/{ModuleName}/` (ví dụ: `Wallet`, `WalletTransaction`)
+   - Quy ước đặt tên:
+     - Feature test: đặt theo endpoint/chức năng (ví dụ: `GetWallets.php`, `CreateWallet.php`)
+     - Unit test: đặt theo tên class cần test (`WalletRepositoryTest.php`, `WalletServiceTest.php`)
+   - Viết riêng biệt các test cho từng endpoint API
    - Sử dụng factories để tạo test data
+   - Unit test:
+     - Sử dụng Mockery để mock các dependencies
+     - Test độc lập từng method trong repository và service
+   - Feature test:
+     - Kiểm tra đầy đủ các trường hợp: thành công, thất bại, validation
+     - Kiểm tra quyền truy cập và phân quyền
+     - Kiểm tra cấu trúc response JSON
 
 6. **Docker**:
    - Chạy các lệnh thông qua Docker

@@ -1,17 +1,6 @@
 <?php
 
 return [
-    /*
-    |--------------------------------------------------------------------------
-    | Ability Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used for ability titles that we need to
-    | display to the user. You are free to modify these language lines according
-    | to your application's requirements.
-    |
-    */
-
     // User Management
     'view-users' => 'Xem danh sách người dùng',
     'create-users' => 'Tạo người dùng mới',
@@ -32,4 +21,14 @@ return [
     'restore-transaction-categories' => 'Khôi phục danh mục giao dịch đã xóa',
     'force-delete-transaction-categories' => 'Xóa vĩnh viễn danh mục giao dịch',
     'manage-default-transaction-categories' => 'Quản lý danh mục giao dịch mặc định',
+    
+    // Wallets
+    'view-wallets' => 'Xem danh sách ví',
+    'create-wallets' => 'Tạo ví mới',
+    'update-wallets' => 'Cập nhật thông tin ví',
+    'delete-wallets' => 'Xóa ví',
+    
+    // Wallet Transactions
+    'view-wallet-transactions' => 'Xem danh sách giao dịch ví',
+    'create-wallet-transactions' => 'Tạo giao dịch ví mới',
 ]; 

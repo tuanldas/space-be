@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.2.0]
+
+### Thêm mới
+
+    - Triển khai tính năng quản lý ví (wallets)
+    - API danh sách ví với phân trang và lọc theo người dùng
+    - API xem chi tiết ví
+    - API tạo mới ví
+    - API cập nhật thông tin ví
+    - API xóa ví
+    - API hiển thị tóm tắt ví cho sidebar
+    - Triển khai tính năng quản lý giao dịch ví (wallet transactions)
+    - API danh sách giao dịch theo ví
+    - API xem chi tiết giao dịch
+    - API tạo mới giao dịch (thu nhập/chi tiêu)
+    - API xóa giao dịch
+    - API lọc giao dịch theo loại (thu nhập/chi tiêu)
+    - API lọc giao dịch theo khoảng thời gian
+    - Cập nhật Postman collection với các API quản lý ví và giao dịch
+    - Hệ thống test đầy đủ cho tính năng quản lý ví và giao dịch
+
+### Cải tiến
+
+    - Tái cấu trúc các file test để tổ chức theo tính năng và endpoint
+    - Loại bỏ macro paginate trên Collection để tránh tác dụng phụ toàn cục
+
 ## [0.1.0]
 
 ### Thêm mới

@@ -21,6 +21,14 @@ enum AbilityType: string
     case FORCE_DELETE_TRANSACTION_CATEGORIES = 'force-delete-transaction-categories';
     case MANAGE_DEFAULT_TRANSACTION_CATEGORIES = 'manage-default-transaction-categories';
 
+    case VIEW_WALLETS = 'view-wallets';
+    case CREATE_WALLETS = 'create-wallets';
+    case UPDATE_WALLETS = 'update-wallets';
+    case DELETE_WALLETS = 'delete-wallets';
+
+    case VIEW_WALLET_TRANSACTIONS = 'view-wallet-transactions';
+    case CREATE_WALLET_TRANSACTIONS = 'create-wallet-transactions';
+
     /**
      * Lấy tiêu đề hiển thị của quyền (đa ngôn ngữ)
      *
