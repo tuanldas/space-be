@@ -19,11 +19,6 @@ class TransactionCategoryService implements TransactionCategoryServiceInterface
     ) {
     }
 
-    public function getAll(int $perPage = 15): LengthAwarePaginator
-    {
-        return $this->repository->paginate($perPage);
-    }
-
     public function getById(string $id): TransactionCategory
     {
         return $this->repository->findByUuid($id);
@@ -71,11 +66,6 @@ class TransactionCategoryService implements TransactionCategoryServiceInterface
     public function getAllByUserAndType(int $userId, string $type, int $perPage = 15): LengthAwarePaginator
     {
         return $this->repository->getAllByUserAndType($userId, $type, $perPage);
-    }
-
-    public function getTrashed(int $perPage = 15): LengthAwarePaginator
-    {
-        return $this->repository->getTrashed($perPage);
     }
 
     public function getTrashedByUser(int $userId, int $perPage = 15): LengthAwarePaginator

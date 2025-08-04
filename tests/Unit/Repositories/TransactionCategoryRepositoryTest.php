@@ -6,215 +6,148 @@ use App\Models\TransactionCategory;
 use App\Models\User;
 use App\Repositories\TransactionCategoryRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class TransactionCategoryRepositoryTest extends TestCase
 {
-    use RefreshDatabase;
+    use WithFaker, RefreshDatabase;
 
-    protected TransactionCategoryRepository $repository;
+    private $repository;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed();
         $this->repository = new TransactionCategoryRepository();
     }
 
     public function test_can_create_transaction_category(): void
     {
-        $user = User::factory()->create();
+        $initialCount = TransactionCategory::count();
+        
         $data = [
-            'name' => 'Test Category',
+            'name' => $this->faker->word(),
+            'description' => $this->faker->sentence(),
             'type' => 'expense',
-            'description' => 'Test description',
-            'user_id' => $user->id,
+            'user_id' => User::factory()->create()->id
         ];
-
-        $category = $this->repository->create($data);
-
-        $this->assertInstanceOf(TransactionCategory::class, $category);
-        $this->assertEquals('Test Category', $category->name);
-        $this->assertEquals('expense', $category->type);
-        $this->assertEquals($user->id, $category->user_id);
+        
+        $result = $this->repository->create($data);
+        
+        $this->assertInstanceOf(TransactionCategory::class, $result);
+        $this->assertEquals($initialCount + 1, TransactionCategory::count());
+        $this->assertEquals($data['name'], $result->name);
+        $this->assertEquals($data['description'], $result->description);
+        $this->assertEquals($data['type'], $result->type);
     }
-
+    
     public function test_can_update_transaction_category(): void
     {
-        $user = User::factory()->create();
-        $category = TransactionCategory::create([
-            'name' => 'Original Name',
-            'type' => 'expense',
-            'description' => 'Original description',
-            'user_id' => $user->id,
-        ]);
-
-        $data = [
-            'name' => 'Updated Name',
-            'description' => 'Updated description',
-        ];
-
-        $result = $this->repository->updateByUuid($category->id, $data);
-
+        $category = TransactionCategory::factory()->create();
+        
+        $newName = $this->faker->word();
+        $newDescription = $this->faker->sentence();
+        
+        $result = $this->repository->updateByUuid(
+            $category->id,
+            [
+                'name' => $newName,
+                'description' => $newDescription
+            ]
+        );
+        
         $this->assertTrue($result);
-        $updatedCategory = $this->repository->findByUuid($category->id);
-        $this->assertEquals('Updated Name', $updatedCategory->name);
-        $this->assertEquals('Updated description', $updatedCategory->description);
-        $this->assertEquals('expense', $updatedCategory->type);
-        $this->assertEquals($user->id, $updatedCategory->user_id);
+        
+        $category->refresh();
+        $this->assertEquals($newName, $category->name);
+        $this->assertEquals($newDescription, $category->description);
     }
-
+    
     public function test_can_delete_transaction_category(): void
     {
-        $user = User::factory()->create();
-        $category = TransactionCategory::create([
-            'name' => 'Test Category',
-            'type' => 'expense',
-            'user_id' => $user->id,
-        ]);
-
-        $result = $this->repository->deleteByUuid($category->id);
-
+        $category = TransactionCategory::factory()->create();
+        $categoryId = $category->id;
+        
+        $result = $this->repository->deleteByUuid($categoryId);
+        
         $this->assertTrue($result);
         $this->assertSoftDeleted('transaction_categories', [
-            'id' => $category->id,
+            'id' => $categoryId
         ]);
     }
-
+    
     public function test_can_find_by_uuid(): void
     {
-        $user = User::factory()->create();
-        $category = TransactionCategory::create([
-            'name' => 'Test Category',
-            'type' => 'expense',
-            'user_id' => $user->id,
-        ]);
-
+        $category = TransactionCategory::factory()->create();
+        
         $result = $this->repository->findByUuid($category->id);
-
+        
         $this->assertInstanceOf(TransactionCategory::class, $result);
         $this->assertEquals($category->id, $result->id);
-        $this->assertEquals('Test Category', $result->name);
     }
-
-    public function test_can_paginate_transaction_categories(): void
-    {
-        $initialCount = TransactionCategory::count();
-        $newCount = 5;
-        TransactionCategory::factory()->count($newCount)->create();
-
-        $result = $this->repository->paginate(10);
-
-        $this->assertEquals(10, $result->perPage());
-        $this->assertEquals($initialCount + $newCount, $result->total());
-    }
-
+    
     public function test_can_filter_categories_by_type(): void
     {
-        $user = User::factory()->create();
-        
+        // Count initial categories by type
         $initialExpenseCount = $this->repository->getAllByType('expense')->total();
         $initialIncomeCount = $this->repository->getAllByType('income')->total();
         
-        $newExpenseCount = 3;
-        $newIncomeCount = 2;
+        // Create new categories
+        TransactionCategory::factory()->count(3)->create(['type' => 'expense']);
+        TransactionCategory::factory()->count(2)->create(['type' => 'income']);
         
-        TransactionCategory::factory()->count($newExpenseCount)->create([
-            'type' => 'expense',
-            'user_id' => $user->id,
-        ]);
-        
-        TransactionCategory::factory()->count($newIncomeCount)->create([
-            'type' => 'income',
-            'user_id' => $user->id,
-        ]);
-
+        // Get categories by type
         $expenseCategories = $this->repository->getAllByType('expense');
         $incomeCategories = $this->repository->getAllByType('income');
-
-        $this->assertEquals($initialExpenseCount + $newExpenseCount, $expenseCategories->total());
-        $this->assertEquals($initialIncomeCount + $newIncomeCount, $incomeCategories->total());
+        
+        // Assert counts
+        $this->assertEquals($initialExpenseCount + 3, $expenseCategories->total());
+        $this->assertEquals($initialIncomeCount + 2, $incomeCategories->total());
     }
     
     public function test_can_get_default_categories(): void
     {
+        // Count initial default categories
         $initialDefaultCount = $this->repository->getAllDefaultCategories()->total();
         
-        $newCategory = TransactionCategory::create([
-            'name' => 'New Default Category',
-            'type' => 'expense',
-            'is_default' => true,
+        // Create new default categories
+        TransactionCategory::factory()->count(2)->create([
+            'user_id' => null,
+            'is_default' => true
         ]);
-
+        
+        // Get default categories
         $defaultCategories = $this->repository->getAllDefaultCategories();
         
-        $this->assertEquals($initialDefaultCount + 1, $defaultCategories->total());
+        // Assert count
+        $this->assertEquals($initialDefaultCount + 2, $defaultCategories->total());
     }
-
+    
     public function test_can_restore_deleted_category(): void
     {
-        $user = User::factory()->create();
-        $category = TransactionCategory::create([
-            'name' => 'Test Category',
-            'type' => 'expense',
-            'user_id' => $user->id,
-        ]);
-        
+        $category = TransactionCategory::factory()->create();
         $category->delete();
         
-        $this->assertSoftDeleted('transaction_categories', [
-            'id' => $category->id
-        ]);
-
         $result = $this->repository->restore($category->id);
-
+        
         $this->assertTrue($result);
         $this->assertDatabaseHas('transaction_categories', [
             'id' => $category->id,
             'deleted_at' => null
         ]);
     }
-
-    public function test_can_get_trashed_categories(): void
-    {
-        $initialTrashedCount = $this->repository->getTrashed()->total();
-        
-        $user = User::factory()->create();
-        $category = TransactionCategory::create([
-            'name' => 'Trashed Test Category',
-            'type' => 'expense',
-            'user_id' => $user->id,
-        ]);
-        
-        $category->delete();
-
-        $trashedCategories = $this->repository->getTrashed();
-
-        $this->assertEquals($initialTrashedCount + 1, $trashedCategories->total());
-        
-        $this->assertTrue(
-            $trashedCategories->contains(function ($item) use ($category) {
-                return $item->id === $category->id && $item->name === 'Trashed Test Category';
-            })
-        );
-    }
-
+    
     public function test_can_force_delete_category(): void
     {
-        $user = User::factory()->create();
-        $category = TransactionCategory::create([
-            'name' => 'Test Category',
-            'type' => 'expense',
-            'user_id' => $user->id,
-        ]);
-        
+        $category = TransactionCategory::factory()->create();
+        $categoryId = $category->id;
         $category->delete();
-
-        $result = $this->repository->forceDelete($category->id);
-
+        
+        $result = $this->repository->forceDelete($categoryId);
+        
         $this->assertTrue($result);
         $this->assertDatabaseMissing('transaction_categories', [
-            'id' => $category->id
+            'id' => $categoryId
         ]);
     }
 } 

@@ -39,12 +39,6 @@ interface TransactionCategoryRepositoryInterface extends EloquentRepositoryInter
     ): ?TransactionCategory;
     
     /**
-     * @param int $perPage
-     * @return LengthAwarePaginator
-     */
-    public function paginate(int $perPage = 15): LengthAwarePaginator;
-    
-    /**
      * @param string $type
      * @param int $perPage
      * @return LengthAwarePaginator
@@ -71,12 +65,6 @@ interface TransactionCategoryRepositoryInterface extends EloquentRepositoryInter
      * @return LengthAwarePaginator
      */
     public function getAllByUserAndType(int $userId, string $type, int $perPage = 15): LengthAwarePaginator;
-
-    /**
-     * @param int $perPage
-     * @return LengthAwarePaginator
-     */
-    public function getTrashed(int $perPage = 15): LengthAwarePaginator;
 
     /**
      * @param int $userId

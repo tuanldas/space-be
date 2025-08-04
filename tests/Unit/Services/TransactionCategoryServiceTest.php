@@ -36,24 +36,6 @@ class TransactionCategoryServiceTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_get_all_calls_repository_paginate(): void
-    {
-        // Arrange
-        $perPage = 15;
-        $expectedPaginator = new LengthAwarePaginator([], 0, $perPage);
-        
-        $this->mockRepository->shouldReceive('paginate')
-            ->once()
-            ->with($perPage)
-            ->andReturn($expectedPaginator);
-        
-        // Act
-        $result = $this->service->getAll($perPage);
-        
-        // Assert
-        $this->assertSame($expectedPaginator, $result);
-    }
-
     public function test_get_by_id_calls_repository_find_by_uuid(): void
     {
         // Arrange
