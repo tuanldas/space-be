@@ -127,4 +127,19 @@ class WalletController extends Controller
             'message' => __('messages.wallet.deleted')
         ]);
     }
+    
+    /**
+     * Lấy thông tin tóm tắt của các ví cho sidebar
+     *
+     * @return JsonResponse
+     */
+    public function getSummaryForSidebar(): JsonResponse
+    {
+        $wallets = $this->walletService->getWalletsSummaryForSidebar();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $wallets
+        ]);
+    }
 }

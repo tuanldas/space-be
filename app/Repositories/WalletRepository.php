@@ -52,4 +52,19 @@ class WalletRepository extends BaseRepository implements WalletRepositoryInterfa
             return $wallet->save();
         });
     }
+    
+    /**
+     * Lấy thông tin tóm tắt của các ví cho sidebar
+     *
+     * @param int $userId ID của người dùng
+     * @return \Illuminate\Support\Collection
+     */
+    public function getWalletsSummaryByUserId(int $userId)
+    {
+        return $this->model
+            ->where('user_id', $userId)
+            ->select(['id', 'name', 'balance', 'currency'])
+            ->orderBy('name')
+            ->get();
+    }
 } 

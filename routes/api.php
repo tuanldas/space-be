@@ -74,6 +74,7 @@ Route::middleware('auth:api')->group(function () {
     
     // Wallets Routes
     Route::apiResource('wallets', WalletController::class);
+    Route::get('/wallets-sidebar', [WalletController::class, 'getSummaryForSidebar']);
     
     // Wallet Transactions Routes
     Route::get('/wallets/{walletId}/transactions', [WalletTransactionController::class, 'index']);

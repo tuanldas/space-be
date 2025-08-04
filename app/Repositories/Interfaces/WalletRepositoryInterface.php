@@ -21,4 +21,12 @@ interface WalletRepositoryInterface extends EloquentRepositoryInterface
      * @return bool
      */
     public function updateBalance(string $id, float $amount);
+    
+    /**
+     * Lấy thông tin tóm tắt của các ví cho sidebar
+     *
+     * @param int $userId ID của người dùng
+     * @return \Illuminate\Support\Collection
+     */
+    public function getWalletsSummaryByUserId(int $userId);
 } 

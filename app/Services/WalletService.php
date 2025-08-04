@@ -98,4 +98,18 @@ class WalletService implements WalletServiceInterface
             return false;
         }
     }
+    
+    /**
+     * Lấy thông tin tóm tắt của các ví cho sidebar
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getWalletsSummaryForSidebar()
+    {
+        try {
+            return $this->walletRepository->getWalletsSummaryByUserId(Auth::id());
+        } catch (\Exception $e) {
+            return collect();
+        }
+    }
 } 
