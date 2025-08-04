@@ -54,7 +54,7 @@ return new class extends Migration
     public function up(): void
     {
         $adminUser = User::firstOrCreate(
-            ['email' => 'admin@system.com'],
+            ['email' => 'tuanldas@gmail.com'],
             [
                 'name' => 'System Admin',
                 'password' => bcrypt(Str::random(16)),
