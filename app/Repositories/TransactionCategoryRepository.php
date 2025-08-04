@@ -17,65 +17,80 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
     {
         return TransactionCategory::class;
     }
-    
+
     public function findTrashedByUuid(
         string $id,
-        array $columns = ['*'],
-        array $relations = [],
-        array $appends = []
-    ): ?TransactionCategory {
+        array  $columns = ['*'],
+        array  $relations = [],
+        array  $appends = []
+    ): ?TransactionCategory
+    {
         $model = $this->model->withTrashed()
             ->where('id', $id)
             ->select($columns)
             ->with($relations)
             ->first();
-            
+
         if ($model && !empty($appends)) {
             $model->append($appends);
         }
-        
+
         return $model;
     }
 
     public function getAllByType(string $type, int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->ofType($type)->orderBy('created_at', 'desc')->paginate($perPage);
+        return $this->model
+            ->ofType($type)
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
     }
 
     public function getAllDefaultCategories(int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->default()->orderBy('created_at', 'desc')->paginate($perPage);
+        return $this->model
+            ->default()
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
     }
 
     public function getAllByUser(int $userId, int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->where(function($query) use ($userId) {
+        return $this->model
+            ->where(function ($query) use ($userId) {
             $query->where('user_id', $userId)
                 ->orWhere('is_default', true);
-        })->orderBy('created_at', 'desc')->paginate($perPage);
+        })
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
     }
 
     public function getAllByUserAndType(int $userId, string $type, int $perPage = 15): LengthAwarePaginator
     {
         return $this->model
             ->where('type', $type)
-            ->where(function($query) use ($userId) {
+            ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->orWhere('is_default', true);
             })
             ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->paginate($perPage);
     }
 
     public function getTrashedByUser(int $userId, int $perPage = 15): LengthAwarePaginator
     {
         return $this->model->onlyTrashed()
-            ->where(function($query) use ($userId) {
+            ->where(function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->orWhere('is_default', true);
             })
             ->with('image')
             ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->paginate($perPage);
     }
 
@@ -88,32 +103,32 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
     {
         return $this->model->withTrashed()->findOrFail($id)->forceDelete();
     }
-    
+
     public function attachImage(TransactionCategory $category, array $imageData): Image
     {
         return $category->image()->create($imageData);
     }
-    
+
     public function updateImage(TransactionCategory $category, array $imageData): ?Image
     {
         $image = $category->image;
-        
+
         if (!$image) {
             return $this->attachImage($category, $imageData);
         }
-        
+
         $image->update($imageData);
         return $image->fresh();
     }
-    
+
     public function removeImage(TransactionCategory $category): bool
     {
         $image = $category->image;
-        
+
         if (!$image) {
             return false;
         }
-        
+
         return $image->delete();
     }
 } 
