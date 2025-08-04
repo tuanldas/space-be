@@ -33,7 +33,7 @@ class TransactionCategory extends Model
     
     protected $with = ['image'];
     
-    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+    protected $hidden = ['updated_at', 'deleted_at'];
 
     protected $appends = ['image_url'];
 
