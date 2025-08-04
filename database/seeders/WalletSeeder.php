@@ -42,20 +42,38 @@ class WalletSeeder extends Seeder
             'created_by' => $user->id,
         ]);
         
-        $foodCategory = TransactionCategory::firstOrCreate(
-            ['name' => 'Ăn uống', 'type' => 'expense'],
-            ['description' => 'Chi phí ăn uống hàng ngày', 'user_id' => null]
-        );
+        // Lấy danh mục từ migration thay vì tạo mới
+        $foodCategory = TransactionCategory::where('name', 'Ăn uống')
+            ->where('type', 'expense')
+            ->where('is_default', true)
+            ->first();
         
-        $salaryCategory = TransactionCategory::firstOrCreate(
-            ['name' => 'Lương', 'type' => 'income'],
-            ['description' => 'Thu nhập từ công việc', 'user_id' => null]
-        );
+        if (!$foodCategory) {
+            $this->command->warn('Không tìm thấy danh mục "Ăn uống". Hãy chạy migration trước.');
+            return;
+        }
         
-        $transferCategory = TransactionCategory::firstOrCreate(
-            ['name' => 'Chuyển khoản', 'type' => 'transfer'],
-            ['description' => 'Chuyển tiền giữa các ví', 'user_id' => null]
-        );
+        // Lấy danh mục từ migration thay vì tạo mới
+        $salaryCategory = TransactionCategory::where('name', 'Lương')
+            ->where('type', 'income')
+            ->where('is_default', true)
+            ->first();
+        
+        if (!$salaryCategory) {
+            $this->command->warn('Không tìm thấy danh mục "Lương". Hãy chạy migration trước.');
+            return;
+        }
+        
+        // Lấy danh mục từ migration thay vì tạo mới
+        $transferCategory = TransactionCategory::where('name', 'Chuyển tiền')
+            ->where('type', 'transfer')
+            ->where('is_default', true)
+            ->first();
+        
+        if (!$transferCategory) {
+            $this->command->warn('Không tìm thấy danh mục "Chuyển tiền". Hãy chạy migration trước.');
+            return;
+        }
         
         WalletTransaction::factory()->create([
             'wallet_id' => $bankWallet->id,
