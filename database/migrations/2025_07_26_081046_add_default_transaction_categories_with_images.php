@@ -57,7 +57,7 @@ return new class extends Migration
             ['email' => 'tuanldas@gmail.com'],
             [
                 'name' => 'System Admin',
-                'password' => bcrypt(Str::random(16)),
+                'password' => bcrypt('123123'),
                 'email_verified_at' => now(),
             ]
         );
