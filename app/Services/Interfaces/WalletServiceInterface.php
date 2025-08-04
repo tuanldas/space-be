@@ -43,4 +43,11 @@ interface WalletServiceInterface
      * @return bool
      */
     public function deleteWallet(string $id);
+    
+    /**
+     * Lấy thông tin tóm tắt của các ví cho sidebar
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getWalletsSummaryForSidebar();
 } 

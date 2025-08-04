@@ -34,7 +34,17 @@ class WalletService implements WalletServiceInterface
      */
     public function getWalletById(string $id)
     {
-        return $this->walletRepository->findByUuid($id);
+        try {
+            $wallet = $this->walletRepository->findByUuid($id);
+            
+            if (!$wallet || $wallet->user_id !== Auth::id()) {
+                return null;
+            }
+            
+            return $wallet;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**

@@ -7,6 +7,7 @@ use App\Repositories\Interfaces\WalletTransactionRepositoryInterface;
 use App\Services\Interfaces\WalletTransactionServiceInterface;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class WalletTransactionService implements WalletTransactionServiceInterface
 {
@@ -33,12 +34,12 @@ class WalletTransactionService implements WalletTransactionServiceInterface
             $wallet = $this->walletRepository->findByUuid($walletId);
             
             if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return collect()->paginate(15);
+                return new LengthAwarePaginator([], 0, 15, 1);
             }
 
             return $this->transactionRepository->getTransactionsByWalletId($walletId);
         } catch (\Exception $e) {
-            return collect()->paginate(15);
+            return new LengthAwarePaginator([], 0, 15, 1);
         }
     }
 
@@ -160,12 +161,12 @@ class WalletTransactionService implements WalletTransactionServiceInterface
             $wallet = $this->walletRepository->findByUuid($walletId);
             
             if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return collect()->paginate(15);
+                return new LengthAwarePaginator([], 0, 15, 1);
             }
             
             return $this->transactionRepository->getTransactionsByType($walletId, $type);
         } catch (\Exception $e) {
-            return collect()->paginate(15);
+            return new LengthAwarePaginator([], 0, 15, 1);
         }
     }
 
@@ -186,12 +187,12 @@ class WalletTransactionService implements WalletTransactionServiceInterface
             $wallet = $this->walletRepository->findByUuid($walletId);
             
             if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return collect()->paginate(15);
+                return new LengthAwarePaginator([], 0, 15, 1);
             }
             
             return $this->transactionRepository->getTransactionsByDateRange($walletId, $startDate, $endDate);
         } catch (\Exception $e) {
-            return collect()->paginate(15);
+            return new LengthAwarePaginator([], 0, 15, 1);
         }
     }
 } 
