@@ -29,6 +29,7 @@ class WalletRepository extends BaseRepository implements WalletRepositoryInterfa
     {
         return $this->model
             ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
             ->paginate(config('app.pagination_limit', 15), $columns);
     }
 
