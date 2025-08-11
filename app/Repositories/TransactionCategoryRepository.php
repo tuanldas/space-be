@@ -71,11 +71,11 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
     public function getAllByUserAndType(int $userId, string $type, int $perPage = 15): LengthAwarePaginator
     {
         return $this->model
-            ->where('type', $type)
             ->where(function ($query) use ($userId) {
-                $query->where('user_id', $userId)
-                    ->orWhere('is_default', true);
-            })
+            $query->where('user_id', $userId)
+                ->orWhere('is_default', true);
+        })
+            ->ofType($type)
             ->orderBy('created_at', 'desc')
             ->orderBy('id', 'desc')
             ->paginate($perPage);
@@ -83,12 +83,9 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
 
     public function getTrashedByUser(int $userId, int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->onlyTrashed()
-            ->where(function ($query) use ($userId) {
-                $query->where('user_id', $userId)
-                    ->orWhere('is_default', true);
-            })
-            ->with('image')
+        return $this->model
+            ->onlyTrashed()
+            ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->orderBy('id', 'desc')
             ->paginate($perPage);
@@ -96,12 +93,26 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
 
     public function restore(string $id): bool
     {
-        return $this->model->withTrashed()->findOrFail($id)->restore();
+        $model = $this->findTrashedByUuid($id);
+
+        if ($model) {
+            $model->restore();
+            return true;
+        }
+
+        return false;
     }
 
     public function forceDelete(string $id): bool
     {
-        return $this->model->withTrashed()->findOrFail($id)->forceDelete();
+        $model = $this->findTrashedByUuid($id);
+
+        if ($model) {
+            $model->forceDelete();
+            return true;
+        }
+
+        return false;
     }
 
     public function attachImage(TransactionCategory $category, array $imageData): Image
@@ -111,24 +122,33 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
 
     public function updateImage(TransactionCategory $category, array $imageData): ?Image
     {
-        $image = $category->image;
-
-        if (!$image) {
-            return $this->attachImage($category, $imageData);
+        if ($category->image) {
+            $category->image->update($imageData);
+            return $category->image;
         }
 
-        $image->update($imageData);
-        return $image->fresh();
+        return null;
     }
 
     public function removeImage(TransactionCategory $category): bool
     {
-        $image = $category->image;
-
-        if (!$image) {
-            return false;
+        if ($category->image) {
+            return $category->image->delete();
         }
 
-        return $image->delete();
+        return false;
+    }
+
+    /**
+     * Lấy danh mục mặc định đầu tiên theo type (không phân trang)
+     */
+    public function getFirstDefaultByType(string $type): ?TransactionCategory
+    {
+        return $this->model
+            ->default()
+            ->ofType($type)
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
     }
 } 

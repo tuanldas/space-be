@@ -2,52 +2,39 @@
 
 namespace App\Services\Interfaces;
 
+use App\Models\Wallet;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+
 interface WalletServiceInterface
 {
     /**
      * Lấy danh sách ví của người dùng hiện tại
-     *
-     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public function getCurrentUserWallets();
+    public function getCurrentUserWallets(): LengthAwarePaginator;
 
     /**
      * Lấy thông tin chi tiết của ví
-     *
-     * @param string $id ID của ví
-     * @return \App\Models\Wallet|null
      */
-    public function getWalletById(string $id);
+    public function getWalletById(string $id): ?Wallet;
 
     /**
      * Tạo ví mới
-     *
-     * @param array $data Dữ liệu ví
-     * @return \App\Models\Wallet|null
      */
-    public function createWallet(array $data);
+    public function createWallet(array $data): ?Wallet;
 
     /**
      * Cập nhật thông tin ví
-     *
-     * @param string $id ID của ví
-     * @param array $data Dữ liệu cập nhật
-     * @return \App\Models\Wallet|null
      */
-    public function updateWallet(string $id, array $data);
+    public function updateWallet(string $id, array $data): ?Wallet;
 
     /**
      * Xóa ví
-     *
-     * @param string $id ID của ví
-     * @return bool
      */
-    public function deleteWallet(string $id);
+    public function deleteWallet(string $id): bool;
     
     /**
      * Lấy thông tin tóm tắt của các ví cho sidebar
-     *
-     * @return \Illuminate\Support\Collection
      */
-    public function getWalletsSummaryForSidebar();
+    public function getWalletsSummaryForSidebar(): Collection;
 } 

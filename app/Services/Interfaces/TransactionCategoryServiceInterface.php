@@ -43,4 +43,9 @@ interface TransactionCategoryServiceInterface
     public function updateImage(string $categoryId, UploadedFile $imageFile, int $userId): ?Image;
 
     public function removeImage(string $categoryId): bool;
+
+    /**
+     * Lấy danh mục mặc định đầu tiên theo type (không phân trang)
+     */
+    public function getFirstDefaultByType(string $type): ?TransactionCategory;
 } 

@@ -90,4 +90,12 @@ interface TransactionCategoryRepositoryInterface extends EloquentRepositoryInter
     public function updateImage(TransactionCategory $category, array $imageData): ?Image;
     
     public function removeImage(TransactionCategory $category): bool;
+
+    /**
+     * Lấy danh mục mặc định đầu tiên theo type (không phân trang)
+     *
+     * @param string $type
+     * @return TransactionCategory|null
+     */
+    public function getFirstDefaultByType(string $type): ?TransactionCategory;
 } 

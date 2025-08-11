@@ -65,6 +65,7 @@ return [
         'invalid_date' => 'Invalid transaction date.',
         'wallet_not_found' => 'Wallet not found.',
         'category_not_found' => 'Transaction category not found.',
+        'initial_balance' => 'Initial balance',
     ],
     'validation' => [
         'wallet' => [

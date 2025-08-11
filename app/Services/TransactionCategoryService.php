@@ -82,55 +82,65 @@ class TransactionCategoryService implements TransactionCategoryServiceInterface
     {
         return $this->repository->forceDelete($id);
     }
-    
+
     public function attachImage(string $categoryId, UploadedFile $imageFile, int $userId): Image
     {
-        $category = $this->getById($categoryId);
-        $fileInfo = $this->fileAdapter->store($imageFile, 'transaction-categories');
-        
+        $category = $this->repository->findByUuid($categoryId);
+
         $imageData = [
             'user_id' => $userId,
-            'disk' => $fileInfo['disk'],
-            'path' => $fileInfo['path'],
-            'type' => ImageCategoryType::CATEGORY_IMAGE->value
+            'disk' => 'public',
+            'path' => '',
+            'imageable_type' => TransactionCategory::class,
+            'imageable_id' => $categoryId,
+            'type' => ImageCategoryType::CATEGORY_IMAGE,
         ];
-        
-        return $this->repository->attachImage($category, $imageData);
-    }
-    
-    public function updateImage(string $categoryId, UploadedFile $imageFile, int $userId): ?Image
-    {
-        $category = $this->getById($categoryId);
-        
-        if ($category->image && $category->image->path) {
+
+        if ($category->image) {
             $this->fileAdapter->delete($category->image->path, $category->image->disk);
         }
-        
-        $fileInfo = $this->fileAdapter->store($imageFile, 'transaction-categories');
-        
+
+        $imagePath = $this->fileAdapter->upload($imageFile, 'transaction-categories');
+        $imageData['path'] = $imagePath;
+
+        return $this->repository->attachImage($category, $imageData);
+    }
+
+    public function updateImage(string $categoryId, UploadedFile $imageFile, int $userId): ?Image
+    {
+        $category = $this->repository->findByUuid($categoryId);
+
+        if ($category->image) {
+            $this->fileAdapter->delete($category->image->path, $category->image->disk);
+        }
+
+        $imagePath = $this->fileAdapter->upload($imageFile, 'transaction-categories');
+
         $imageData = [
             'user_id' => $userId,
-            'disk' => $fileInfo['disk'],
-            'path' => $fileInfo['path'],
-            'type' => ImageCategoryType::CATEGORY_IMAGE->value
+            'disk' => 'public',
+            'path' => $imagePath,
+            'imageable_type' => TransactionCategory::class,
+            'imageable_id' => $categoryId,
+            'type' => ImageCategoryType::CATEGORY_IMAGE,
         ];
-        
+
         return $this->repository->updateImage($category, $imageData);
     }
-    
+
     public function removeImage(string $categoryId): bool
     {
-        try {
-            // Tìm kiếm bản ghi trong cả bảng chính và thùng rác
-            $category = $this->repository->findTrashedByUuid($categoryId);
-            
-            if ($category->image && $category->image->path) {
-                $this->fileAdapter->delete($category->image->path, $category->image->disk);
-            }
-            
-            return $this->repository->removeImage($category);
-        } catch (\Exception $e) {
-            return false;
+        $category = $this->repository->findByUuid($categoryId);
+
+        if ($category->image) {
+            $this->fileAdapter->delete($category->image->path, $category->image->disk);
         }
+
+        return $this->repository->removeImage($category);
+    }
+
+    public function getFirstDefaultByType(string $type): ?TransactionCategory
+    {
+        return $this->repository->getFirstDefaultByType($type);
     }
 } 

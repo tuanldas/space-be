@@ -65,6 +65,7 @@ return [
         'invalid_date' => 'Ngày giao dịch không hợp lệ.',
         'wallet_not_found' => 'Không tìm thấy ví.',
         'category_not_found' => 'Không tìm thấy danh mục giao dịch.',
+        'initial_balance' => 'Số dư ban đầu',
     ],
     'validation' => [
         'wallet' => [
