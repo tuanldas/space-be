@@ -76,12 +76,8 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('wallets', WalletController::class);
     Route::get('/wallets-sidebar', [WalletController::class, 'getSummaryForSidebar']);
     
-    // Nested Wallet Transactions Routes (RESTful, no show)
-    Route::apiResource('wallets.transactions', WalletTransactionController::class)->only(['index', 'store', 'update', 'destroy']);
-    
-    // Custom Wallet Transactions Filters
-    Route::get('/wallets/{walletId}/transactions/type/{type}', [WalletTransactionController::class, 'getByType']);
-    Route::get('/wallets/{walletId}/transactions/date-range', [WalletTransactionController::class, 'getByDateRange']);
+    // Nested Wallet Transactions Routes (RESTful)
+    Route::apiResource('wallets.transactions', WalletTransactionController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
 });
 
 Route::get('/test', function () {

@@ -155,5 +155,13 @@ return [
         'description' => 'mô tả',
         'type' => 'loại',
         'user_id' => 'người dùng',
+        'start_date' => 'ngày bắt đầu',
+        'end_date' => 'ngày kết thúc',
+        'sort' => 'sắp xếp',
+        'page' => 'trang',
+        'per_page' => 'kích thước trang',
+        'filter.type' => 'loại',
+        'filter.date_between.start' => 'ngày bắt đầu',
+        'filter.date_between.end' => 'ngày kết thúc',
     ],
 ]; 
