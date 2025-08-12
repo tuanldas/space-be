@@ -80,6 +80,14 @@ class WalletTransactionController extends Controller
         ]);
     }
 
+    public function update(Request $request, string $wallet, string $transaction): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'message' => 'Not Implemented'
+        ], 501);
+    }
+
     /**
      * Xóa giao dịch
      * 
