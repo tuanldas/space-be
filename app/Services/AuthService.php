@@ -8,7 +8,7 @@ use App\Services\Interfaces\AuthServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Bouncer;
+use Silber\Bouncer\BouncerFacade as Bouncer;
 use Silber\Bouncer\Database\Role;
 
 class AuthService implements AuthServiceInterface
@@ -93,7 +93,10 @@ class AuthService implements AuthServiceInterface
      */
     public function logout(Request $request): array
     {
-        $request->user()->token()->revoke();
+        // Kiểm tra token có tồn tại không trước khi gọi revoke()
+        if ($request->user() && $request->user()->token()) {
+            $request->user()->token()->revoke();
+        }
 
         return [
             'message' => __('auth.logout_success')

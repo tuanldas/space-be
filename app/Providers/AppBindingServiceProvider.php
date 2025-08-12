@@ -27,6 +27,14 @@ use App\Services\Interfaces\TransactionCategoryServiceInterface;
 use App\Services\TransactionCategoryService;
 use App\Adapters\FileAdapter;
 use App\Adapters\Interfaces\FileAdapterInterface;
+use App\Repositories\Interfaces\WalletRepositoryInterface;
+use App\Repositories\WalletRepository;
+use App\Repositories\Interfaces\WalletTransactionRepositoryInterface;
+use App\Repositories\WalletTransactionRepository;
+use App\Services\Interfaces\WalletServiceInterface;
+use App\Services\WalletService;
+use App\Services\Interfaces\WalletTransactionServiceInterface;
+use App\Services\WalletTransactionService;
 
 class AppBindingServiceProvider extends ServiceProvider
 {
@@ -41,6 +49,8 @@ class AppBindingServiceProvider extends ServiceProvider
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->bind(AbilityRepositoryInterface::class, AbilityRepository::class);
         $this->app->bind(TransactionCategoryRepositoryInterface::class, TransactionCategoryRepository::class);
+        $this->app->bind(WalletRepositoryInterface::class, WalletRepository::class);
+        $this->app->bind(WalletTransactionRepositoryInterface::class, WalletTransactionRepository::class);
         
         // Services
         $this->app->bind(AuthServiceInterface::class, AuthService::class);
@@ -48,6 +58,8 @@ class AppBindingServiceProvider extends ServiceProvider
         $this->app->bind(RoleServiceInterface::class, RoleService::class);
         $this->app->bind(AbilityServiceInterface::class, AbilityService::class);
         $this->app->bind(TransactionCategoryServiceInterface::class, TransactionCategoryService::class);
+        $this->app->bind(WalletServiceInterface::class, WalletService::class);
+        $this->app->bind(WalletTransactionServiceInterface::class, WalletTransactionService::class);
         
         // Adapters
         $this->app->bind(OAuthAdapterInterface::class, OAuthAdapter::class);

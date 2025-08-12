@@ -25,10 +25,18 @@ interface TransactionCategoryRepositoryInterface extends EloquentRepositoryInter
     public function deleteByUuid(string $uuid): bool;
 
     /**
-     * @param int $perPage
-     * @return LengthAwarePaginator
+     * @param string $uuid
+     * @param array $columns
+     * @param array $relations
+     * @param array $appends
+     * @return TransactionCategory|null
      */
-    public function paginate(int $perPage = 15): LengthAwarePaginator;
+    public function findTrashedByUuid(
+        string $uuid,
+        array $columns = ['*'],
+        array $relations = [],
+        array $appends = []
+    ): ?TransactionCategory;
     
     /**
      * @param string $type
@@ -59,12 +67,6 @@ interface TransactionCategoryRepositoryInterface extends EloquentRepositoryInter
     public function getAllByUserAndType(int $userId, string $type, int $perPage = 15): LengthAwarePaginator;
 
     /**
-     * @param int $perPage
-     * @return LengthAwarePaginator
-     */
-    public function getTrashed(int $perPage = 15): LengthAwarePaginator;
-
-    /**
      * @param int $userId
      * @param int $perPage
      * @return LengthAwarePaginator
@@ -88,4 +90,12 @@ interface TransactionCategoryRepositoryInterface extends EloquentRepositoryInter
     public function updateImage(TransactionCategory $category, array $imageData): ?Image;
     
     public function removeImage(TransactionCategory $category): bool;
+
+    /**
+     * Lấy danh mục mặc định đầu tiên theo type (không phân trang)
+     *
+     * @param string $type
+     * @return TransactionCategory|null
+     */
+    public function getFirstDefaultByType(string $type): ?TransactionCategory;
 } 

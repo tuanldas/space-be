@@ -10,24 +10,15 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Illuminate\Auth\Access\AuthorizationException;
-use Bouncer;
 
 class UserController extends Controller
 {
     /**
-     * @var UserServiceInterface
-     */
-    protected $userService;
-
-    /**
      * UserController constructor.
-     *
-     * @param UserServiceInterface $userService
      */
-    public function __construct(UserServiceInterface $userService)
-    {
-        $this->userService = $userService;
+    public function __construct(
+        protected UserServiceInterface $userService
+    ) {
     }
 
     /**
@@ -35,16 +26,11 @@ class UserController extends Controller
      *
      * @param Request $request
      * @return JsonResponse
-     * @throws AuthorizationException
      */
     public function index(Request $request): JsonResponse
     {
-        if (!Bouncer::can('view-users')) {
-            throw new AuthorizationException('Bạn không có quyền xem danh sách người dùng.');
-        }
-
         $perPage = $request->query('per_page', 15);
-        $filters = $request->only(['search']);
+        $filters = $request->only(['search', 'role']);
         
         $users = $this->userService->getAllUsers($perPage, $filters);
         
@@ -56,20 +42,15 @@ class UserController extends Controller
      *
      * @param int $id
      * @return JsonResponse
-     * @throws AuthorizationException
      */
     public function show(int $id): JsonResponse
     {
-        if (!Bouncer::can('view-users')) {
-            throw new AuthorizationException('Bạn không có quyền xem thông tin người dùng.');
-        }
-
         try {
             $user = $this->userService->getUserById($id);
             
             return response()->json($user);
         } catch (ModelNotFoundException | NotFoundHttpException $e) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => __('messages.user.not_found')], 404);
         }
     }
 
@@ -78,14 +59,9 @@ class UserController extends Controller
      *
      * @param CreateUserRequest $request
      * @return JsonResponse
-     * @throws AuthorizationException
      */
     public function store(CreateUserRequest $request): JsonResponse
     {
-        if (!Bouncer::can('create-users')) {
-            throw new AuthorizationException('Bạn không có quyền tạo người dùng mới.');
-        }
-        
         $userData = $request->validated();
         
         $user = $this->userService->createUser($userData);
@@ -99,14 +75,9 @@ class UserController extends Controller
      * @param UpdateUserRequest $request
      * @param int $id
      * @return JsonResponse
-     * @throws AuthorizationException
      */
     public function update(UpdateUserRequest $request, int $id): JsonResponse
     {
-        if (!Bouncer::can('update-users')) {
-            throw new AuthorizationException('Bạn không có quyền cập nhật thông tin người dùng.');
-        }
-        
         try {
             $userData = $request->validated();
             
@@ -114,7 +85,7 @@ class UserController extends Controller
             
             return response()->json($user);
         } catch (ModelNotFoundException | NotFoundHttpException $e) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => __('messages.user.not_found')], 404);
         }
     }
 
@@ -123,20 +94,15 @@ class UserController extends Controller
      *
      * @param int $id
      * @return JsonResponse
-     * @throws AuthorizationException
      */
     public function destroy(int $id): JsonResponse
     {
-        if (!Bouncer::can('delete-users')) {
-            throw new AuthorizationException('Bạn không có quyền xóa người dùng.');
-        }
-        
         try {
-            $deleted = $this->userService->deleteUser($id);
+            $this->userService->deleteUser($id);
             
-            return response()->json(['message' => 'User deleted successfully']);
+            return response()->json(null, 204);
         } catch (ModelNotFoundException | NotFoundHttpException $e) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => __('messages.user.not_found')], 404);
         }
     }
 } 

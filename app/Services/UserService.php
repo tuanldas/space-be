@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Interfaces\UserServiceInterface;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
 
@@ -24,15 +23,7 @@ class UserService implements UserServiceInterface
      */
     public function getAllUsers(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        return User::query()
-            ->when(isset($filters['search']), function ($query) use ($filters) {
-                return $query->where(function ($query) use ($filters) {
-                    $searchTerm = '%' . $filters['search'] . '%';
-                    $query->where('name', 'like', $searchTerm)
-                        ->orWhere('email', 'like', $searchTerm);
-                });
-            })
-            ->paginate($perPage);
+        return $this->userRepository->getUsersWithRoles($perPage, $filters);
     }
 
     /**
@@ -40,7 +31,15 @@ class UserService implements UserServiceInterface
      */
     public function getUserById(int $userId): ?User
     {
-        return $this->userRepository->findById($userId);
+        $user = $this->userRepository->findById($userId, ['*'], ['roles' => function($query) {
+            $query->select(['roles.id', 'roles.name', 'roles.title']);
+        }]);
+        
+        if ($user) {
+            $user->roles->makeHidden(['pivot']);
+        }
+        
+        return $user;
     }
 
     /**

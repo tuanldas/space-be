@@ -3,6 +3,9 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\AddCookieToRequest;
+use App\Http\Middleware\SetApiLanguage;
+use Illuminate\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,7 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Global middlewares
+        $middleware->prepend(HandleCors::class);
+        $middleware->prepend(AddCookieToRequest::class);
+        
+        // API specific middlewares (runs after globals)
+        $middleware->api(SetApiLanguage::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

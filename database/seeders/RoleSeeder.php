@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use App\Enums\AbilityType;
 use App\Models\User;
-use Bouncer;
+use Illuminate\Database\Seeder;
+use Silber\Bouncer\BouncerFacade as Bouncer;
 
 class RoleSeeder extends Seeder
 {
@@ -14,25 +14,27 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        // Tạo vai trò quản trị viên (nếu chưa có)
         $adminRole = Bouncer::role()->firstOrCreate(
             ['name' => 'admin'],
             ['title' => 'Quản trị viên']
         );
 
-        // Tạo vai trò người dùng thông thường (nếu chưa có)
         $userRole = Bouncer::role()->firstOrCreate(
             ['name' => 'user'],
             ['title' => 'Người dùng']
         );
 
-        // Cấp tất cả quyền cho vai trò quản trị viên
-        Bouncer::allow($adminRole)->everything();
+        foreach (AbilityType::cases() as $ability) {
+            Bouncer::allow($adminRole)->to($ability->value);
+        }
 
-        // Cấp quyền cơ bản cho vai trò người dùng
-        Bouncer::allow($userRole)->to('view-users');
+        Bouncer::allow($userRole)->to(AbilityType::VIEW_USERS->value);
+        Bouncer::allow($userRole)->to(AbilityType::VIEW_TRANSACTION_CATEGORIES->value);
+        Bouncer::allow($userRole)->to(AbilityType::CREATE_TRANSACTION_CATEGORIES->value);
+        Bouncer::allow($userRole)->to(AbilityType::UPDATE_TRANSACTION_CATEGORIES->value);
+        Bouncer::allow($userRole)->to(AbilityType::DELETE_TRANSACTION_CATEGORIES->value);
+        Bouncer::allow($userRole)->to(AbilityType::RESTORE_TRANSACTION_CATEGORIES->value);
 
-        // Tìm user id=1 (nếu có) và gán vai trò quản trị
         $adminUser = User::find(1);
         if ($adminUser) {
             Bouncer::assign($adminRole)->to($adminUser);
@@ -41,15 +43,16 @@ class RoleSeeder extends Seeder
             $this->command->warn('Không tìm thấy user có ID 1 để gán vai trò quản trị');
         }
 
-        // Tạo thêm vai trò biên tập viên
         $editorRole = Bouncer::role()->firstOrCreate(
             ['name' => 'editor'],
             ['title' => 'Biên tập viên']
         );
 
-        // Cấp quyền cho biên tập viên
-        Bouncer::allow($editorRole)->to('view-users');
-        Bouncer::allow($editorRole)->to('update-users');
+        Bouncer::allow($editorRole)->to(AbilityType::VIEW_USERS->value);
+        Bouncer::allow($editorRole)->to(AbilityType::UPDATE_USERS->value);
+        Bouncer::allow($editorRole)->to(AbilityType::VIEW_TRANSACTION_CATEGORIES->value);
+        Bouncer::allow($editorRole)->to(AbilityType::UPDATE_TRANSACTION_CATEGORIES->value);
+        Bouncer::allow($editorRole)->to(AbilityType::MANAGE_DEFAULT_TRANSACTION_CATEGORIES->value);
 
         $this->command->info('Đã khởi tạo các vai trò cơ bản cho hệ thống');
     }

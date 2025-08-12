@@ -1,17 +1,6 @@
 <?php
 
 return [
-    /*
-    |--------------------------------------------------------------------------
-    | Message Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used for various messages that we need to
-    | display to the user. You are free to modify these language lines according
-    | to your application's requirements.
-    |
-    */
-
     'success' => 'Operation completed successfully.',
     'error' => 'An error occurred while processing your request.',
     'not_found' => 'The requested resource could not be found.',
@@ -25,5 +14,86 @@ return [
         'force_deleted' => 'Category permanently deleted.',
         'not_found' => 'Category not found.',
         'not_found_in_trash' => 'Category not found in trash.',
+        'cannot_modify_default' => 'Default categories cannot be modified.',
+        'cannot_delete_default' => 'Default categories cannot be deleted.',
+    ],
+    'permission' => [
+        // User Management
+        'view_users_denied' => 'You do not have permission to view the user list.',
+        'view_user_denied' => 'You do not have permission to view user details.',
+        'create_users_denied' => 'You do not have permission to create new users.',
+        'update_users_denied' => 'You do not have permission to update users.',
+        'delete_users_denied' => 'You do not have permission to delete users.',
+        
+        // Role Management
+        'manage_roles_denied' => 'You do not have permission to manage roles.',
+        'manage_user_roles_denied' => 'You do not have permission to manage user roles.',
+        
+        // Transaction Categories
+        'view_categories_denied' => 'You do not have permission to view transaction categories.',
+        'view_category_details_denied' => 'You do not have permission to view transaction category details.',
+        'view_trashed_categories_denied' => 'You do not have permission to view deleted transaction categories.',
+        'create_categories_denied' => 'You do not have permission to create new transaction categories.',
+        'update_categories_denied' => 'You do not have permission to update transaction categories.',
+        'delete_categories_denied' => 'You do not have permission to delete transaction categories.',
+        'restore_categories_denied' => 'You do not have permission to restore deleted transaction categories.',
+        'force_delete_categories_denied' => 'You do not have permission to permanently delete transaction categories.',
+    ],
+    'user' => [
+        'not_found' => 'User not found.',
+        'deleted' => 'User deleted successfully.',
+    ],
+    'role' => [
+        'not_found' => 'Role not found.',
+        'deleted' => 'Role deleted successfully.',
+        'assigned' => 'Role assigned successfully.',
+        'removed' => 'Role removed successfully.',
+    ],
+    'wallet' => [
+        'created' => 'Wallet created successfully.',
+        'updated' => 'Wallet updated successfully.',
+        'deleted' => 'Wallet deleted successfully.',
+        'not_found' => 'Wallet not found.',
+        'access_denied' => 'You do not have access to this wallet.',
+    ],
+    'wallet_transaction' => [
+        'created' => 'Transaction created successfully.',
+        'deleted' => 'Transaction deleted successfully.',
+        'not_found' => 'Transaction not found.',
+        'invalid_type' => 'Invalid transaction type.',
+        'invalid_amount' => 'Invalid amount.',
+        'invalid_date' => 'Invalid transaction date.',
+        'wallet_not_found' => 'Wallet not found.',
+        'category_not_found' => 'Transaction category not found.',
+        'initial_balance' => 'Initial balance',
+    ],
+    'validation' => [
+        'wallet' => [
+            'name_required' => 'Wallet name is required.',
+            'name_string' => 'Wallet name must be a string.',
+            'name_max' => 'Wallet name cannot exceed 255 characters.',
+            'balance_numeric' => 'Balance must be a number.',
+            'balance_min' => 'Balance cannot be less than 0.',
+            'currency_required' => 'Currency is required.',
+            'currency_string' => 'Currency must be a string.',
+            'currency_size' => 'Currency must be 3 characters (e.g., USD, VND).',
+        ],
+        'wallet_transaction' => [
+            'wallet_id_required' => 'Wallet ID is required.',
+            'wallet_id_uuid' => 'Wallet ID must be a UUID.',
+            'wallet_id_exists' => 'Wallet does not exist.',
+            'category_id_required' => 'Category ID is required.',
+            'category_id_uuid' => 'Category ID must be a UUID.',
+            'category_id_exists' => 'Category does not exist.',
+            'amount_required' => 'Amount is required.',
+            'amount_numeric' => 'Amount must be a number.',
+            'amount_min' => 'Amount must be greater than 0.',
+            'transaction_date_required' => 'Transaction date is required.',
+            'transaction_date_date' => 'Invalid transaction date.',
+            'transaction_type_required' => 'Transaction type is required.',
+            'transaction_type_string' => 'Transaction type must be a string.',
+            'transaction_type_in' => 'Transaction type must be income, expense or transfer.',
+            'description_string' => 'Description must be a string.',
+        ],
     ],
 ]; 

@@ -18,81 +18,137 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
         return TransactionCategory::class;
     }
 
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function findTrashedByUuid(
+        string $id,
+        array  $columns = ['*'],
+        array  $relations = [],
+        array  $appends = []
+    ): ?TransactionCategory
     {
-        return $this->model->paginate($perPage);
+        $model = $this->model->withTrashed()
+            ->where('id', $id)
+            ->select($columns)
+            ->with($relations)
+            ->first();
+
+        if ($model && !empty($appends)) {
+            $model->append($appends);
+        }
+
+        return $model;
     }
 
     public function getAllByType(string $type, int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->ofType($type)->paginate($perPage);
+        return $this->model
+            ->ofType($type)
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
     }
 
     public function getAllDefaultCategories(int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->default()->paginate($perPage);
+        return $this->model
+            ->default()
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
     }
 
     public function getAllByUser(int $userId, int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->where('user_id', $userId)->paginate($perPage);
+        return $this->model
+            ->where(function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                ->orWhere('is_default', true);
+        })
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
     }
 
     public function getAllByUserAndType(int $userId, string $type, int $perPage = 15): LengthAwarePaginator
     {
         return $this->model
-            ->where('user_id', $userId)
-            ->where('type', $type)
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->orWhere('is_default', true);
+            })
+            ->ofType($type)
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->paginate($perPage);
-    }
-
-    public function getTrashed(int $perPage = 15): LengthAwarePaginator
-    {
-        return $this->model->onlyTrashed()->paginate($perPage);
     }
 
     public function getTrashedByUser(int $userId, int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->onlyTrashed()
+        return $this->model
+            ->onlyTrashed()
             ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->paginate($perPage);
     }
 
     public function restore(string $id): bool
     {
-        return $this->model->withTrashed()->findOrFail($id)->restore();
+        $model = $this->findTrashedByUuid($id);
+
+        if ($model) {
+            $model->restore();
+            return true;
+        }
+
+        return false;
     }
 
     public function forceDelete(string $id): bool
     {
-        return $this->model->withTrashed()->findOrFail($id)->forceDelete();
+        $model = $this->findTrashedByUuid($id);
+
+        if ($model) {
+            $model->forceDelete();
+            return true;
+        }
+
+        return false;
     }
-    
+
     public function attachImage(TransactionCategory $category, array $imageData): Image
     {
         return $category->image()->create($imageData);
     }
-    
+
     public function updateImage(TransactionCategory $category, array $imageData): ?Image
     {
-        $image = $category->image;
-        
-        if (!$image) {
-            return $this->attachImage($category, $imageData);
+        if ($category->image) {
+            $category->image->update($imageData);
+            return $category->image;
         }
-        
-        $image->update($imageData);
-        return $image->fresh();
+
+        return null;
     }
-    
+
     public function removeImage(TransactionCategory $category): bool
     {
-        $image = $category->image;
-        
-        if (!$image) {
+        if ($category->image) {
+            return $category->image->delete();
+        }
+
             return false;
         }
-        
-        return $image->delete();
+
+    /**
+     * Lấy danh mục mặc định đầu tiên theo type (không phân trang)
+     */
+    public function getFirstDefaultByType(string $type): ?TransactionCategory
+    {
+        return $this->model
+            ->default()
+            ->ofType($type)
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
     }
 } 

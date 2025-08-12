@@ -3,8 +3,6 @@
 namespace App\Http\Requests\Api\User;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Auth\Access\AuthorizationException;
-use Bouncer;
 
 class UserRoleRequest extends FormRequest
 {
@@ -13,7 +11,7 @@ class UserRoleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Bouncer::can('manage-roles');
+        return true;
     }
 
     /**
@@ -30,18 +28,6 @@ class UserRoleRequest extends FormRequest
     }
     
     /**
-     * Handle a failed authorization attempt.
-     *
-     * @return void
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    protected function failedAuthorization()
-    {
-        throw new AuthorizationException('Bạn không có quyền quản lý vai trò người dùng.');
-    }
-    
-    /**
      * Get custom messages for validator errors.
      *
      * @return array
@@ -49,10 +35,10 @@ class UserRoleRequest extends FormRequest
     public function messages()
     {
         return [
-            'user_id.required' => 'ID người dùng là bắt buộc.',
-            'user_id.exists' => 'Người dùng không tồn tại.',
-            'role.required' => 'Tên vai trò là bắt buộc.',
-            'role.exists' => 'Vai trò không tồn tại.',
+            'user_id.required' => __('validation.required', ['attribute' => 'ID người dùng']),
+            'user_id.exists' => __('validation.exists', ['attribute' => 'người dùng']),
+            'role.required' => __('validation.required', ['attribute' => 'tên vai trò']),
+            'role.exists' => __('validation.exists', ['attribute' => 'vai trò']),
         ];
     }
 }

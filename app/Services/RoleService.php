@@ -7,7 +7,7 @@ use App\Services\Interfaces\RoleServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Silber\Bouncer\Database\Role;
-use Bouncer;
+use Silber\Bouncer\BouncerFacade as Bouncer;
 
 class RoleService implements RoleServiceInterface
 {

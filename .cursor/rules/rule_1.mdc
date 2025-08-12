@@ -1,7 +1,7 @@
 ---
-description: 1
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 Luôn chạy các lệnh bằng docker.
 Định dạng file docker sử dụng là Compose V2.

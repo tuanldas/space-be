@@ -10,6 +10,12 @@ interface UserServiceInterface
 {
     /**
      * Get all users with pagination.
+     * 
+     * Supports filtering by:
+     * - search: Search in name and email fields
+     * - role: Filter by role name
+     *
+     * Results include user roles.
      *
      * @param int $perPage
      * @param array $filters
@@ -19,6 +25,8 @@ interface UserServiceInterface
 
     /**
      * Get user by ID.
+     * 
+     * Returned user includes roles information.
      *
      * @param int $userId
      * @return User|null

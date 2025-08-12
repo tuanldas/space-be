@@ -1,6 +1,6 @@
 ---
-description: Sử dụng tiếng khi commit git
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 Khi commit hãy sử dụng tiếng việt để viết message

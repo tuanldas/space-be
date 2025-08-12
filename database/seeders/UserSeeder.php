@@ -12,13 +12,6 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create an admin user
-        User::factory()->admin()->create([
-            'name' => 'Admin',
-            'email' => 'tuanldas@gmail.com',
-            'password' => bcrypt('123123'),
-        ]);
-
         // Create a regular user with predefined credentials
         User::factory()->regularUser()->create([
             'password' => bcrypt('user123'),
