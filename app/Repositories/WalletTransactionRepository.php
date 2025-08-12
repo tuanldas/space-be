@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Models\WalletTransaction;
 use App\Repositories\Interfaces\WalletTransactionRepositoryInterface;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
 
 class WalletTransactionRepository extends BaseRepository implements WalletTransactionRepositoryInterface
 {
@@ -32,42 +34,23 @@ class WalletTransactionRepository extends BaseRepository implements WalletTransa
             ->paginate(config('app.pagination_limit', 15), $columns);
     }
 
-    /**
-     * Lấy danh sách giao dịch theo loại
-     *
-     * @param string $walletId ID của ví
-     * @param string $type Loại giao dịch
-     * @param array $columns Danh sách cột cần lấy
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
-    public function getTransactionsByType(string $walletId, string $type, array $columns = ['*'])
+    public function getTransactions(string $walletId, array $columns = ['*'])
     {
-        return $this->model
+        $builder = QueryBuilder::for(WalletTransaction::class)
             ->where('wallet_id', $walletId)
-            ->where('transaction_type', $type)
-            ->orderBy('transaction_date', 'desc')
-            ->paginate(config('app.pagination_limit', 15), $columns);
-    }
+            ->allowedFilters([
+                AllowedFilter::exact('type', 'transaction_type'),
+                AllowedFilter::callback('date_between', function ($query, $value) {
+                    $start = is_array($value) ? ($value['start'] ?? null) : null;
+                    $end = is_array($value) ? ($value['end'] ?? null) : null;
+                    if ($start && $end) {
+                        $query->whereBetween('transaction_date', [$start, $end]);
+                    }
+                }),
+            ])
+            ->defaultSort('-transaction_date');
 
-    /**
-     * Lấy danh sách giao dịch trong khoảng thời gian
-     *
-     * @param string $walletId ID của ví
-     * @param string $startDate Ngày bắt đầu
-     * @param string $endDate Ngày kết thúc
-     * @param array $columns Danh sách cột cần lấy
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
-    public function getTransactionsByDateRange(
-        string $walletId,
-        string $startDate,
-        string $endDate,
-        array $columns = ['*']
-    ) {
-        return $this->model
-            ->where('wallet_id', $walletId)
-            ->whereBetween('transaction_date', [$startDate, $endDate])
-            ->orderBy('transaction_date', 'desc')
-            ->paginate(config('app.pagination_limit', 15), $columns);
+        $limit = (int) request('per_page', config('app.pagination_limit', 15));
+        return $builder->paginate($limit, $columns);
     }
 } 

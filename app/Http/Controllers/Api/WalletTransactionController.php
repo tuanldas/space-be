@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\WalletTransaction\CreateTransactionRequest;
+use App\Http\Requests\Api\WalletTransaction\UpdateTransactionRequest;
+use App\Http\Requests\Api\WalletTransaction\IndexTransactionsRequest;
 use App\Services\Interfaces\WalletTransactionServiceInterface;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class WalletTransactionController extends Controller
 {
@@ -17,132 +18,101 @@ class WalletTransactionController extends Controller
         $this->transactionService = $transactionService;
     }
 
-    /**
-     * Lấy danh sách giao dịch của ví
-     *
-     * @param string $walletId
-     * @return JsonResponse
-     */
-    public function index(string $walletId): JsonResponse
+    public function index(IndexTransactionsRequest $request, string $wallet): JsonResponse
     {
-        $transactions = $this->transactionService->getTransactionsByWalletId($walletId);
+        $request->validated();
+        $result = $this->transactionService->getTransactions($wallet);
+
+        if (!$result->isSuccess()) {
+            return response()->json([
+                'success' => false,
+                'message' => $result->getMessage(),
+            ], $result->getStatus());
+        }
 
         return response()->json([
             'success' => true,
-            'data' => $transactions
-        ]);
+            'data' => $result->getData(),
+        ], $result->getStatus());
     }
 
-    /**
-     * Tạo giao dịch mới
-     *
-     * @param CreateTransactionRequest $request
-     * @return JsonResponse
-     */
-    public function store(CreateTransactionRequest $request): JsonResponse
+    public function store(CreateTransactionRequest $request, string $wallet): JsonResponse
     {
-        $transaction = $this->transactionService->createTransaction($request->validated());
+        $payload = array_merge($request->validated(), ['wallet_id' => $wallet]);
+        $result = $this->transactionService->createTransaction($payload);
 
-        if (!$transaction) {
+        if (!$result->isSuccess()) {
             return response()->json([
                 'success' => false,
-                'message' => __('messages.wallet_transaction.wallet_not_found')
+                'message' => $result->getMessage(),
+            ], $result->getStatus());
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $result->getMessage(),
+            'data' => $result->getData(),
+        ], $result->getStatus());
+    }
+
+    public function show(string $wallet, string $transaction): JsonResponse
+    {
+        $result = $this->transactionService->getTransactionById($transaction);
+
+        if (!$result->isSuccess()) {
+            return response()->json([
+                'success' => false,
+                'message' => $result->getMessage(),
+            ], $result->getStatus());
+        }
+
+        $data = $result->getData();
+        if ($data && isset($data->wallet_id) && $data->wallet_id !== $wallet) {
+            return response()->json([
+                'success' => false,
+                'message' => __('messages.wallet_transaction.not_found'),
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'message' => __('messages.wallet_transaction.created'),
-            'data' => $transaction
-        ], 201);
+            'data' => $data,
+        ], $result->getStatus());
     }
 
-    /**
-     * Lấy chi tiết giao dịch
-     *
-     * @param string $id
-     * @return JsonResponse
-     */
-    public function show(string $id): JsonResponse
+    public function update(UpdateTransactionRequest $request, string $wallet, string $transaction): JsonResponse
     {
-        $transaction = $this->transactionService->getTransactionById($id);
+        $result = $this->transactionService->updateTransaction($wallet, $transaction, $request->validated());
 
-        if (!$transaction) {
+        if (!$result->isSuccess()) {
             return response()->json([
                 'success' => false,
-                'message' => __('messages.wallet_transaction.not_found')
-            ], 404);
+                'message' => $result->getMessage(),
+            ], $result->getStatus());
         }
 
         return response()->json([
             'success' => true,
-            'data' => $transaction
-        ]);
+            'message' => $result->getMessage(),
+            'data' => $result->getData(),
+        ], $result->getStatus());
     }
 
-    /**
-     * Xóa giao dịch
-     * 
-     * @param string $id
-     * @return JsonResponse
-     */
-    public function destroy(string $id): JsonResponse
+    public function destroy(string $wallet, string $transaction): JsonResponse
     {
-        $result = $this->transactionService->deleteTransaction($id);
+        $result = $this->transactionService->deleteTransaction($wallet, $transaction);
 
-        if (!$result) {
+        if (!$result->isSuccess()) {
             return response()->json([
                 'success' => false,
-                'message' => __('messages.wallet_transaction.not_found')
-            ], 404);
+                'message' => $result->getMessage(),
+            ], $result->getStatus());
         }
 
         return response()->json([
             'success' => true,
-            'message' => __('messages.wallet_transaction.deleted')
-        ]);
-    }
-
-    /**
-     * Lấy danh sách giao dịch theo loại
-     *
-     * @param string $walletId
-     * @param string $type
-     * @return JsonResponse
-     */
-    public function getByType(string $walletId, string $type): JsonResponse
-    {
-        $transactions = $this->transactionService->getTransactionsByType($walletId, $type);
-
-        return response()->json([
-            'success' => true,
-            'data' => $transactions
-        ]);
-    }
-
-    /**
-     * Lấy danh sách giao dịch trong khoảng thời gian
-     *
-     * @param Request $request
-     * @param string $walletId
-     * @return JsonResponse
-     */
-    public function getByDateRange(Request $request, string $walletId): JsonResponse
-    {
-        $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-        ]);
-
-        $transactions = $this->transactionService->getTransactionsByDateRange(
-            $walletId,
-            $request->input('start_date'),
-            $request->input('end_date')
-        );
-
-        return response()->json([
-            'success' => true,
-            'data' => $transactions
-        ]);
+            'message' => $result->getMessage(),
+            'data' => $result->getData(),
+        ], $result->getStatus());
     }
 }

@@ -111,7 +111,7 @@ class WalletService implements WalletServiceInterface
             if (!$wallet || $wallet->user_id !== Auth::id()) {
                 return null;
             }
-
+            
             $allowedKeys = ['name' => true, 'currency' => true];
             $updateData = array_intersect_key($data, $allowedKeys);
 

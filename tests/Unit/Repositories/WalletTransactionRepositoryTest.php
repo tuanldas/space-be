@@ -57,17 +57,18 @@ class WalletTransactionRepositoryTest extends RepositoryTestCase
             'created_by' => $this->user->id,
         ]);
         
-        $incomeResult = $this->repository->getTransactionsByType(
-            $this->wallet->id, 
-            TransactionType::INCOME->value
-        );
-        
-        $expenseResult = $this->repository->getTransactionsByType(
-            $this->wallet->id, 
-            TransactionType::EXPENSE->value
-        );
-        
+        // filter: type = income
+        $this->app['request']->query->set('filter', [
+            'type' => TransactionType::INCOME->value,
+        ]);
+        $incomeResult = $this->repository->getTransactions($this->wallet->id);
         $this->assertEquals(3, $incomeResult->total());
+
+        // filter: type = expense
+        $this->app['request']->query->set('filter', [
+            'type' => TransactionType::EXPENSE->value,
+        ]);
+        $expenseResult = $this->repository->getTransactions($this->wallet->id);
         $this->assertEquals(2, $expenseResult->total());
     }
     
@@ -91,11 +92,13 @@ class WalletTransactionRepositoryTest extends RepositoryTestCase
             'transaction_date' => now(),
         ]);
         
-        $result = $this->repository->getTransactionsByDateRange(
-            $this->wallet->id,
-            now()->subDays(7)->format('Y-m-d'),
-            now()->addDay()->format('Y-m-d')
-        );
+        $this->app['request']->query->set('filter', [
+            'date_between' => [
+                'start' => now()->subDays(7)->format('Y-m-d'),
+                'end' => now()->addDay()->format('Y-m-d'),
+            ],
+        ]);
+        $result = $this->repository->getTransactions($this->wallet->id);
         
         $this->assertEquals(2, $result->total());
     }

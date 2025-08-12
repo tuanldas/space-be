@@ -8,89 +8,69 @@ use App\Services\Interfaces\WalletTransactionServiceInterface;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Enums\TransactionType;
+use App\Support\ServiceResult;
+use Symfony\Component\HttpFoundation\Response;
 
 class WalletTransactionService implements WalletTransactionServiceInterface
 {
-    protected $transactionRepository;
-    protected $walletRepository;
-
     public function __construct(
-        WalletTransactionRepositoryInterface $transactionRepository,
-        WalletRepositoryInterface $walletRepository
+        private WalletTransactionRepositoryInterface $transactionRepository,
+        private WalletRepositoryInterface $walletRepository,
     ) {
-        $this->transactionRepository = $transactionRepository;
-        $this->walletRepository = $walletRepository;
     }
 
-    /**
-     * Lấy danh sách giao dịch của ví
-     *
-     * @param string $walletId ID của ví
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
-    public function getTransactionsByWalletId(string $walletId)
+    public function getTransactions(string $walletId): ServiceResult
     {
         try {
             $wallet = $this->walletRepository->findByUuid($walletId);
-            
             if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return new LengthAwarePaginator([], 0, 15, 1);
+                return ServiceResult::error(__('messages.wallet_transaction.wallet_not_found'), Response::HTTP_NOT_FOUND);
             }
 
-            return $this->transactionRepository->getTransactionsByWalletId($walletId);
+            $data = $this->transactionRepository->getTransactions($walletId);
+            return ServiceResult::success($data);
         } catch (\Exception $e) {
-            return new LengthAwarePaginator([], 0, 15, 1);
+            return ServiceResult::error(__('messages.error'));
         }
     }
 
-    /**
-     * Lấy thông tin chi tiết của giao dịch
-     *
-     * @param string $id ID của giao dịch
-     * @return \App\Models\WalletTransaction|null
-     */
-    public function getTransactionById(string $id)
+    public function getTransactionById(string $id): ServiceResult
     {
         try {
             $transaction = $this->transactionRepository->findByUuid($id);
             
             if (!$transaction) {
-                return null;
+                return ServiceResult::error(__('messages.wallet_transaction.not_found'), Response::HTTP_NOT_FOUND);
             }
             
             $wallet = $this->walletRepository->findByUuid($transaction->wallet_id);
             
             if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return null;
+                return ServiceResult::error(__('messages.wallet_transaction.not_found'), Response::HTTP_NOT_FOUND);
             }
             
-            return $transaction;
+            return ServiceResult::success($transaction);
         } catch (\Exception $e) {
-            return null;
+            return ServiceResult::error(__('messages.error'));
         }
     }
 
-    /**
-     * Tạo giao dịch mới
-     *
-     * @param array $data Dữ liệu giao dịch
-     * @return \App\Models\WalletTransaction|null
-     */
-    public function createTransaction(array $data)
+    public function createTransaction(array $data): ServiceResult
     {
         try {
             $wallet = $this->walletRepository->findByUuid($data['wallet_id']);
             
             if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return null;
+                return ServiceResult::error(__('messages.wallet_transaction.wallet_not_found'), Response::HTTP_NOT_FOUND);
             }
             
-            return DB::transaction(function () use ($data, $wallet) {
+            $transaction = DB::transaction(function () use ($data, $wallet) {
                 $data['created_by'] = Auth::id();
                 
                 $amount = $data['amount'];
                 
-                if ($data['transaction_type'] === 'expense') {
+                if ($data['transaction_type'] === TransactionType::EXPENSE->value) {
                     $amount *= -1;
                 }
                 
@@ -102,97 +82,101 @@ class WalletTransactionService implements WalletTransactionServiceInterface
                 
                 return $transaction;
             });
+
+            if (!$transaction) {
+                return ServiceResult::error(__('messages.error'));
+            }
+
+            return ServiceResult::success($transaction, __('messages.wallet_transaction.created'), Response::HTTP_CREATED);
         } catch (\Exception $e) {
-            return null;
+            return ServiceResult::error(__('messages.error'));
         }
     }
 
-    /**
-     * Xóa giao dịch
-     *
-     * @param string $id ID của giao dịch
-     * @return bool
-     */
-    public function deleteTransaction(string $id)
+    public function updateTransaction(string $walletId, string $transactionId, array $data): ServiceResult
     {
         try {
-            $transaction = $this->transactionRepository->findByUuid($id);
-            
-            if (!$transaction) {
-                return false;
-            }
-            
-            $wallet = $this->walletRepository->findByUuid($transaction->wallet_id);
-            
+            $wallet = $this->walletRepository->findByUuid($walletId);
             if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return false;
+                return ServiceResult::error(__('messages.wallet_transaction.wallet_not_found'), Response::HTTP_NOT_FOUND);
             }
-            
-            return DB::transaction(function () use ($transaction, $wallet) {
+
+            $transaction = $this->transactionRepository->findByUuid($transactionId);
+            if (!$transaction || $transaction->wallet_id !== $wallet->id) {
+                return ServiceResult::error(__('messages.wallet_transaction.not_found'), Response::HTTP_NOT_FOUND);
+            }
+
+            $allowedKeys = ['amount' => true, 'transaction_type' => true, 'category_id' => true, 'description' => true];
+            $updateData = array_intersect_key($data, $allowedKeys);
+
+            if (empty($updateData)) {
+                return ServiceResult::success($transaction, __('messages.wallet_transaction.updated'));
+            }
+
+            $oldAmount = (float) $transaction->amount;
+            $oldType = $transaction->transaction_type;
+            $oldSigned = $oldAmount * ($oldType === TransactionType::EXPENSE->value ? -1 : 1);
+
+            $newAmount = isset($updateData['amount']) ? (float) $updateData['amount'] : $oldAmount;
+            $newType = $updateData['transaction_type'] ?? $oldType;
+            $newSigned = $newAmount * ($newType === TransactionType::EXPENSE->value ? -1 : 1);
+            $delta = $newSigned - $oldSigned;
+
+            $updated = DB::transaction(function () use ($wallet, $transactionId, $updateData, $delta) {
+                if ($delta !== 0.0) {
+                    $this->walletRepository->updateBalance($wallet->id, $delta);
+                }
+
+                $this->transactionRepository->updateByUuid($transactionId, $updateData);
+
+                return $this->transactionRepository->findByUuid($transactionId);
+            });
+
+            return ServiceResult::success($updated, __('messages.wallet_transaction.updated'));
+        } catch (\Exception $e) {
+            return ServiceResult::error(__('messages.error'));
+        }
+    }
+
+    public function deleteTransaction(string $walletId, string $transactionId): ServiceResult
+    {
+        try {
+            $wallet = $this->walletRepository->findByUuid($walletId);
+            if (!$wallet || $wallet->user_id !== Auth::id()) {
+                return ServiceResult::error(__('messages.wallet_transaction.wallet_not_found'), Response::HTTP_NOT_FOUND);
+            }
+
+            $transaction = $this->transactionRepository->findByUuid($transactionId);
+            if (!$transaction || $transaction->wallet_id !== $wallet->id) {
+                return ServiceResult::error(__('messages.wallet_transaction.not_found'), Response::HTTP_NOT_FOUND);
+            }
+
+            $deleted = DB::transaction(function () use ($transaction, $wallet) {
                 $amount = $transaction->amount;
-                
-                if ($transaction->transaction_type === 'income') {
+                if ($transaction->transaction_type === TransactionType::INCOME->value) {
                     $amount *= -1;
                 }
-                
+
                 $deleted = $this->transactionRepository->deleteByUuid($transaction->id);
-                
                 if ($deleted) {
                     $this->walletRepository->updateBalance($wallet->id, $amount);
                 }
-                
+
                 return $deleted;
             });
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
 
-    /**
-     * Lấy danh sách giao dịch theo loại
-     *
-     * @param string $walletId ID của ví
-     * @param string $type Loại giao dịch
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
-    public function getTransactionsByType(string $walletId, string $type)
-    {
-        try {
-            $wallet = $this->walletRepository->findByUuid($walletId);
-            
-            if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return new LengthAwarePaginator([], 0, 15, 1);
+            if (!$deleted) {
+                return ServiceResult::error(__('messages.error'));
             }
-            
-            return $this->transactionRepository->getTransactionsByType($walletId, $type);
-        } catch (\Exception $e) {
-            return new LengthAwarePaginator([], 0, 15, 1);
-        }
-    }
 
-    /**
-     * Lấy danh sách giao dịch trong khoảng thời gian
-     *
-     * @param string $walletId ID của ví
-     * @param string $startDate Ngày bắt đầu
-     * @param string $endDate Ngày kết thúc
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
-    public function getTransactionsByDateRange(
-        string $walletId,
-        string $startDate,
-        string $endDate
-    ) {
-        try {
-            $wallet = $this->walletRepository->findByUuid($walletId);
-            
-            if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return new LengthAwarePaginator([], 0, 15, 1);
-            }
-            
-            return $this->transactionRepository->getTransactionsByDateRange($walletId, $startDate, $endDate);
+            $freshWallet = $this->walletRepository->findByUuid($wallet->id);
+
+            return ServiceResult::success([
+                'transaction_id' => $transaction->id,
+                'wallet_balance' => $freshWallet?->balance,
+            ], __('messages.wallet_transaction.deleted'));
         } catch (\Exception $e) {
-            return new LengthAwarePaginator([], 0, 15, 1);
+            return ServiceResult::error(__('messages.error'));
         }
     }
 } 

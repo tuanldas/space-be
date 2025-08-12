@@ -1813,268 +1813,232 @@
         }
       ]
     },
-    {
-      "name": "Wallets",
-      "description": "Wallet management endpoints. Operations for managing wallets and wallet transactions.",
-      "item": [
-        {
-          "name": "Get Wallets",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/wallets",
-              "host": ["{{base_url}}"],
-              "path": ["api", "wallets"]
+          {
+        "name": "Wallets",
+        "description": "Wallet management endpoints. Operations for managing wallets and wallet transactions.",
+        "item": [
+          {
+            "name": "Get Wallets",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Content-Type", "value": "application/json"},
+                {"key": "Accept", "value": "application/json"},
+                {"key": "Authorization", "value": "Bearer {{access_token}}"}
+              ],
+              "url": {"raw": "{{base_url}}/api/wallets", "host": ["{{base_url}}"], "path": ["api", "wallets"]},
+              "description": "Get a paginated list of all wallets belonging to the authenticated user."
             },
-            "description": "Get a paginated list of all wallets belonging to the authenticated user."
+            "response": []
           },
-          "response": []
-        },
-        {
-          "name": "Get Wallet Details",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          {
+            "name": "Get Wallet Details",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Content-Type", "value": "application/json"},
+                {"key": "Accept", "value": "application/json"},
+                {"key": "Authorization", "value": "Bearer {{access_token}}"}
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/wallets/:id",
+                "host": ["{{base_url}}"],
+                "path": ["api", "wallets", ":id"],
+                "variable": [{"key": "id", "value": "wallet_id_here", "description": "UUID of the wallet"}]
               },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/wallets/:id",
-              "host": ["{{base_url}}"],
-              "path": ["api", "wallets", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "wallet_id_here",
-                  "description": "UUID of the wallet"
-                }
-              ]
+              "description": "Get details of a specific wallet."
             },
-            "description": "Get details of a specific wallet."
+            "response": []
           },
-          "response": []
-        },
-        {
-          "name": "Create Wallet",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"Cash Wallet\",\n    \"balance\": 1000000,\n    \"currency\": \"VND\"\n}"
+          {
+            "name": "Create Wallet",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json"},
+                {"key": "Accept", "value": "application/json"},
+                {"key": "Authorization", "value": "Bearer {{access_token}}"}
+              ],
+              "body": {"mode": "raw", "raw": "{\n    \"name\": \"Cash Wallet\",\n    \"balance\": 1000000,\n    \"currency\": \"VND\"\n}"},
+              "url": {"raw": "{{base_url}}/api/wallets", "host": ["{{base_url}}"], "path": ["api", "wallets"]},
+              "description": "Create a new wallet."
             },
-            "url": {
-              "raw": "{{base_url}}/api/wallets",
-              "host": ["{{base_url}}"],
-              "path": ["api", "wallets"]
-            },
-            "description": "Create a new wallet."
+            "response": []
           },
-          "response": []
-        },
-        {
-          "name": "Update Wallet",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          {
+            "name": "Update Wallet",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {"key": "Content-Type", "value": "application/json"},
+                {"key": "Accept", "value": "application/json"},
+                {"key": "Authorization", "value": "Bearer {{access_token}}"}
+              ],
+              "body": {"mode": "raw", "raw": "{\n    \"name\": \"Updated Wallet Name\",\n    \"currency\": \"USD\"\n}"},
+              "url": {
+                "raw": "{{base_url}}/api/wallets/:id",
+                "host": ["{{base_url}}"],
+                "path": ["api", "wallets", ":id"],
+                "variable": [{"key": "id", "value": "wallet_id_here", "description": "UUID of the wallet"}]
               },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"Updated Wallet Name\",\n    \"currency\": \"USD\"\n}"
+              "description": "Update an existing wallet."
             },
-            "url": {
-              "raw": "{{base_url}}/api/wallets/:id",
-              "host": ["{{base_url}}"],
-              "path": ["api", "wallets", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "wallet_id_here",
-                  "description": "UUID of the wallet"
-                }
-              ]
-            },
-            "description": "Update an existing wallet."
+            "response": []
           },
-          "response": []
-        },
-        {
-          "name": "Delete Wallet",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          {
+            "name": "Delete Wallet",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {"key": "Content-Type", "value": "application/json"},
+                {"key": "Accept", "value": "application/json"},
+                {"key": "Authorization", "value": "Bearer {{access_token}}"}
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/wallets/:id",
+                "host": ["{{base_url}}"],
+                "path": ["api", "wallets", ":id"],
+                "variable": [{"key": "id", "value": "wallet_id_here", "description": "UUID of the wallet"}]
               },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/wallets/:id",
-              "host": ["{{base_url}}"],
-              "path": ["api", "wallets", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "wallet_id_here",
-                  "description": "UUID of the wallet"
-                }
-              ]
+              "description": "Delete a wallet."
             },
-            "description": "Delete a wallet."
+            "response": []
           },
-          "response": []
-        },
-        {
-          "name": "Get Wallet Transactions",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          {
+            "name": "Get Wallet Transactions",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Content-Type", "value": "application/json"},
+                {"key": "Accept", "value": "application/json"},
+                {"key": "Authorization", "value": "Bearer {{access_token}}"}
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/wallets/:walletId/transactions?filter[type]=income&filter[date_between][start]=2025-08-01&filter[date_between][end]=2025-08-31&per_page=15&page=1",
+                "host": ["{{base_url}}"],
+                "path": ["api", "wallets", ":walletId", "transactions"],
+                "query": [
+                  {"key": "filter[type]", "value": "income", "description": "Filter by type (income|expense)", "disabled": true},
+                  {"key": "filter[date_between][start]", "value": "2025-08-01", "description": "Start date (YYYY-MM-DD)", "disabled": true},
+                  {"key": "filter[date_between][end]", "value": "2025-08-31", "description": "End date (YYYY-MM-DD)", "disabled": true},
+                  {"key": "per_page", "value": "15", "description": "Items per page", "disabled": true},
+                  {"key": "page", "value": "1", "description": "Page number", "disabled": true}
+                ],
+                "variable": [{"key": "walletId", "value": "wallet_id_here", "description": "UUID of the wallet"}]
               },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/wallets/:walletId/transactions",
-              "host": ["{{base_url}}"],
-              "path": ["api", "wallets", ":walletId", "transactions"],
-              "variable": [
-                {
-                  "key": "walletId",
-                  "value": "wallet_id_here",
-                  "description": "UUID of the wallet"
-                }
-              ]
+              "description": "Get a paginated list of transactions for a specific wallet. Supports filters: filter[type], filter[date_between][start|end], per_page, page."
             },
-            "description": "Get a paginated list of transactions for a specific wallet."
+            "response": []
           },
-          "response": []
-        },
-        {
-          "name": "Create Transaction",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          {
+            "name": "Show Transaction",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Content-Type", "value": "application/json"},
+                {"key": "Accept", "value": "application/json"},
+                {"key": "Authorization", "value": "Bearer {{access_token}}"}
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/wallets/:walletId/transactions/:transactionId",
+                "host": ["{{base_url}}"],
+                "path": ["api", "wallets", ":walletId", "transactions", ":transactionId"],
+                "variable": [
+                  {"key": "walletId", "value": "wallet_id_here", "description": "UUID of the wallet"},
+                  {"key": "transactionId", "value": "transaction_id_here", "description": "UUID of the transaction"}
+                ]
               },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"wallet_id\": \"wallet_id_here\",\n    \"category_id\": \"category_id_here\",\n    \"amount\": 100000,\n    \"transaction_date\": \"2023-08-01 10:00:00\",\n    \"transaction_type\": \"income\",\n    \"description\": \"Salary payment\"\n}"
+              "description": "Get details of a transaction belonging to the specified wallet."
             },
-            "url": {
-              "raw": "{{base_url}}/api/transactions",
-              "host": ["{{base_url}}"],
-              "path": ["api", "transactions"]
-            },
-            "description": "Create a new wallet transaction."
+            "response": []
           },
-          "response": []
-        },
-        {
-          "name": "Get Wallet Summary for Sidebar",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+          {
+            "name": "Create Transaction",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json"},
+                {"key": "Accept", "value": "application/json"},
+                {"key": "Authorization", "value": "Bearer {{access_token}}"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"category_id\": \"category_id_here\",\n    \"amount\": 100000,\n    \"transaction_date\": \"2025-08-12\",\n    \"transaction_type\": \"income\",\n    \"description\": \"Salary payment\"\n}"
               },
-              {
-                "key": "Accept",
-                "value": "application/json"
+              "url": {
+                "raw": "{{base_url}}/api/wallets/:walletId/transactions",
+                "host": ["{{base_url}}"],
+                "path": ["api", "wallets", ":walletId", "transactions"],
+                "variable": [{"key": "walletId", "value": "wallet_id_here", "description": "UUID of the wallet"}]
               },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/wallets-sidebar",
-              "host": ["{{base_url}}"],
-              "path": ["api", "wallets-sidebar"]
+              "description": "Create a new transaction for the specified wallet. Note: wallet_id is taken from the route."
             },
-            "description": "Get a summary of all wallets (id, name, balance, currency) for displaying in the sidebar."
+            "response": []
           },
-          "response": []
-        }
-      ]
-    },
+          {
+            "name": "Update Transaction",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {"key": "Content-Type", "value": "application/json"},
+                {"key": "Accept", "value": "application/json"},
+                {"key": "Authorization", "value": "Bearer {{access_token}}"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"amount\": 150000,\n    \"transaction_type\": \"expense\",\n    \"category_id\": \"category_id_here\",\n    \"description\": \"Updated description\"\n}"
+              },
+              "url": {
+                "raw": "{{base_url}}/api/wallets/:walletId/transactions/:transactionId",
+                "host": ["{{base_url}}"],
+                "path": ["api", "wallets", ":walletId", "transactions", ":transactionId"],
+                "variable": [
+                  {"key": "walletId", "value": "wallet_id_here", "description": "UUID of the wallet"},
+                  {"key": "transactionId", "value": "transaction_id_here", "description": "UUID of the transaction"}
+                ]
+              },
+              "description": "Update a transaction. Only amount, transaction_type, category_id, description are updatable."
+            },
+            "response": []
+          },
+          {
+            "name": "Delete Transaction",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {"key": "Content-Type", "value": "application/json"},
+                {"key": "Accept", "value": "application/json"},
+                {"key": "Authorization", "value": "Bearer {{access_token}}"}
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/wallets/:walletId/transactions/:transactionId",
+                "host": ["{{base_url}}"],
+                "path": ["api", "wallets", ":walletId", "transactions", ":transactionId"],
+                "variable": [
+                  {"key": "walletId", "value": "wallet_id_here", "description": "UUID of the wallet"},
+                  {"key": "transactionId", "value": "transaction_id_here", "description": "UUID of the transaction"}
+                ]
+              },
+              "description": "Delete a transaction. Response returns transaction_id and new wallet_balance."
+            },
+            "response": []
+          },
+          {
+            "name": "Get Wallet Summary for Sidebar",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Content-Type", "value": "application/json"},
+                {"key": "Accept", "value": "application/json"},
+                {"key": "Authorization", "value": "Bearer {{access_token}}"}
+              ],
+              "url": {"raw": "{{base_url}}/api/wallets-sidebar", "host": ["{{base_url}}"], "path": ["api", "wallets-sidebar"]},
+              "description": "Get a summary of all wallets (id, name, balance, currency) for displaying in the sidebar."
+            },
+            "response": []
+          }
+        ]
+      },
     {
       "name": "Test API",
       "description": "Utility endpoints",

@@ -193,6 +193,16 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'type' => 'type',
+        'start_date' => 'start date',
+        'end_date' => 'end date',
+        'sort' => 'sort',
+        'page' => 'page',
+        'per_page' => 'per page',
+        'filter.type' => 'type',
+        'filter.date_between.start' => 'start date',
+        'filter.date_between.end' => 'end date',
+    ],
 
 ];

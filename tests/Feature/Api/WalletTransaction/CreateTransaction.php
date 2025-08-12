@@ -36,7 +36,6 @@ class CreateTransaction extends TestCase
         Passport::actingAs($this->user);
         
         $transactionData = [
-            'wallet_id' => $this->wallet->id,
             'category_id' => $this->category->id,
             'amount' => 500,
             'transaction_date' => now()->format('Y-m-d'),
@@ -44,7 +43,7 @@ class CreateTransaction extends TestCase
             'description' => 'Test income transaction',
         ];
         
-        $response = $this->postJson('/api/wallet-transactions', $transactionData);
+        $response = $this->postJson("/api/wallets/{$this->wallet->id}/transactions", $transactionData);
         
         $response->assertStatus(201)
             ->assertJsonStructure([
@@ -71,7 +70,6 @@ class CreateTransaction extends TestCase
         Passport::actingAs($this->user);
         
         $transactionData = [
-            'wallet_id' => $this->wallet->id,
             'category_id' => $this->category->id,
             'amount' => 300,
             'transaction_date' => now()->format('Y-m-d'),
@@ -79,7 +77,7 @@ class CreateTransaction extends TestCase
             'description' => 'Test expense transaction',
         ];
         
-        $response = $this->postJson('/api/wallet-transactions', $transactionData);
+        $response = $this->postJson("/api/wallets/{$this->wallet->id}/transactions", $transactionData);
         
         $response->assertStatus(201);
         
@@ -99,7 +97,6 @@ class CreateTransaction extends TestCase
         Passport::actingAs($this->user);
         
         $transactionData = [
-            'wallet_id' => $otherWallet->id,
             'category_id' => $this->category->id,
             'amount' => 500,
             'transaction_date' => now()->format('Y-m-d'),
@@ -107,7 +104,7 @@ class CreateTransaction extends TestCase
             'description' => 'Test transaction',
         ];
         
-        $response = $this->postJson('/api/wallet-transactions', $transactionData);
+        $response = $this->postJson("/api/wallets/{$otherWallet->id}/transactions", $transactionData);
         
         $response->assertStatus(404);
     }

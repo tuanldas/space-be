@@ -17,6 +17,7 @@
         "predis/predis": "^3.0",
         "ramsey/uuid": "^4.7",
         "silber/bouncer": "^1.0",
+        "spatie/laravel-query-builder": "^6.3",
         "symfony/uid": "^7.3"
     },
     "require-dev": {

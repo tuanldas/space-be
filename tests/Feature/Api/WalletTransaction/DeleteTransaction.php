@@ -45,14 +45,19 @@ class DeleteTransaction extends TestCase
     {
         Passport::actingAs($this->user);
         
-        $response = $this->deleteJson("/api/wallet-transactions/{$this->transaction->id}");
+        $response = $this->deleteJson("/api/wallets/{$this->wallet->id}/transactions/{$this->transaction->id}");
         
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'success',
-                'message'
+                'message',
+                'data' => [
+                    'transaction_id',
+                    'wallet_balance',
+                ],
             ])
-            ->assertJsonPath('success', true);
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.transaction_id', $this->transaction->id);
         
         $this->assertDatabaseMissing('wallet_transactions', [
             'id' => $this->transaction->id
@@ -79,9 +84,19 @@ class DeleteTransaction extends TestCase
         
         Passport::actingAs($this->user);
         
-        $response = $this->deleteJson("/api/wallet-transactions/{$transaction->id}");
+        $response = $this->deleteJson("/api/wallets/{$wallet->id}/transactions/{$transaction->id}");
         
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'transaction_id',
+                    'wallet_balance',
+                ],
+            ])
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.transaction_id', $transaction->id);
         
         $this->assertDatabaseMissing('wallet_transactions', [
             'id' => $transaction->id
@@ -96,7 +111,7 @@ class DeleteTransaction extends TestCase
         $otherUser = User::factory()->create();
         Passport::actingAs($otherUser);
         
-        $response = $this->deleteJson("/api/wallet-transactions/{$this->transaction->id}");
+        $response = $this->deleteJson("/api/wallets/{$this->wallet->id}/transactions/{$this->transaction->id}");
         
         $response->assertStatus(404);
         

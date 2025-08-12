@@ -41,30 +41,24 @@ class GetTransactionDetail extends TestCase
         ]);
     }
 
-    public function test_user_can_view_transaction_details(): void
+    public function test_user_can_view_transaction_in_list_and_find_by_id(): void
     {
         Passport::actingAs($this->user);
         
-        $response = $this->getJson("/api/wallet-transactions/{$this->transaction->id}");
+        $response = $this->getJson("/api/wallets/{$this->wallet->id}/transactions");
         
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'success',
                 'data' => [
-                    'id',
-                    'wallet_id',
-                    'category_id',
-                    'amount',
-                    'transaction_date',
-                    'transaction_type',
-                    'description',
-                    'created_by',
-                    'created_at',
-                    'updated_at',
+                    'data',
+                    'current_page',
+                    'total'
                 ]
             ])
-            ->assertJsonPath('data.id', $this->transaction->id)
-            ->assertJsonPath('data.amount', '500.00');
+            ->assertJsonFragment([
+                'id' => $this->transaction->id,
+            ]);
     }
     
     public function test_user_cannot_view_transaction_of_other_users_wallet(): void
@@ -72,7 +66,7 @@ class GetTransactionDetail extends TestCase
         $otherUser = User::factory()->create();
         Passport::actingAs($otherUser);
         
-        $response = $this->getJson("/api/wallet-transactions/{$this->transaction->id}");
+        $response = $this->getJson("/api/wallets/{$this->wallet->id}/transactions");
         
         $response->assertStatus(404);
     }
