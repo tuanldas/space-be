@@ -292,12 +292,12 @@ class WalletTransactionServiceTest extends TestCase
         );
         
         $this->transactionRepository
-            ->shouldReceive('getTransactionsByWalletId')
+            ->shouldReceive('getTransactions')
             ->once()
             ->with($walletId)
             ->andReturn($mockPaginator);
         
-        $result = $this->transactionService->getTransactionsByWalletId($walletId);
+        $result = $this->transactionService->getTransactions($walletId);
         
         $this->assertTrue($result->isSuccess());
         $this->assertInstanceOf(\Illuminate\Pagination\LengthAwarePaginator::class, $result->getData());
