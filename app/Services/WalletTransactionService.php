@@ -20,16 +20,15 @@ class WalletTransactionService implements WalletTransactionServiceInterface
     ) {
     }
 
-    public function getTransactionsByWalletId(string $walletId): ServiceResult
+    public function getTransactions(string $walletId): ServiceResult
     {
         try {
             $wallet = $this->walletRepository->findByUuid($walletId);
-            
             if (!$wallet || $wallet->user_id !== Auth::id()) {
                 return ServiceResult::error(__('messages.wallet_transaction.wallet_not_found'), Response::HTTP_NOT_FOUND);
             }
 
-            $data = $this->transactionRepository->getTransactionsByWalletId($walletId);
+            $data = $this->transactionRepository->getTransactions($walletId);
             return ServiceResult::success($data);
         } catch (\Exception $e) {
             return ServiceResult::error(__('messages.error'));
@@ -176,41 +175,6 @@ class WalletTransactionService implements WalletTransactionServiceInterface
                 'transaction_id' => $transaction->id,
                 'wallet_balance' => $freshWallet?->balance,
             ], __('messages.wallet_transaction.deleted'));
-        } catch (\Exception $e) {
-            return ServiceResult::error(__('messages.error'));
-        }
-    }
-
-    public function getTransactionsByType(string $walletId, string $type): ServiceResult
-    {
-        try {
-            $wallet = $this->walletRepository->findByUuid($walletId);
-            
-            if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return ServiceResult::error(__('messages.wallet_transaction.wallet_not_found'), Response::HTTP_NOT_FOUND);
-            }
-            
-            $data = $this->transactionRepository->getTransactionsByType($walletId, $type);
-            return ServiceResult::success($data);
-        } catch (\Exception $e) {
-            return ServiceResult::error(__('messages.error'));
-        }
-    }
-
-    public function getTransactionsByDateRange(
-        string $walletId,
-        string $startDate,
-        string $endDate
-    ): ServiceResult {
-        try {
-            $wallet = $this->walletRepository->findByUuid($walletId);
-            
-            if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return ServiceResult::error(__('messages.wallet_transaction.wallet_not_found'), Response::HTTP_NOT_FOUND);
-            }
-            
-            $data = $this->transactionRepository->getTransactionsByDateRange($walletId, $startDate, $endDate);
-            return ServiceResult::success($data);
         } catch (\Exception $e) {
             return ServiceResult::error(__('messages.error'));
         }

@@ -5,10 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\WalletTransaction\CreateTransactionRequest;
 use App\Http\Requests\Api\WalletTransaction\UpdateTransactionRequest;
-use App\Http\Requests\Api\WalletTransaction\GetTransactionsByDateRangeRequest;
+use App\Http\Requests\Api\WalletTransaction\IndexTransactionsRequest;
 use App\Services\Interfaces\WalletTransactionServiceInterface;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class WalletTransactionController extends Controller
 {
@@ -19,9 +18,10 @@ class WalletTransactionController extends Controller
         $this->transactionService = $transactionService;
     }
 
-    public function index(string $wallet): JsonResponse
+    public function index(IndexTransactionsRequest $request, string $wallet): JsonResponse
     {
-        $result = $this->transactionService->getTransactionsByWalletId($wallet);
+        $request->validated();
+        $result = $this->transactionService->getTransactions($wallet);
 
         if (!$result->isSuccess()) {
             return response()->json([
@@ -55,9 +55,9 @@ class WalletTransactionController extends Controller
         ], $result->getStatus());
     }
 
-    public function show(string $id): JsonResponse
+    public function show(string $wallet, string $transaction): JsonResponse
     {
-        $result = $this->transactionService->getTransactionById($id);
+        $result = $this->transactionService->getTransactionById($transaction);
 
         if (!$result->isSuccess()) {
             return response()->json([
@@ -66,9 +66,17 @@ class WalletTransactionController extends Controller
             ], $result->getStatus());
         }
 
+        $data = $result->getData();
+        if ($data && isset($data->wallet_id) && $data->wallet_id !== $wallet) {
+            return response()->json([
+                'success' => false,
+                'message' => __('messages.wallet_transaction.not_found'),
+            ], 404);
+        }
+
         return response()->json([
             'success' => true,
-            'data' => $result->getData(),
+            'data' => $data,
         ], $result->getStatus());
     }
 
@@ -104,44 +112,6 @@ class WalletTransactionController extends Controller
         return response()->json([
             'success' => true,
             'message' => $result->getMessage(),
-            'data' => $result->getData(),
-        ], $result->getStatus());
-    }
-
-    public function getByType(string $walletId, string $type): JsonResponse
-    {
-        $result = $this->transactionService->getTransactionsByType($walletId, $type);
-
-        if (!$result->isSuccess()) {
-            return response()->json([
-                'success' => false,
-                'message' => $result->getMessage(),
-            ], $result->getStatus());
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $result->getData(),
-        ], $result->getStatus());
-    }
-
-    public function getByDateRange(GetTransactionsByDateRangeRequest $request, string $walletId): JsonResponse
-    {
-        $result = $this->transactionService->getTransactionsByDateRange(
-            $walletId,
-            $request->input('start_date'),
-            $request->input('end_date')
-        );
-
-        if (!$result->isSuccess()) {
-            return response()->json([
-                'success' => false,
-                'message' => $result->getMessage(),
-            ], $result->getStatus());
-        }
-
-        return response()->json([
-            'success' => true,
             'data' => $result->getData(),
         ], $result->getStatus());
     }
