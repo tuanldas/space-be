@@ -76,8 +76,11 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('wallets', WalletController::class);
     Route::get('/wallets-sidebar', [WalletController::class, 'getSummaryForSidebar']);
     
-    // Wallet Transactions Routes
-    Route::get('/wallets/{walletId}/transactions', [WalletTransactionController::class, 'index']);
+    // Nested Wallet Transactions Routes (RESTful, no show)
+    Route::apiResource('wallets.transactions', WalletTransactionController::class)->only(['index', 'store', 'update', 'destroy']);
+    
+    // Legacy Wallet Transactions Routes (tạm thời giữ để chuyển đổi)
+    // Route::get('/wallets/{walletId}/transactions', [WalletTransactionController::class, 'index']); // replaced by nested resource
     Route::post('/transactions', [WalletTransactionController::class, 'store']);
     Route::get('/transactions/{id}', [WalletTransactionController::class, 'show']);
     Route::delete('/transactions/{id}', [WalletTransactionController::class, 'destroy']);
