@@ -92,7 +92,7 @@ class GetTransactions extends TestCase
         
         Passport::actingAs($this->user);
         
-        $response = $this->getJson("/api/wallets/{$this->wallet->id}/transactions/type/income");
+        $response = $this->getJson("/api/wallets/{$this->wallet->id}/transactions?filter[type]=income");
         
         $response->assertStatus(200)
             ->assertJsonPath('data.total', 1)

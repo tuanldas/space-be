@@ -63,7 +63,7 @@ class GetTransactionsByDateRange extends TestCase
         $startDate = now()->subDays(7)->format('Y-m-d');
         $endDate = now()->format('Y-m-d');
         
-        $response = $this->getJson("/api/wallets/{$this->wallet->id}/transactions/date-range?start_date={$startDate}&end_date={$endDate}");
+        $response = $this->getJson("/api/wallets/{$this->wallet->id}/transactions?filter[date_between][start]={$startDate}&filter[date_between][end]={$endDate}");
         
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -85,7 +85,7 @@ class GetTransactionsByDateRange extends TestCase
         $startDate = now()->subDays(7)->format('Y-m-d');
         $endDate = now()->format('Y-m-d');
         
-        $response = $this->getJson("/api/wallets/{$this->wallet->id}/transactions/date-range?start_date={$startDate}&end_date={$endDate}");
+        $response = $this->getJson("/api/wallets/{$this->wallet->id}/transactions?filter[date_between][start]={$startDate}&filter[date_between][end]={$endDate}");
         
         $response->assertStatus(404);
     }
