@@ -102,8 +102,8 @@ class WalletTransactionServiceTest extends TestCase
         
         $result = $this->transactionService->createTransaction($transactionData);
         
-        $this->assertNotNull($result);
-        $this->assertEquals($createdTransaction->id, $result->id);
+        $this->assertTrue($result->isSuccess());
+        $this->assertEquals($createdTransaction->id, $result->getData()->id);
     }
     
     public function test_create_transaction_expense_updates_wallet_balance(): void
@@ -154,7 +154,8 @@ class WalletTransactionServiceTest extends TestCase
         
         $result = $this->transactionService->createTransaction($transactionData);
         
-        $this->assertNotNull($result);
+        $this->assertTrue($result->isSuccess());
+        $this->assertEquals($createdTransaction->id, $result->getData()->id);
     }
     
     public function test_delete_transaction_income_updates_wallet_balance(): void
@@ -190,11 +191,14 @@ class WalletTransactionServiceTest extends TestCase
             ->with($transaction->id)
             ->andReturn(true);
             
+        // findByUuid for wallet: first call (auth & ownership) returns wallet, second call (fresh) returns updated wallet
+        $freshWallet = clone $wallet;
+        $freshWallet->balance = 1000;
         $this->walletRepository
             ->shouldReceive('findByUuid')
-            ->once()
             ->with($wallet->id)
-            ->andReturn($wallet);
+            ->twice()
+            ->andReturn($wallet, $freshWallet);
             
         $this->walletRepository
             ->shouldReceive('updateBalance')
@@ -202,9 +206,11 @@ class WalletTransactionServiceTest extends TestCase
             ->with($wallet->id, -500)
             ->andReturn(true);
         
-        $result = $this->transactionService->deleteTransaction($transaction->id);
+        $result = $this->transactionService->deleteTransaction($wallet->id, $transaction->id);
         
-        $this->assertTrue($result);
+        $this->assertTrue($result->isSuccess());
+        $this->assertEquals($transaction->id, $result->getData()['transaction_id']);
+        $this->assertEquals(1000, $result->getData()['wallet_balance']);
     }
     
     public function test_delete_transaction_expense_updates_wallet_balance(): void
@@ -240,11 +246,13 @@ class WalletTransactionServiceTest extends TestCase
             ->with($transaction->id)
             ->andReturn(true);
             
+        $freshWallet = clone $wallet;
+        $freshWallet->balance = 1000;
         $this->walletRepository
             ->shouldReceive('findByUuid')
-            ->once()
             ->with($wallet->id)
-            ->andReturn($wallet);
+            ->twice()
+            ->andReturn($wallet, $freshWallet);
             
         $this->walletRepository
             ->shouldReceive('updateBalance')
@@ -252,9 +260,11 @@ class WalletTransactionServiceTest extends TestCase
             ->with($wallet->id, 300)
             ->andReturn(true);
         
-        $result = $this->transactionService->deleteTransaction($transaction->id);
+        $result = $this->transactionService->deleteTransaction($wallet->id, $transaction->id);
         
-        $this->assertTrue($result);
+        $this->assertTrue($result->isSuccess());
+        $this->assertEquals($transaction->id, $result->getData()['transaction_id']);
+        $this->assertEquals(1000, $result->getData()['wallet_balance']);
     }
     
     public function test_get_transactions_by_wallet_id_returns_paginated_data(): void
@@ -289,7 +299,8 @@ class WalletTransactionServiceTest extends TestCase
         
         $result = $this->transactionService->getTransactionsByWalletId($walletId);
         
-        $this->assertInstanceOf(\Illuminate\Pagination\LengthAwarePaginator::class, $result);
-        $this->assertEquals(3, $result->count());
+        $this->assertTrue($result->isSuccess());
+        $this->assertInstanceOf(\Illuminate\Pagination\LengthAwarePaginator::class, $result->getData());
+        $this->assertEquals(3, $result->getData()->count());
     }
 } 

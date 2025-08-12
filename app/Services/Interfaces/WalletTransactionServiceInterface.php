@@ -2,60 +2,25 @@
 
 namespace App\Services\Interfaces;
 
+use App\Support\ServiceResult;
+
 interface WalletTransactionServiceInterface
 {
-    /**
-     * Lấy danh sách giao dịch của ví
-     *
-     * @param string $walletId ID của ví
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
-    public function getTransactionsByWalletId(string $walletId);
+    public function getTransactionsByWalletId(string $walletId): ServiceResult;
 
-    /**
-     * Lấy thông tin chi tiết của giao dịch
-     *
-     * @param string $id ID của giao dịch
-     * @return \App\Models\WalletTransaction|null
-     */
-    public function getTransactionById(string $id);
+    public function getTransactionById(string $id): ServiceResult;
 
-    /**
-     * Tạo giao dịch mới
-     *
-     * @param array $data Dữ liệu giao dịch
-     * @return \App\Models\WalletTransaction|null
-     */
-    public function createTransaction(array $data);
+    public function createTransaction(array $data): ServiceResult;
 
-    /**
-     * Xóa giao dịch
-     *
-     * @param string $id ID của giao dịch
-     * @return bool
-     */
-    public function deleteTransaction(string $id);
+    public function updateTransaction(string $walletId, string $transactionId, array $data): ServiceResult;
 
-    /**
-     * Lấy danh sách giao dịch theo loại
-     *
-     * @param string $walletId ID của ví
-     * @param string $type Loại giao dịch
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
-    public function getTransactionsByType(string $walletId, string $type);
+    public function deleteTransaction(string $walletId, string $transactionId): ServiceResult;
 
-    /**
-     * Lấy danh sách giao dịch trong khoảng thời gian
-     *
-     * @param string $walletId ID của ví
-     * @param string $startDate Ngày bắt đầu
-     * @param string $endDate Ngày kết thúc
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
+    public function getTransactionsByType(string $walletId, string $type): ServiceResult;
+
     public function getTransactionsByDateRange(
         string $walletId,
         string $startDate,
         string $endDate
-    );
+    ): ServiceResult;
 } 
