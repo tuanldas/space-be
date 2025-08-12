@@ -111,12 +111,29 @@ class WalletService implements WalletServiceInterface
             if (!$wallet || $wallet->user_id !== Auth::id()) {
                 return null;
             }
+
+            $allowedKeys = ['name' => true, 'currency' => true];
+            $updateData = array_intersect_key($data, $allowedKeys);
+
+            if (array_key_exists('currency', $updateData) && $updateData['currency'] !== null) {
+                $updateData['currency'] = strtoupper($updateData['currency']);
+                if ($updateData['currency'] !== $wallet->currency) {
+                    $hasTransactions = $wallet->transactions()->exists();
+                    if ($hasTransactions) {
+                        unset($updateData['currency']);
+                    }
+                }
+            }
+
+            if (empty($updateData)) {
+                return $wallet;
+            }
             
-            if ($this->walletRepository->updateByUuid($id, $data)) {
+            if ($this->walletRepository->updateByUuid($id, $updateData)) {
                 return $this->walletRepository->findByUuid($id);
             }
             
-            return null;
+            return $wallet;
         } catch (\Exception $e) {
             return null;
         }

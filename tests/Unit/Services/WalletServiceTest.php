@@ -5,7 +5,10 @@ namespace Tests\Unit\Services;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Repositories\Interfaces\WalletRepositoryInterface;
+use App\Repositories\Interfaces\WalletTransactionRepositoryInterface;
+use App\Services\Interfaces\TransactionCategoryServiceInterface;
 use App\Services\WalletService;
+use App\Services\WalletTransactionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
@@ -19,13 +22,23 @@ class WalletServiceTest extends TestCase
 
     private WalletRepositoryInterface $walletRepository;
     private WalletService $walletService;
+    private TransactionCategoryServiceInterface $transactionCategoryService;
+    private WalletTransactionService $walletTransactionService;
     private User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->walletRepository = Mockery::mock(WalletRepositoryInterface::class);
-        $this->walletService = new WalletService($this->walletRepository);
+        $this->transactionCategoryService = Mockery::mock(TransactionCategoryServiceInterface::class);
+        $transactionRepository = Mockery::mock(WalletTransactionRepositoryInterface::class);
+        $this->walletTransactionService = new WalletTransactionService($transactionRepository, $this->walletRepository);
+
+        $this->walletService = new WalletService(
+            $this->walletRepository,
+            $this->walletTransactionService,
+            $this->transactionCategoryService,
+        );
         
         $this->user = User::factory()->create();
         Auth::shouldReceive('id')->andReturn($this->user->id);
