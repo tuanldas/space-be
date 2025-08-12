@@ -72,9 +72,9 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
     {
         return $this->model
             ->where(function ($query) use ($userId) {
-            $query->where('user_id', $userId)
-                ->orWhere('is_default', true);
-        })
+                $query->where('user_id', $userId)
+                    ->orWhere('is_default', true);
+            })
             ->ofType($type)
             ->orderBy('created_at', 'desc')
             ->orderBy('id', 'desc')
@@ -136,8 +136,8 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
             return $category->image->delete();
         }
 
-        return false;
-    }
+            return false;
+        }
 
     /**
      * Lấy danh mục mặc định đầu tiên theo type (không phân trang)

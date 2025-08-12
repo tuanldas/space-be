@@ -82,11 +82,11 @@ class TransactionCategoryService implements TransactionCategoryServiceInterface
     {
         return $this->repository->forceDelete($id);
     }
-
+    
     public function attachImage(string $categoryId, UploadedFile $imageFile, int $userId): Image
     {
         $category = $this->repository->findByUuid($categoryId);
-
+        
         $imageData = [
             'user_id' => $userId,
             'disk' => '',
@@ -103,20 +103,20 @@ class TransactionCategoryService implements TransactionCategoryServiceInterface
         $fileInfo = $this->fileAdapter->store($imageFile, 'transaction-categories');
         $imageData['disk'] = $fileInfo['disk'] ?? 'public';
         $imageData['path'] = $fileInfo['path'] ?? '';
-
+        
         return $this->repository->attachImage($category, $imageData);
     }
-
+    
     public function updateImage(string $categoryId, UploadedFile $imageFile, int $userId): ?Image
     {
         $category = $this->repository->findByUuid($categoryId);
-
+        
         if ($category->image) {
             $this->fileAdapter->delete($category->image->path, $category->image->disk);
         }
-
+        
         $fileInfo = $this->fileAdapter->store($imageFile, 'transaction-categories');
-
+        
         $imageData = [
             'user_id' => $userId,
             'disk' => $fileInfo['disk'] ?? 'public',
@@ -125,24 +125,24 @@ class TransactionCategoryService implements TransactionCategoryServiceInterface
             'imageable_id' => $categoryId,
             'type' => ImageCategoryType::CATEGORY_IMAGE,
         ];
-
+        
         if ($category->image) {
-            return $this->repository->updateImage($category, $imageData);
+        return $this->repository->updateImage($category, $imageData);
         }
 
         return $this->repository->attachImage($category, $imageData);
     }
-
+    
     public function removeImage(string $categoryId): bool
     {
         $category = $this->repository->findTrashedByUuid($categoryId) ?? $this->repository->findByUuid($categoryId);
-
+            
         if ($category && $category->image) {
-            $this->fileAdapter->delete($category->image->path, $category->image->disk);
-        }
-
+                $this->fileAdapter->delete($category->image->path, $category->image->disk);
+            }
+            
         return $category ? $this->repository->removeImage($category) : false;
-    }
+        }
 
     public function getFirstDefaultByType(string $type): ?TransactionCategory
     {
