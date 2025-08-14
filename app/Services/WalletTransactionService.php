@@ -29,6 +29,7 @@ class WalletTransactionService implements WalletTransactionServiceInterface
             }
 
             $data = $this->transactionRepository->getTransactions($walletId);
+
             return ServiceResult::success($data);
         } catch (\Exception $e) {
             return ServiceResult::error(__('messages.error'));
