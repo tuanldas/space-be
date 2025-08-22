@@ -303,4 +303,39 @@ class WalletTransactionServiceTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Pagination\LengthAwarePaginator::class, $result->getData());
         $this->assertEquals(3, $result->getData()->count());
     }
+
+    public function test_get_user_transactions_returns_paginator_for_authenticated_user(): void
+    {
+        $expectedTransactions = WalletTransaction::factory()->count(2)->make([
+            'wallet_id' => 'wallet-1',
+        ]);
+        $mockPaginator = new LengthAwarePaginator(
+            $expectedTransactions,
+            count($expectedTransactions),
+            15,
+            1
+        );
+
+        $this->transactionRepository
+            ->shouldReceive('getUserTransactions')
+            ->once()
+            ->with($this->user->id)
+            ->andReturn($mockPaginator);
+
+        $result = $this->transactionService->getUserTransactions();
+
+        $this->assertTrue($result->isSuccess());
+        $this->assertInstanceOf(LengthAwarePaginator::class, $result->getData());
+        $this->assertEquals(2, $result->getData()->count());
+    }
+
+    public function test_get_user_transactions_returns_unauthorized_when_not_authenticated(): void
+    {
+        Auth::shouldReceive('id')->andReturn(null);
+
+        $result = $this->transactionService->getUserTransactions();
+
+        $this->assertFalse($result->isSuccess());
+        $this->assertEquals(500, $result->getStatus());
+    }
 } 

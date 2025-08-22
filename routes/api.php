@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\TransactionCategoryController;
 use App\Http\Controllers\Api\WalletController;
 use App\Http\Controllers\Api\WalletTransactionController;
+use App\Http\Controllers\Api\UserTransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +79,9 @@ Route::middleware('auth:api')->group(function () {
     
     // Nested Wallet Transactions Routes (RESTful)
     Route::apiResource('wallets.transactions', WalletTransactionController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+
+    // User Transactions Routes
+    Route::get('/user/transactions', [UserTransactionController::class, 'index']);
 });
 
 Route::get('/test', function () {

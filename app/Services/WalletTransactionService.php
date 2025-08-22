@@ -36,6 +36,24 @@ class WalletTransactionService implements WalletTransactionServiceInterface
         }
     }
 
+    /**
+     * Lấy danh sách giao dịch của người dùng hiện tại
+     */
+    public function getUserTransactions(): ServiceResult
+    {
+        try {
+            $userId = Auth::id();
+            if (!$userId) {
+                return ServiceResult::error(__('messages.unauthenticated'), Response::HTTP_UNAUTHORIZED);
+            }
+
+            $data = $this->transactionRepository->getUserTransactions($userId);
+            return ServiceResult::success($data);
+        } catch (\Exception $e) {
+            return ServiceResult::error(__('messages.error'));
+        }
+    }
+
     public function getTransactionById(string $id): ServiceResult
     {
         try {

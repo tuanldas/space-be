@@ -5,7 +5,7 @@ namespace App\Http\Requests\Api\WalletTransaction;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Enums\TransactionType;
 
-class IndexTransactionsRequest extends FormRequest
+class IndexUserTransactionsRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -18,6 +18,7 @@ class IndexTransactionsRequest extends FormRequest
             'filter.type' => 'sometimes|required|in:' . TransactionType::getValuesString(),
             'filter.date_between.start' => 'sometimes|required_with:filter.date_between.end|date_format:Y-m-d',
             'filter.date_between.end' => 'sometimes|required_with:filter.date_between.start|date_format:Y-m-d|after_or_equal:filter.date_between.start',
+            'filter.wallet_id' => 'sometimes|string',
             'filter.search' => 'sometimes|string',
             'page' => 'sometimes|required|integer|min:1',
             'per_page' => 'sometimes|required|integer|min:1',
