@@ -56,6 +56,8 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/transaction-categories', [TransactionCategoryController::class, 'index']);
         Route::get('/transaction-categories/trashed', [TransactionCategoryController::class, 'trashed']);
         Route::get('/transaction-categories/{transaction_category}', [TransactionCategoryController::class, 'show']);
+        // Lightweight options
+        Route::get('/transaction-categories-options', [TransactionCategoryController::class, 'options']);
     });
     
     Route::post('/transaction-categories', [TransactionCategoryController::class, 'store'])
@@ -76,6 +78,8 @@ Route::middleware('auth:api')->group(function () {
     // Wallets Routes
     Route::apiResource('wallets', WalletController::class);
     Route::get('/wallets-sidebar', [WalletController::class, 'getSummaryForSidebar']);
+    // Lightweight wallet options
+    Route::get('/wallets-options', [WalletController::class, 'options']);
     
     // Nested Wallet Transactions Routes (RESTful)
     Route::apiResource('wallets.transactions', WalletTransactionController::class)->only(['index', 'store', 'show', 'update', 'destroy']);

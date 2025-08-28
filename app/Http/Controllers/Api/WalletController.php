@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Wallet\CreateWalletRequest;
 use App\Http\Requests\Api\Wallet\UpdateWalletRequest;
+use App\Http\Requests\Api\Wallet\GetWalletOptionsRequest;
 use App\Services\Interfaces\WalletServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,6 +31,22 @@ class WalletController extends Controller
         return response()->json([
             'success' => true,
             'data' => $wallets
+        ]);
+    }
+
+    /**
+     * API options ví (id, name) dùng cho typeahead/filter
+     */
+    public function options(GetWalletOptionsRequest $request): JsonResponse
+    {
+        $data = $this->walletService->getOptions(
+            $request->query('search'),
+            (int) $request->query('limit', 20)
+        );
+
+        return response()->json([
+            'success' => true,
+            'data' => $data,
         ]);
     }
 

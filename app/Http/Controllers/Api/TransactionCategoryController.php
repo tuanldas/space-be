@@ -6,6 +6,7 @@ use App\Enums\AbilityType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\TransactionCategory\CreateTransactionCategoryRequest;
 use App\Http\Requests\Api\TransactionCategory\UpdateTransactionCategoryRequest;
+use App\Http\Requests\Api\TransactionCategory\GetCategoryOptionsRequest;
 use App\Models\TransactionCategory;
 use App\Services\Interfaces\TransactionCategoryServiceInterface;
 use Silber\Bouncer\BouncerFacade as Bouncer;
@@ -62,6 +63,24 @@ class TransactionCategoryController extends Controller
         }
 
         return response()->json($categories);
+    }
+
+    /**
+     * API options danh mục (id, name) dùng cho typeahead/filter
+     */
+    public function options(GetCategoryOptionsRequest $request): JsonResponse
+    {
+        $data = $this->transactionCategoryService->getOptions(
+            Auth::id(),
+            $request->query('search'),
+            $request->query('type'),
+            (int) $request->query('limit', 20)
+        );
+
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+        ]);
     }
 
     /**

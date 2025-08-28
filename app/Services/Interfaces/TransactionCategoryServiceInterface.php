@@ -6,6 +6,7 @@ use App\Models\Image;
 use App\Models\TransactionCategory;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface TransactionCategoryServiceInterface
 {
@@ -48,4 +49,9 @@ interface TransactionCategoryServiceInterface
      * Lấy danh mục mặc định đầu tiên theo type (không phân trang)
      */
     public function getFirstDefaultByType(string $type): ?TransactionCategory;
+
+    /**
+     * Lấy options danh mục (id, name)
+     */
+    public function getOptions(int $userId, ?string $search = null, ?string $type = null, int $limit = 20): Collection;
 } 

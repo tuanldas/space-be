@@ -98,4 +98,9 @@ interface TransactionCategoryRepositoryInterface extends EloquentRepositoryInter
      * @return TransactionCategory|null
      */
     public function getFirstDefaultByType(string $type): ?TransactionCategory;
+
+    /**
+     * Lấy options danh mục (id, name) theo user, có search, type và limit
+     */
+    public function getOptions(int $userId, ?string $search = null, ?string $type = null, int $limit = 20);
 } 
