@@ -29,4 +29,9 @@ interface WalletRepositoryInterface extends EloquentRepositoryInterface
      * @return \Illuminate\Support\Collection
      */
     public function getWalletsSummaryByUserId(int $userId);
+
+    /**
+     * Lấy options ví (id, name) theo người dùng
+     */
+    public function getOptionsByUser(int $userId, ?string $search = null, int $limit = 20);
 } 

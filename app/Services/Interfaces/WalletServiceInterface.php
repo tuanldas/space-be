@@ -37,4 +37,9 @@ interface WalletServiceInterface
      * Lấy thông tin tóm tắt của các ví cho sidebar
      */
     public function getWalletsSummaryForSidebar(): Collection;
+
+    /**
+     * Lấy options ví (id, name) cho user hiện tại
+     */
+    public function getOptions(?string $search = null, int $limit = 20): Collection;
 } 

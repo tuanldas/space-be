@@ -33,6 +33,18 @@ class WalletService implements WalletServiceInterface
     }
 
     /**
+     * Lấy options ví (id, name) cho user hiện tại
+     */
+    public function getOptions(?string $search = null, int $limit = 20): Collection
+    {
+        try {
+            return $this->walletRepository->getOptionsByUser(Auth::id(), $search, $limit);
+        } catch (\Exception $e) {
+            return collect();
+        }
+    }
+
+    /**
      * Lấy thông tin chi tiết của ví
      *
      * @param string $id ID của ví

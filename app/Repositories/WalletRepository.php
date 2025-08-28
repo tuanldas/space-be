@@ -68,4 +68,21 @@ class WalletRepository extends BaseRepository implements WalletRepositoryInterfa
             ->orderBy('name')
             ->get();
     }
+
+    /**
+     * Lấy options ví (id, name) theo user, có search và limit
+     */
+    public function getOptionsByUser(int $userId, ?string $search = null, int $limit = 20)
+    {
+        $query = $this->model
+            ->where('user_id', $userId)
+            ->select(['id', 'name'])
+            ->orderBy('name');
+
+        if ($search) {
+            $query->where('name', 'ILIKE', "%{$search}%");
+        }
+
+        return $query->limit($limit)->get();
+    }
 } 

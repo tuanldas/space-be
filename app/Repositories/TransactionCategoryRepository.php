@@ -151,4 +151,24 @@ class TransactionCategoryRepository extends BaseRepository implements Transactio
             ->orderBy('id', 'desc')
             ->first();
     }
+
+    /**
+     * Lấy options danh mục (id, name) theo user, có search, type và limit
+     */
+    public function getOptions(int $userId, ?string $search = null, ?string $type = null, int $limit = 20)
+    {
+        $query = $this->model
+            ->select(['id', 'name'])
+            ->when($type, fn($q) => $q->ofType($type))
+            ->where(function ($q) use ($userId) {
+                $q->where('user_id', $userId)->orWhere('is_default', true);
+            })
+            ->orderBy('name');
+
+        if ($search) {
+            $query->where('name', 'ILIKE', "%{$search}%");
+        }
+
+        return $query->limit($limit)->get();
+    }
 } 
