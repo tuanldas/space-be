@@ -1794,35 +1794,6 @@
             ]
           }
         ]
-    },
-    {
-      "name": "Test API",
-      "description": "Utility endpoints",
-      "item": [
-        {
-          "name": "API Test",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/test",
-              "host": ["{{base_url}}"],
-              "path": ["api", "test"]
-            },
-            "description": "Test if API is working properly"
-          },
-          "response": []
-        }
-      ]
     }
   ],
   "event": [
