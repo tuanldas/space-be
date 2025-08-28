@@ -54,6 +54,7 @@ class WalletTransactionRepository extends BaseRepository implements WalletTransa
 					});
 				}),
 			])
+			->allowedSorts(['transaction_date', 'amount'])
 			->defaultSort('-transaction_date')
 			->with([
 				'category:id,name,type',
@@ -105,6 +106,7 @@ class WalletTransactionRepository extends BaseRepository implements WalletTransa
 					});
 				}),
 			])
+			->allowedSorts(['transaction_date', 'amount'])
 			->defaultSort('-transaction_date')
 			->with([
 				'category:id,name,type',

@@ -180,4 +180,46 @@ class WalletTransactionRepositoryTest extends RepositoryTestCase
         $result = $this->repository->getUserTransactions($this->user->id);
         $this->assertEquals(2, $result->total());
     }
+
+    public function test_sort_by_date_and_amount(): void
+    {
+        $t1 = WalletTransaction::factory()->create([
+            'wallet_id' => $this->wallet->id,
+            'created_by' => $this->user->id,
+            'transaction_date' => now()->subDays(2),
+            'amount' => 100,
+        ]);
+        $t2 = WalletTransaction::factory()->create([
+            'wallet_id' => $this->wallet->id,
+            'created_by' => $this->user->id,
+            'transaction_date' => now()->subDays(1),
+            'amount' => 200,
+        ]);
+        $t3 = WalletTransaction::factory()->create([
+            'wallet_id' => $this->wallet->id,
+            'created_by' => $this->user->id,
+            'transaction_date' => now(),
+            'amount' => 150,
+        ]);
+
+        // sort by date asc
+        $this->app['request']->query->set('sort', 'transaction_date');
+        $byDateAsc = $this->repository->getTransactions($this->wallet->id)->items();
+        $this->assertEquals($t1->id, $byDateAsc[0]->id);
+
+        // sort by date desc
+        $this->app['request']->query->set('sort', '-transaction_date');
+        $byDateDesc = $this->repository->getTransactions($this->wallet->id)->items();
+        $this->assertEquals($t3->id, $byDateDesc[0]->id);
+
+        // sort by amount asc
+        $this->app['request']->query->set('sort', 'amount');
+        $byAmountAsc = $this->repository->getTransactions($this->wallet->id)->items();
+        $this->assertEquals(100.00, (float) $byAmountAsc[0]->amount);
+
+        // sort by amount desc
+        $this->app['request']->query->set('sort', '-amount');
+        $byAmountDesc = $this->repository->getTransactions($this->wallet->id)->items();
+        $this->assertEquals(200.00, (float) $byAmountDesc[0]->amount);
+    }
 } 

@@ -1774,7 +1774,8 @@
                   {"key": "filter[wallet_id]", "value": "wallet_id_here", "description": "Filter by a specific wallet UUID", "disabled": true},
                   {"key": "filter[search]", "value": "salary", "description": "Search by description or amount (partial)", "disabled": true},
                   {"key": "per_page", "value": "15", "description": "Items per page", "disabled": true},
-                  {"key": "page", "value": "1", "description": "Page number", "disabled": true}
+                  {"key": "page", "value": "1", "description": "Page number", "disabled": true},
+                  {"key": "sort", "value": "-transaction_date", "description": "Sort by transaction_date or amount; prefix '-' for desc", "disabled": true}
                 ]
               },
               "description": "Get a paginated list of all transactions of the current user. Supports filters: filter[type], filter[date_between][start|end], filter[wallet_id], per_page, page."

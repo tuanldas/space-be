@@ -19,6 +19,7 @@ class IndexTransactionsRequest extends FormRequest
             'filter.date_between.start' => 'sometimes|required_with:filter.date_between.end|date_format:Y-m-d',
             'filter.date_between.end' => 'sometimes|required_with:filter.date_between.start|date_format:Y-m-d|after_or_equal:filter.date_between.start',
             'filter.search' => 'sometimes|string',
+            'sort' => 'sometimes|string|in:transaction_date,-transaction_date,amount,-amount',
             'page' => 'sometimes|required|integer|min:1',
             'per_page' => 'sometimes|required|integer|min:1',
         ];
