@@ -1616,6 +1616,28 @@
             "description": "Delete a wallet."
           },
           "response": []
+        },
+        {
+          "name": "Get Wallet Options",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/wallets-options?search=vi&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wallets-options"],
+              "query": [
+                {"key": "search", "value": "vi", "description": "Filter by wallet name (partial)", "disabled": true},
+                {"key": "limit", "value": "20", "description": "Max number of items", "disabled": true}
+              ]
+            },
+            "description": "Lightweight options for wallets (id, name) for typeahead/filter UI."
+          },
+          "response": []
         }
       ]
     },
@@ -1795,6 +1817,35 @@
             ]
           }
         ]
+    },
+    {
+      "name": "Categories",
+      "description": "Transaction categories helper endpoints.",
+      "item": [
+        {
+          "name": "Get Category Options",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/transaction-categories-options?search=an&type=expense&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transaction-categories-options"],
+              "query": [
+                {"key": "search", "value": "an", "description": "Filter by category name (partial)", "disabled": true},
+                {"key": "type", "value": "expense", "description": "Filter by type (expense|income)", "disabled": true},
+                {"key": "limit", "value": "20", "description": "Max number of items", "disabled": true}
+              ]
+            },
+            "description": "Lightweight options for transaction categories (id, name)."
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [
