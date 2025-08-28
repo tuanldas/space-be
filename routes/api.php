@@ -84,8 +84,3 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/user/transactions', [UserTransactionController::class, 'index']);
 });
 
-Route::get('/test', function () {
-    return response()->json([
-        'message' => 'API is working!'
-    ]);
-}); 
