@@ -181,6 +181,38 @@ class WalletTransactionRepositoryTest extends RepositoryTestCase
         $this->assertEquals(2, $result->total());
     }
 
+    public function test_user_transactions_filter_by_category_id_and_category_ids(): void
+    {
+        $catA = TransactionCategory::factory()->create();
+        $catB = TransactionCategory::factory()->create();
+        $catC = TransactionCategory::factory()->create();
+
+        WalletTransaction::factory()->create(['wallet_id' => $this->wallet->id, 'created_by' => $this->user->id, 'category_id' => $catA->id]);
+        WalletTransaction::factory()->create(['wallet_id' => $this->wallet->id, 'created_by' => $this->user->id, 'category_id' => $catB->id]);
+        WalletTransaction::factory()->create(['wallet_id' => $this->wallet->id, 'created_by' => $this->user->id, 'category_id' => $catC->id]);
+
+        // Single category
+        $this->app['request']->query->set('filter', [
+            'category_id' => $catA->id,
+        ]);
+        $single = $this->repository->getUserTransactions($this->user->id);
+        $this->assertEquals(1, $single->total());
+
+        // Multiple as array
+        $this->app['request']->query->set('filter', [
+            'category_ids' => [$catA->id, $catC->id],
+        ]);
+        $multiArr = $this->repository->getUserTransactions($this->user->id);
+        $this->assertEquals(2, $multiArr->total());
+
+        // Multiple as comma string
+        $this->app['request']->query->set('filter', [
+            'category_ids' => $catB->id . ',' . $catC->id,
+        ]);
+        $multiStr = $this->repository->getUserTransactions($this->user->id);
+        $this->assertEquals(2, $multiStr->total());
+    }
+
     public function test_sort_by_date_and_amount(): void
     {
         $t1 = WalletTransaction::factory()->create([

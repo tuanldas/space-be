@@ -99,6 +99,14 @@ class WalletTransactionRepository extends BaseRepository implements WalletTransa
 					}
 				}),
 				AllowedFilter::exact('wallet_id'),
+				AllowedFilter::exact('category_id'),
+				AllowedFilter::callback('category_ids', function ($query, $value) {
+					$ids = is_array($value) ? $value : explode(',', (string) $value);
+					$ids = array_filter($ids, fn($v) => (string) $v !== '');
+					if (!empty($ids)) {
+						$query->whereIn('category_id', $ids);
+					}
+				}),
 				AllowedFilter::callback('search', function ($query, $value) {
 					$query->where(function ($q) use ($value) {
 						$q->whereRaw('description ILIKE ?', ['%' . $value . '%'])

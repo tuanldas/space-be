@@ -121,4 +121,46 @@ class GetUserTransactions extends TestCase
                 ]
             ]);
     }
+
+    public function test_user_can_filter_by_single_category_and_multiple_categories(): void
+    {
+        Passport::actingAs($this->user);
+
+        $catA = TransactionCategory::factory()->create();
+        $catB = TransactionCategory::factory()->create();
+        $catC = TransactionCategory::factory()->create();
+
+        // Create more transactions across categories
+        WalletTransaction::factory()->create([
+            'wallet_id' => $this->wallet1->id,
+            'category_id' => $catA->id,
+            'created_by' => $this->user->id,
+            'amount' => 100,
+            'transaction_date' => now()->subHours(5),
+            'transaction_type' => 'expense',
+        ]);
+        WalletTransaction::factory()->create([
+            'wallet_id' => $this->wallet2->id,
+            'category_id' => $catB->id,
+            'created_by' => $this->user->id,
+            'amount' => 300,
+            'transaction_date' => now()->subHours(4),
+            'transaction_type' => 'expense',
+        ]);
+
+        // Single category filter
+        $resSingle = $this->getJson("/api/user/transactions?filter[category_id]={$catA->id}");
+        $resSingle->assertStatus(200);
+        $this->assertGreaterThanOrEqual(1, $resSingle->json('data.total'));
+
+        // Multiple categories filter as array
+        $resMulti = $this->getJson('/api/user/transactions?filter[category_ids][]=' . $catA->id . '&filter[category_ids][]=' . $catB->id);
+        $resMulti->assertStatus(200);
+        $this->assertGreaterThanOrEqual(2, $resMulti->json('data.total'));
+
+        // Multiple categories filter as comma string
+        $resComma = $this->getJson('/api/user/transactions?filter[category_ids]=' . $catA->id . ',' . $catC->id);
+        $resComma->assertStatus(200);
+        $this->assertGreaterThanOrEqual(2, $resComma->json('data.total'));
+    }
 } 

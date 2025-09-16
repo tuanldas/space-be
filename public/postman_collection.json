@@ -1786,7 +1786,7 @@
                 {"key": "Authorization", "value": "Bearer {{access_token}}"}
               ],
               "url": {
-                "raw": "{{base_url}}/api/user/transactions?filter[type]=income&filter[date_between][start]=2025-08-01&filter[date_between][end]=2025-08-31&filter[wallet_id]=wallet_id_here&filter[search]=salary&per_page=15&page=1",
+                "raw": "{{base_url}}/api/user/transactions?filter[type]=income&filter[date_between][start]=2025-08-01&filter[date_between][end]=2025-08-31&filter[wallet_id]=wallet_id_here&filter[category_ids]=category_id_1,category_id_2&filter[category_id]=category_id_here&filter[search]=salary&per_page=15&page=1",
                 "host": ["{{base_url}}"],
                 "path": ["api", "user", "transactions"],
                 "query": [
@@ -1794,6 +1794,8 @@
                   {"key": "filter[date_between][start]", "value": "2025-08-01", "description": "Start date (YYYY-MM-DD)", "disabled": true},
                   {"key": "filter[date_between][end]", "value": "2025-08-31", "description": "End date (YYYY-MM-DD)", "disabled": true},
                   {"key": "filter[wallet_id]", "value": "wallet_id_here", "description": "Filter by a specific wallet UUID", "disabled": true},
+                  {"key": "filter[category_id]", "value": "category_id_here", "description": "Filter by a single category UUID", "disabled": true},
+                  {"key": "filter[category_ids]", "value": "category_id_1,category_id_2", "description": "Filter by multiple category UUIDs (comma-separated or repeated array)", "disabled": true},
                   {"key": "filter[search]", "value": "salary", "description": "Search by description or amount (partial)", "disabled": true},
                   {"key": "per_page", "value": "15", "description": "Items per page", "disabled": true},
                   {"key": "page", "value": "1", "description": "Page number", "disabled": true},
