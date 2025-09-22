@@ -74,15 +74,15 @@ class WalletRepository extends BaseRepository implements WalletRepositoryInterfa
      */
     public function getOptionsByUser(int $userId, ?string $search = null, int $limit = 20)
     {
-		$query = $this->model
-			->where('user_id', $userId)
-			->select(['id', 'name', 'balance', 'currency'])
-			->orderBy('name');
+        $query = $this->model
+            ->where('user_id', $userId)
+            ->select(['id', 'name', 'balance', 'currency'])
+            ->orderBy('name');
 
         if ($search) {
             $query->where('name', 'ILIKE', "%{$search}%");
         }
 
-		return $query->limit($limit)->get();
+        return $query->limit($limit)->get();
     }
 } 
