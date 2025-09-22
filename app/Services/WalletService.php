@@ -38,7 +38,17 @@ class WalletService implements WalletServiceInterface
     public function getOptions(?string $search = null, int $limit = 20): Collection
     {
         try {
-            return $this->walletRepository->getOptionsByUser(Auth::id(), $search, $limit);
+            // Lấy dữ liệu thô từ repository và map thành cấu trúc nhẹ: id, name, amount, currency
+            return $this->walletRepository
+                ->getOptionsByUser(Auth::id(), $search, $limit)
+                ->map(function ($wallet) {
+                    return [
+                        'id' => $wallet->id,
+                        'name' => $wallet->name,
+                        'amount' => (float) $wallet->balance,
+                        'currency' => $wallet->currency,
+                    ];
+                });
         } catch (\Exception $e) {
             return collect();
         }

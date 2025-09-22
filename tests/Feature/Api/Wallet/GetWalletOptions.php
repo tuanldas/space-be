@@ -41,7 +41,7 @@ class GetWalletOptions extends TestCase
             ->assertJsonStructure([
                 'success',
                 'data' => [
-                    '*' => ['id', 'name']
+                    '*' => ['id', 'name', 'amount', 'currency']
                 ]
             ])
             ->assertJson(['success' => true]);
@@ -50,6 +50,8 @@ class GetWalletOptions extends TestCase
         $this->assertCount(1, $data); // limited by 1
         $this->assertArrayHasKey('id', $data[0]);
         $this->assertArrayHasKey('name', $data[0]);
+        $this->assertArrayHasKey('amount', $data[0]);
+        $this->assertArrayHasKey('currency', $data[0]);
 
         // Without search, expect only current user's wallets (max 3 here)
         $responseAll = $this->getJson('/api/wallets-options?limit=5');
