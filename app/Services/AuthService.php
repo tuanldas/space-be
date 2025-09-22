@@ -62,7 +62,18 @@ class AuthService implements AuthServiceInterface
             $credentials['email'],
             $credentials['password']
         );
-        
+
+        // Nếu OAuth trả lỗi hoặc không có access_token thì dừng và báo lỗi
+        if (!is_array($tokenData) || empty($tokenData['access_token'])) {
+            $errorMessage = $tokenData['message']
+                ?? $tokenData['error_description']
+                ?? $tokenData['error']
+                ?? __('auth.failed');
+
+            throw ValidationException::withMessages([
+                'email' => [$errorMessage],
+            ]);
+        }
         $tokenData['user'] = [
             'id' => $user->id,
             'name' => $user->name,
@@ -70,7 +81,6 @@ class AuthService implements AuthServiceInterface
             'roles' => $user->getRoles(),
             'abilities' => $user->getAbilities()->pluck('name'),
         ];
-        
         $tokenData['message'] = __('auth.login_success');
         
         return $tokenData;
