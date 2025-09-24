@@ -86,5 +86,7 @@ Route::middleware('auth:api')->group(function () {
 
     // User Transactions Routes
     Route::get('/user/transactions', [UserTransactionController::class, 'index']);
+    // Unified transactions listing with filters (wallet_id, type, category_id, date_between, search, etc.)
+    Route::get('/transactions', [UserTransactionController::class, 'index']);
 });
 
