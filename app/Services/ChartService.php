@@ -132,4 +132,53 @@ class ChartService implements ChartServiceInterface
             return ServiceResult::error(__('messages.error'));
         }
     }
+
+    public function getNetInMonth(?string $month = null, ?string $walletId = null): ServiceResult
+    {
+        try {
+            $userId = Auth::id();
+            if (!$userId) {
+                return ServiceResult::error(__('messages.unauthenticated'), Response::HTTP_UNAUTHORIZED);
+            }
+
+            $targetMonth = $month ? Carbon::parse($month . '-01') : Carbon::now();
+            
+            if ($walletId) {
+                $wallet = $this->walletRepository->findByUuid($walletId);
+                if (!$wallet || $wallet->user_id !== $userId) {
+                    return ServiceResult::error(__('messages.wallet_transaction.wallet_not_found'), Response::HTTP_NOT_FOUND);
+                }
+            }
+
+            $startDate = $targetMonth->copy()->startOfMonth()->format('Y-m-d');
+            $endDate = $targetMonth->copy()->endOfMonth()->format('Y-m-d');
+
+            $incomes = $this->transactionRepository->getIncomesByDateRange(
+                $userId,
+                $startDate,
+                $endDate,
+                $walletId
+            );
+
+            $expenses = $this->transactionRepository->getExpensesByDateRange(
+                $userId,
+                $startDate,
+                $endDate,
+                $walletId
+            );
+
+            $data = [
+                'month' => $targetMonth->format('Y-m'),
+                'total_income' => $incomes['total'],
+                'total_expense' => $expenses['total'],
+                'net' => $incomes['total'] - $expenses['total'],
+                'income_count' => $incomes['count'],
+                'expense_count' => $expenses['count'],
+            ];
+
+            return ServiceResult::success($data);
+        } catch (\Exception $e) {
+            return ServiceResult::error(__('messages.error'));
+        }
+    }
 }

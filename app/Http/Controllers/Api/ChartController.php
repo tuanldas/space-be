@@ -60,5 +60,28 @@ class ChartController extends Controller
             'data' => $result->getData(),
         ], $result->getStatus());
     }
+
+    /**
+     * Lấy net income/expense trong tháng
+     */
+    public function netInMonth(GetMonthlyExpensesRequest $request): JsonResponse
+    {
+        $month = $request->query('month');
+        $walletId = $request->query('wallet_id');
+
+        $result = $this->chartService->getNetInMonth($month, $walletId);
+
+        if (!$result->isSuccess()) {
+            return response()->json([
+                'success' => false,
+                'message' => $result->getMessage(),
+            ], $result->getStatus());
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $result->getData(),
+        ], $result->getStatus());
+    }
 }
 

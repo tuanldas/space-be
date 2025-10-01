@@ -42,4 +42,15 @@ interface WalletTransactionRepositoryInterface extends EloquentRepositoryInterfa
      * @return array
      */
     public function getTopCategories(int $userId, string $startDate, string $endDate, ?string $walletId = null, int $limit = 5): array;
+
+    /**
+     * Lấy tổng thu nhập theo khoảng thời gian
+     *
+     * @param int $userId ID người dùng
+     * @param string $startDate Ngày bắt đầu (Y-m-d)
+     * @param string $endDate Ngày kết thúc (Y-m-d)
+     * @param string|null $walletId ID ví (optional)
+     * @return array ['total' => float, 'count' => int]
+     */
+    public function getIncomesByDateRange(int $userId, string $startDate, string $endDate, ?string $walletId = null): array;
 } 
