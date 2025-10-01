@@ -18,6 +18,9 @@ class WalletTransactionController extends Controller
         $this->transactionService = $transactionService;
     }
 
+    /**
+     * @deprecated Sử dụng /api/transactions?filter[wallet_id]={wallet} thay thế
+     */
     public function index(IndexTransactionsRequest $request, string $wallet): JsonResponse
     {
         $request->validated();
