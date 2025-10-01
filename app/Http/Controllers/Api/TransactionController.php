@@ -7,14 +7,14 @@ use App\Http\Requests\Api\WalletTransaction\IndexUserTransactionsRequest;
 use App\Services\Interfaces\WalletTransactionServiceInterface;
 use Illuminate\Http\JsonResponse;
 
-class UserTransactionController extends Controller
+class TransactionController extends Controller
 {
     public function __construct(private WalletTransactionServiceInterface $transactionService)
     {
     }
 
     /**
-     * @deprecated Sử dụng /api/transactions thay thế
+     * Lấy danh sách giao dịch thống nhất với filter
      */
     public function index(IndexUserTransactionsRequest $request): JsonResponse
     {
@@ -35,8 +35,7 @@ class UserTransactionController extends Controller
     }
 
     /**
-     * Lấy chi tiết giao dịch của user theo ID
-     * @deprecated Sử dụng /api/transactions/{id} thay thế
+     * Lấy chi tiết giao dịch theo ID
      */
     public function show(string $transactionId): JsonResponse
     {
@@ -54,4 +53,4 @@ class UserTransactionController extends Controller
             'data' => $result->getData(),
         ], $result->getStatus());
     }
-} 
+}

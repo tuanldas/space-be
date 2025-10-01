@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Enums\TransactionType;
 use App\Models\WalletTransaction;
 use App\Repositories\Interfaces\WalletTransactionRepositoryInterface;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -47,11 +48,32 @@ class WalletTransactionRepository extends BaseRepository implements WalletTransa
 						$query->whereBetween('transaction_date', [$start, $end]);
 					}
 				}),
+				// alias cho date_from/date_to
+				AllowedFilter::callback('date_from', function ($query, $value) {
+					if ($value) {
+						$query->whereDate('transaction_date', '>=', $value);
+					}
+				}),
+				AllowedFilter::callback('date_to', function ($query, $value) {
+					if ($value) {
+						$query->whereDate('transaction_date', '<=', $value);
+					}
+				}),
 				AllowedFilter::callback('search', function ($query, $value) {
 					$query->where(function ($q) use ($value) {
 						$q->whereRaw('description ILIKE ?', ['%' . $value . '%'])
 							->orWhereRaw('CAST(amount AS TEXT) ILIKE ?', ['%' . $value . '%']);
 					});
+				}),
+				AllowedFilter::callback('min_amount', function ($query, $value) {
+					if ($value !== null && $value !== '') {
+						$query->where('amount', '>=', (float) $value);
+					}
+				}),
+				AllowedFilter::callback('max_amount', function ($query, $value) {
+					if ($value !== null && $value !== '') {
+						$query->where('amount', '<=', (float) $value);
+					}
 				}),
 			])
 			->allowedSorts(['transaction_date', 'amount'])
@@ -98,6 +120,17 @@ class WalletTransactionRepository extends BaseRepository implements WalletTransa
 						$query->whereBetween('transaction_date', [$start, $end]);
 					}
 				}),
+				// alias cho date_from/date_to
+				AllowedFilter::callback('date_from', function ($query, $value) {
+					if ($value) {
+						$query->whereDate('transaction_date', '>=', $value);
+					}
+				}),
+				AllowedFilter::callback('date_to', function ($query, $value) {
+					if ($value) {
+						$query->whereDate('transaction_date', '<=', $value);
+					}
+				}),
 				AllowedFilter::exact('wallet_id'),
 				AllowedFilter::exact('category_id'),
 				AllowedFilter::callback('category_ids', function ($query, $value) {
@@ -112,6 +145,16 @@ class WalletTransactionRepository extends BaseRepository implements WalletTransa
 						$q->whereRaw('description ILIKE ?', ['%' . $value . '%'])
 							->orWhereRaw('CAST(amount AS TEXT) ILIKE ?', ['%' . $value . '%']);
 					});
+				}),
+				AllowedFilter::callback('min_amount', function ($query, $value) {
+					if ($value !== null && $value !== '') {
+						$query->where('amount', '>=', (float) $value);
+					}
+				}),
+				AllowedFilter::callback('max_amount', function ($query, $value) {
+					if ($value !== null && $value !== '') {
+						$query->where('amount', '<=', (float) $value);
+					}
 				}),
 			])
 			->allowedSorts(['transaction_date', 'amount'])
@@ -134,5 +177,30 @@ class WalletTransactionRepository extends BaseRepository implements WalletTransa
 			'description',
 		];
 		return $builder->paginate($limit, $selectedColumns);
+	}
+
+	/**
+	 * Lấy tổng chi tiêu theo khoảng thời gian
+	 */
+	public function getExpensesByDateRange(int $userId, string $startDate, string $endDate, ?string $walletId = null): array
+	{
+		$query = $this->model
+			->whereHas('wallet', function ($q) use ($userId) {
+				$q->where('user_id', $userId);
+			})
+			->where('transaction_type', TransactionType::EXPENSE->value)
+			->whereBetween('transaction_date', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+
+		if ($walletId) {
+			$query->where('wallet_id', $walletId);
+		}
+
+		$total = $query->sum('amount');
+		$count = $query->count();
+
+		return [
+			'total' => (float) $total,
+			'count' => $count,
+		];
 	}
 } 

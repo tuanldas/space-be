@@ -56,23 +56,25 @@ class WalletTransactionService implements WalletTransactionServiceInterface
 
     public function getTransactionById(string $id): ServiceResult
     {
-        try {
-            $transaction = $this->transactionRepository->findByUuid($id);
-            
-            if (!$transaction) {
-                return ServiceResult::error(__('messages.wallet_transaction.not_found'), Response::HTTP_NOT_FOUND);
-            }
-            
-            $wallet = $this->walletRepository->findByUuid($transaction->wallet_id);
-            
-            if (!$wallet || $wallet->user_id !== Auth::id()) {
-                return ServiceResult::error(__('messages.wallet_transaction.not_found'), Response::HTTP_NOT_FOUND);
-            }
-            
-            return ServiceResult::success($transaction);
-        } catch (\Exception $e) {
-            return ServiceResult::error(__('messages.error'));
+        $transaction = $this->transactionRepository->findByUuid(
+            $id, 
+            ['*'], 
+            [
+                'wallet:id,name,balance,currency,user_id', 
+                'category:id,name,type,user_id,is_default', 
+                'creator:id,name,email'
+            ]
+        );
+        
+        if (!$transaction) {
+            return ServiceResult::error(__('messages.wallet_transaction.not_found'), Response::HTTP_NOT_FOUND);
         }
+
+        if (!$transaction->wallet || $transaction->wallet->user_id !== Auth::id()) {
+            return ServiceResult::error(__('messages.wallet_transaction.not_found'), Response::HTTP_NOT_FOUND);
+        }
+        
+        return ServiceResult::success($transaction);
     }
 
     public function createTransaction(array $data): ServiceResult

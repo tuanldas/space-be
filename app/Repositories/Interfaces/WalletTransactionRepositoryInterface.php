@@ -19,4 +19,15 @@ interface WalletTransactionRepositoryInterface extends EloquentRepositoryInterfa
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public function getUserTransactions(int $userId, array $columns = ['*']);
+
+    /**
+     * Lấy tổng chi tiêu theo khoảng thời gian
+     *
+     * @param int $userId ID người dùng
+     * @param string $startDate Ngày bắt đầu (Y-m-d)
+     * @param string $endDate Ngày kết thúc (Y-m-d)
+     * @param string|null $walletId ID ví (optional)
+     * @return array ['total' => float, 'count' => int]
+     */
+    public function getExpensesByDateRange(int $userId, string $startDate, string $endDate, ?string $walletId = null): array;
 } 
