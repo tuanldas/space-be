@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UserTransactionController;
 use App\Http\Controllers\Api\WalletController;
 use App\Http\Controllers\Api\WalletTransactionController;
+use App\Http\Controllers\Api\ChartController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -94,5 +95,8 @@ Route::middleware('auth:api')->group(function () {
     // User Transactions Routes (deprecated)
     Route::get('/user/transactions', [UserTransactionController::class, 'index']);
     Route::get('/user/transactions/{transaction}', [UserTransactionController::class, 'show'])->whereUuid('transaction');
+
+    // Charts Routes
+    Route::get('/charts/monthly-expenses', [ChartController::class, 'monthlyExpenses']);
 });
 

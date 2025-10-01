@@ -8,3 +8,4 @@ alwaysApply: true
 - Luôn luôn sử dụng UUID v7
 - Khi xóa comment hãy xóa các comment giải thích code nhưng hãy giữ lại comment của php docs
 - Các comment code luôn luôn dùng tiếng việt
+- Không có các magic text

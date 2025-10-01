@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Enums\TransactionType;
 use App\Models\WalletTransaction;
 use App\Repositories\Interfaces\WalletTransactionRepositoryInterface;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -176,5 +177,30 @@ class WalletTransactionRepository extends BaseRepository implements WalletTransa
 			'description',
 		];
 		return $builder->paginate($limit, $selectedColumns);
+	}
+
+	/**
+	 * Lấy tổng chi tiêu theo khoảng thời gian
+	 */
+	public function getExpensesByDateRange(int $userId, string $startDate, string $endDate, ?string $walletId = null): array
+	{
+		$query = $this->model
+			->whereHas('wallet', function ($q) use ($userId) {
+				$q->where('user_id', $userId);
+			})
+			->where('transaction_type', TransactionType::EXPENSE->value)
+			->whereBetween('transaction_date', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+
+		if ($walletId) {
+			$query->where('wallet_id', $walletId);
+		}
+
+		$total = $query->sum('amount');
+		$count = $query->count();
+
+		return [
+			'total' => (float) $total,
+			'count' => $count,
+		];
 	}
 } 
