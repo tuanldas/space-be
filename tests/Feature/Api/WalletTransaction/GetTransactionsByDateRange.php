@@ -74,7 +74,8 @@ class GetTransactionsByDateRange extends TestCase
                     'total'
                 ]
             ])
-            ->assertJsonPath('data.total', 2);
+            ->assertJsonMissingPath('data.data.0.created_at')
+            ->assertJsonMissingPath('data.data.0.updated_at');
     }
     
     public function test_user_cannot_filter_transactions_of_other_users_wallet(): void

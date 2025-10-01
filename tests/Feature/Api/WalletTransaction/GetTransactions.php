@@ -61,15 +61,25 @@ class GetTransactions extends TestCase
                             'transaction_type',
                             'description',
                             'created_by',
-                            'created_at',
-                            'updated_at',
+                            'category' => [
+                                'name',
+                                'type',
+                                'image',
+                            ],
+                            'wallet' => [
+                                'name',
+                                'balance',
+                                'currency',
+                            ],
                         ]
                     ],
                     'current_page',
                     'total'
                 ]
             ])
-            ->assertJsonPath('data.data.0.id', $this->transaction->id);
+            ->assertJsonPath('data.data.0.id', $this->transaction->id)
+            ->assertJsonMissingPath('data.data.0.created_at')
+            ->assertJsonMissingPath('data.data.0.updated_at');
     }
     
     public function test_user_cannot_view_transactions_of_other_users_wallet(): void

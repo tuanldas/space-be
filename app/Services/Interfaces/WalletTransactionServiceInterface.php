@@ -8,6 +8,8 @@ interface WalletTransactionServiceInterface
 {
     public function getTransactions(string $walletId): ServiceResult;
 
+    public function getUserTransactions(): ServiceResult;
+
     public function getTransactionById(string $id): ServiceResult;
 
     public function createTransaction(array $data): ServiceResult;

@@ -3,6 +3,7 @@
 namespace Tests\Unit\Repositories;
 
 use App\Enums\TransactionType;
+use App\Models\TransactionCategory;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
@@ -101,5 +102,156 @@ class WalletTransactionRepositoryTest extends RepositoryTestCase
         $result = $this->repository->getTransactions($this->wallet->id);
         
         $this->assertEquals(2, $result->total());
+    }
+
+    public function test_search_filter_matches_description_and_amount(): void
+    {
+        $category = TransactionCategory::factory()->create();
+
+        WalletTransaction::factory()->create([
+            'wallet_id' => $this->wallet->id,
+            'category_id' => $category->id,
+            'created_by' => $this->user->id,
+            'description' => 'Grocery shopping',
+            'amount' => 123.45,
+        ]);
+        WalletTransaction::factory()->create([
+            'wallet_id' => $this->wallet->id,
+            'category_id' => $category->id,
+            'created_by' => $this->user->id,
+            'description' => 'Dinner',
+            'amount' => 678.90,
+        ]);
+
+        $this->app['request']->query->set('filter', [
+            'search' => 'Groc',
+        ]);
+        $byDescription = $this->repository->getTransactions($this->wallet->id);
+        $this->assertEquals(1, $byDescription->total());
+
+        $this->app['request']->query->set('filter', [
+            'search' => '678.9',
+        ]);
+        $byAmount = $this->repository->getTransactions($this->wallet->id);
+        $this->assertEquals(1, $byAmount->total());
+    }
+
+    public function test_eager_loads_category_and_wallet(): void
+    {
+        $category = TransactionCategory::factory()->create();
+        $tx = WalletTransaction::factory()->create([
+            'wallet_id' => $this->wallet->id,
+            'category_id' => $category->id,
+            'created_by' => $this->user->id,
+        ]);
+
+        $result = $this->repository->getTransactions($this->wallet->id);
+        $first = $result->items()[0];
+
+        $this->assertTrue($first->relationLoaded('category'));
+        $this->assertTrue($first->relationLoaded('wallet'));
+    }
+
+    public function test_get_user_transactions_with_filters(): void
+    {
+        $user2 = User::factory()->create();
+        $wallet2 = Wallet::factory()->create([
+            'user_id' => $user2->id,
+            'created_by' => $user2->id,
+        ]);
+
+        WalletTransaction::factory()->count(2)->create([
+            'wallet_id' => $this->wallet->id,
+            'created_by' => $this->user->id,
+            'description' => 'abc',
+            'transaction_type' => TransactionType::INCOME->value,
+        ]);
+        WalletTransaction::factory()->count(1)->create([
+            'wallet_id' => $wallet2->id,
+            'created_by' => $user2->id,
+            'description' => 'xyz',
+            'transaction_type' => TransactionType::EXPENSE->value,
+        ]);
+
+        $this->app['request']->query->set('filter', [
+            'type' => TransactionType::INCOME->value,
+            'search' => 'ab',
+        ]);
+        $result = $this->repository->getUserTransactions($this->user->id);
+        $this->assertEquals(2, $result->total());
+    }
+
+    public function test_user_transactions_filter_by_category_id_and_category_ids(): void
+    {
+        $catA = TransactionCategory::factory()->create();
+        $catB = TransactionCategory::factory()->create();
+        $catC = TransactionCategory::factory()->create();
+
+        WalletTransaction::factory()->create(['wallet_id' => $this->wallet->id, 'created_by' => $this->user->id, 'category_id' => $catA->id]);
+        WalletTransaction::factory()->create(['wallet_id' => $this->wallet->id, 'created_by' => $this->user->id, 'category_id' => $catB->id]);
+        WalletTransaction::factory()->create(['wallet_id' => $this->wallet->id, 'created_by' => $this->user->id, 'category_id' => $catC->id]);
+
+        // Single category
+        $this->app['request']->query->set('filter', [
+            'category_id' => $catA->id,
+        ]);
+        $single = $this->repository->getUserTransactions($this->user->id);
+        $this->assertEquals(1, $single->total());
+
+        // Multiple as array
+        $this->app['request']->query->set('filter', [
+            'category_ids' => [$catA->id, $catC->id],
+        ]);
+        $multiArr = $this->repository->getUserTransactions($this->user->id);
+        $this->assertEquals(2, $multiArr->total());
+
+        // Multiple as comma string
+        $this->app['request']->query->set('filter', [
+            'category_ids' => $catB->id . ',' . $catC->id,
+        ]);
+        $multiStr = $this->repository->getUserTransactions($this->user->id);
+        $this->assertEquals(2, $multiStr->total());
+    }
+
+    public function test_sort_by_date_and_amount(): void
+    {
+        $t1 = WalletTransaction::factory()->create([
+            'wallet_id' => $this->wallet->id,
+            'created_by' => $this->user->id,
+            'transaction_date' => now()->subDays(2),
+            'amount' => 100,
+        ]);
+        $t2 = WalletTransaction::factory()->create([
+            'wallet_id' => $this->wallet->id,
+            'created_by' => $this->user->id,
+            'transaction_date' => now()->subDays(1),
+            'amount' => 200,
+        ]);
+        $t3 = WalletTransaction::factory()->create([
+            'wallet_id' => $this->wallet->id,
+            'created_by' => $this->user->id,
+            'transaction_date' => now(),
+            'amount' => 150,
+        ]);
+
+        // sort by date asc
+        $this->app['request']->query->set('sort', 'transaction_date');
+        $byDateAsc = $this->repository->getTransactions($this->wallet->id)->items();
+        $this->assertEquals($t1->id, $byDateAsc[0]->id);
+
+        // sort by date desc
+        $this->app['request']->query->set('sort', '-transaction_date');
+        $byDateDesc = $this->repository->getTransactions($this->wallet->id)->items();
+        $this->assertEquals($t3->id, $byDateDesc[0]->id);
+
+        // sort by amount asc
+        $this->app['request']->query->set('sort', 'amount');
+        $byAmountAsc = $this->repository->getTransactions($this->wallet->id)->items();
+        $this->assertEquals(100.00, (float) $byAmountAsc[0]->amount);
+
+        // sort by amount desc
+        $this->app['request']->query->set('sort', '-amount');
+        $byAmountDesc = $this->repository->getTransactions($this->wallet->id)->items();
+        $this->assertEquals(200.00, (float) $byAmountDesc[0]->amount);
     }
 } 

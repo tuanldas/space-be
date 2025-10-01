@@ -10,4 +10,47 @@ interface WalletTransactionRepositoryInterface extends EloquentRepositoryInterfa
         string $walletId,
         array $columns = ['*']
     );
+
+    /**
+     * Lấy danh sách giao dịch của người dùng theo bộ lọc
+     *
+     * @param int $userId ID người dùng
+     * @param array $columns Các cột cần lấy
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getUserTransactions(int $userId, array $columns = ['*']);
+
+    /**
+     * Lấy tổng chi tiêu theo khoảng thời gian
+     *
+     * @param int $userId ID người dùng
+     * @param string $startDate Ngày bắt đầu (Y-m-d)
+     * @param string $endDate Ngày kết thúc (Y-m-d)
+     * @param string|null $walletId ID ví (optional)
+     * @return array ['total' => float, 'count' => int]
+     */
+    public function getExpensesByDateRange(int $userId, string $startDate, string $endDate, ?string $walletId = null): array;
+
+    /**
+     * Lấy top categories (cả income và expense)
+     *
+     * @param int $userId ID người dùng
+     * @param string $startDate Ngày bắt đầu (Y-m-d)
+     * @param string $endDate Ngày kết thúc (Y-m-d)
+     * @param string|null $walletId ID ví (optional)
+     * @param int $limit Số lượng categories trả về
+     * @return array
+     */
+    public function getTopCategories(int $userId, string $startDate, string $endDate, ?string $walletId = null, int $limit = 5): array;
+
+    /**
+     * Lấy tổng thu nhập theo khoảng thời gian
+     *
+     * @param int $userId ID người dùng
+     * @param string $startDate Ngày bắt đầu (Y-m-d)
+     * @param string $endDate Ngày kết thúc (Y-m-d)
+     * @param string|null $walletId ID ví (optional)
+     * @return array ['total' => float, 'count' => int]
+     */
+    public function getIncomesByDateRange(int $userId, string $startDate, string $endDate, ?string $walletId = null): array;
 } 

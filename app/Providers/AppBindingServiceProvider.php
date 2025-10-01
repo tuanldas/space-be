@@ -35,6 +35,8 @@ use App\Services\Interfaces\WalletServiceInterface;
 use App\Services\WalletService;
 use App\Services\Interfaces\WalletTransactionServiceInterface;
 use App\Services\WalletTransactionService;
+use App\Services\Interfaces\ChartServiceInterface;
+use App\Services\ChartService;
 
 class AppBindingServiceProvider extends ServiceProvider
 {
@@ -60,6 +62,7 @@ class AppBindingServiceProvider extends ServiceProvider
         $this->app->bind(TransactionCategoryServiceInterface::class, TransactionCategoryService::class);
         $this->app->bind(WalletServiceInterface::class, WalletService::class);
         $this->app->bind(WalletTransactionServiceInterface::class, WalletTransactionService::class);
+        $this->app->bind(ChartServiceInterface::class, ChartService::class);
         
         // Adapters
         $this->app->bind(OAuthAdapterInterface::class, OAuthAdapter::class);

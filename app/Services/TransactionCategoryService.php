@@ -10,6 +10,8 @@ use App\Repositories\Interfaces\TransactionCategoryRepositoryInterface;
 use App\Services\Interfaces\TransactionCategoryServiceInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 
 class TransactionCategoryService implements TransactionCategoryServiceInterface
 {
@@ -147,5 +149,17 @@ class TransactionCategoryService implements TransactionCategoryServiceInterface
     public function getFirstDefaultByType(string $type): ?TransactionCategory
     {
         return $this->repository->getFirstDefaultByType($type);
+    }
+
+    /**
+     * Trả options danh mục (id, name)
+     */
+    public function getOptions(int $userId, ?string $search = null, ?string $type = null, int $limit = 20): Collection
+    {
+        try {
+            return $this->repository->getOptions($userId, $search, $type, $limit);
+        } catch (\Exception $e) {
+            return collect();
+        }
     }
 } 
