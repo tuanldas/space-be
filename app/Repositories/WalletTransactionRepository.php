@@ -203,4 +203,42 @@ class WalletTransactionRepository extends BaseRepository implements WalletTransa
 			'count' => $count,
 		];
 	}
+
+	/**
+	 * Lấy top categories (cả income và expense)
+	 */
+	public function getTopCategories(int $userId, string $startDate, string $endDate, ?string $walletId = null, int $limit = 5): array
+	{
+		$query = $this->model
+			->select([
+				'category_id',
+				\DB::raw('SUM(amount) as total'),
+				\DB::raw('COUNT(*) as transaction_count')
+			])
+			->with(['category:id,name,type,user_id,is_default'])
+			->whereHas('wallet', function ($q) use ($userId) {
+				$q->where('user_id', $userId);
+			})
+			->whereBetween('transaction_date', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+			->groupBy('category_id')
+			->orderByDesc('total')
+			->limit($limit);
+
+		if ($walletId) {
+			$query->where('wallet_id', $walletId);
+		}
+
+		$results = $query->get();
+
+		return $results->map(function ($item) {
+			return [
+				'category_id' => $item->category_id,
+				'category_name' => $item->category->name ?? null,
+				'category_type' => $item->category->type ?? null,
+				'category_image' => $item->category->image ?? null,
+				'total' => (float) $item->total,
+				'transaction_count' => $item->transaction_count,
+			];
+		})->toArray();
+	}
 } 

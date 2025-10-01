@@ -93,4 +93,43 @@ class ChartService implements ChartServiceInterface
 
         return $weeklyData;
     }
+
+    public function getTopCategories(?string $month = null, ?string $walletId = null, int $limit = 5): ServiceResult
+    {
+        try {
+            $userId = Auth::id();
+            if (!$userId) {
+                return ServiceResult::error(__('messages.unauthenticated'), Response::HTTP_UNAUTHORIZED);
+            }
+
+            $targetMonth = $month ? Carbon::parse($month . '-01') : Carbon::now();
+            
+            if ($walletId) {
+                $wallet = $this->walletRepository->findByUuid($walletId);
+                if (!$wallet || $wallet->user_id !== $userId) {
+                    return ServiceResult::error(__('messages.wallet_transaction.wallet_not_found'), Response::HTTP_NOT_FOUND);
+                }
+            }
+
+            $startDate = $targetMonth->copy()->startOfMonth()->format('Y-m-d');
+            $endDate = $targetMonth->copy()->endOfMonth()->format('Y-m-d');
+
+            $topCategories = $this->transactionRepository->getTopCategories(
+                $userId,
+                $startDate,
+                $endDate,
+                $walletId,
+                $limit
+            );
+
+            $data = [
+                'month' => $targetMonth->format('Y-m'),
+                'categories' => $topCategories,
+            ];
+
+            return ServiceResult::success($data);
+        } catch (\Exception $e) {
+            return ServiceResult::error(__('messages.error'));
+        }
+    }
 }

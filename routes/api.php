@@ -98,5 +98,6 @@ Route::middleware('auth:api')->group(function () {
 
     // Charts Routes
     Route::get('/charts/monthly-expenses', [ChartController::class, 'monthlyExpenses']);
+    Route::get('/charts/top-categories', [ChartController::class, 'topCategories']);
 });
 
